@@ -1,7 +1,7 @@
 from fabric.api import lcd, local
 
 def prepare_deployment():
-    local('python manage.py test arktic')
+    local('python manage.py test')
 
 def deploy():
 
