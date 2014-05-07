@@ -56,12 +56,15 @@ WSGI_APPLICATION = 'arktic.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+DATABASE_USER = os.environ.get("DB_USER", '')
+DATABASE_PASSWORD = os.environ.get("DB_PASSWORD", '')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'arktic_db',
-        'USER': 'nicholas',
-        'PASSWORD': 'uqnhs77f',
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
         'HOST': 'localhost',
         'PORT': '8888',
     }
