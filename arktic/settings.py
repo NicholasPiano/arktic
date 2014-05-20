@@ -26,6 +26,8 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+ANONYMOUS_USER_ID = '8db1vPx8xxYrb7m3hch'
+
 
 # Application definition
 
@@ -39,11 +41,12 @@ DEFAULT_APPS = (
 )
 
 THIRD_PARTY_APPS = (
-    'south',
+    'south', #database migrations
+    'userena', #user login
 )
 
 LOCAL_APPS = (
-    'transcription',
+    'transcription', #handles transcription frontend
 )
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -76,6 +79,10 @@ DATABASES = {
         'PASSWORD': DATABASE_PASSWORD,
         'HOST': 'localhost',
         'PORT': '8888',
+#         'USER': 'root', #for use with MAMP
+#         'PASSWORD': 'root',
+#         'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
+#         'PORT': '',
     }
 }
 
