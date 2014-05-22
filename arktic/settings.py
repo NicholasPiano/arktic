@@ -26,10 +26,16 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-ANONYMOUS_USER_ID = '8db1vPx8xxYrb7m3hch'
+ANONYMOUS_USER_ID = '8db1vPx8xxYrb7m3hch' #this has something to do with the guardian system
 
 
 # Application definition
+
+AUTHENTICATION_BACKENDS = (
+    'userena.backends.UserenaAuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 DEFAULT_APPS = (
     'django.contrib.admin',
