@@ -12,10 +12,11 @@ from django.db import models
 
 class Archive(models.Model):
     #properties
-
+    client = models.CharField(max_length=200)
 
     #initialiser
     def __init__(self):
+        pass
 
     #instance methods
 
@@ -26,6 +27,7 @@ class RelFile(models.Model):
 
     #initialiser
     def __init__(self):
+        pass
 
     #instance methods
 
