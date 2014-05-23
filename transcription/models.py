@@ -41,14 +41,18 @@ class Job(Model):
 
 class Transcription(Model):
     #properties
-    utterance = models.TextField(max_length=200)
+    utterance = models.CharField(max_length=200)
+    client = models.CharField(max_length=200)
     word_list = [] #used to sort transcription objects
     archive = models.ForeignKey(Archive) #one-to-many from archive-side (archive.transcription_set)
-    users = models.ManyToManyField(User)
+    users = models.ManyToManyField(User) #not used until job pulls transcription
+    log_dictionary = {} #stores each transcription action in terms of date, user and job id
     audiofile = models.OneToOneField(AudioFile, primary_key=True)
 
     #initialiser
-    def __init__(self, filename):
+    def __init__(self, utterance, client, filename):
+        self.utterance = utterance
+        self.client = client
         self.audiofile = AudioFile(filename) #also handles shuffling things between folders
 
     #instance methods
@@ -83,6 +87,7 @@ class AudioFile(File):
         #if the file is already a .wav, simply pass and do the copy at the end.
         #paths
         original_path = os.path.join(ORIGINAL_AUDIO_ROOT, self.name + '.' + self.file_type)
+        self.audiofile = AudioField(original_path)
         wav_name = self.name + '.' + WAV_TYPE
         wav_path = os.path.join(WAV_ROOT, wav_name)
 
@@ -94,7 +99,8 @@ class AudioFile(File):
             convert_thread = sp.Popen(arg_list)
             convert_thread.wait() #will continue when done
         else:
-            os.rename(original_path + '.' + WAV_TYPE, wav_path + '.' + WAV_TYPE) #move file to wav directory
+            os.rename(original_path, wav_path) #move file to wav directory
+        self.converted_audiofile = AudioField(wav_path)
 
     def delete(*args, **kwargs):
         pass
