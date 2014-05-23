@@ -7,17 +7,13 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
 
 #local
-from arktic.settings import MEDIA_DIR
+from arktic.settings import MEDIA_ROOT
 
 #util
-import datetime
-import zipfile
-from re import search
-from os import path
-import shutil
+import os
 
 #class vars
-ARCHIVE_ROOT = os.path.join(MEDIA_DIR, 'archive')
+ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
 
 class ContentTypeRestrictedFileField(models.FileField):
     """
