@@ -47,12 +47,13 @@ DEFAULT_APPS = (
 )
 
 THIRD_PARTY_APPS = (
-    'south', #database migrations
-    'userena', #user login
+#     'south', #database migrations
+#     'userena', #user login
 )
 
 LOCAL_APPS = (
-    'transcription', #handles transcription frontend
+    #'transcription', #handles transcription frontend
+    'archive',
 )
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
