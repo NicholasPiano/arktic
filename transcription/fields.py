@@ -9,3 +9,8 @@ from django.db.models.fields.files import FileField
 
 #class vars
 
+
+#AudioField
+class AudioField(FileField):
+    #save
+    pass

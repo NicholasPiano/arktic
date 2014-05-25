@@ -1,11 +1,13 @@
 #django
 from django.core.files import File
 from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.fields.files import FileField
 
 #local
 from archive.models import Archive
 # from transcription.fields import AudioField
-# from transcription.base_model import Model
+from transcription.base_model import Model
 from arktic.settings import MEDIA_ROOT
 
 #third party
@@ -22,4 +24,23 @@ WAV_TYPE = 'wav'
 ORIGINAL_AUDIO_ROOT = os.path.join(MEDIA_ROOT, 'original_audio')
 WAV_ROOT = os.path.join(MEDIA_ROOT, WAV_TYPE)
 
+#main transcription model
+class Transcription(Model):
+    #properties
+    archive = models.ForeignKey(Archive, related_name='transcriptions', editable=False)
+    audio_file = FileField(upload_to='audio')
+    column2 = models.CharField(max_length=100)
+    column3 = models.CharField(max_length=100)
+    utterance = models.CharField(max_length=100)
+    column5 = models.CharField(max_length=100)
+    column6 = models.CharField(max_length=100)
 
+    #save - always called by 'create'
+    def save(self, *args, **kwargs):
+        super(Transcription, self).save(*args, **kwargs)
+        #1. ensure file is .wav
+        #2.
+
+    def delete(self, *args, **kwargs):
+        self.audio_file.delete(save=False)
+        super(RelFile, self).delete(*args, **kwargs)

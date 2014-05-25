@@ -52,7 +52,7 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
-    #'transcription', #handles transcription frontend
+    'transcription', #handles transcription frontend
     'archive',
 )
 
