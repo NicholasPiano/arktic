@@ -28,12 +28,15 @@ WAV_ROOT = os.path.join(MEDIA_ROOT, WAV_TYPE)
 class Transcription(Model):
     #properties
     archive = models.ForeignKey(Archive, related_name='transcriptions', editable=False)
-    audio_file = FileField(upload_to='audio')
-    column2 = models.CharField(max_length=100)
-    column3 = models.CharField(max_length=100)
-    utterance = models.CharField(max_length=100)
-    column5 = models.CharField(max_length=100)
-    column6 = models.CharField(max_length=100)
+    audio_file = FileField(upload_to='audio', max_length=255, editable=False)
+    column2 = models.CharField(max_length=255)
+    column3 = models.CharField(max_length=255)
+    utterance = models.CharField(max_length=255)
+    column5 = models.CharField(max_length=255)
+    column6 = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.utterance
 
     #save - always called by 'create'
     def save(self, *args, **kwargs):

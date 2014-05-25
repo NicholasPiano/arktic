@@ -12,6 +12,7 @@ import re
 import zipfile as zp
 import shutil as sh
 import csv
+import pdb
 
 #class vars
 ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
@@ -53,11 +54,16 @@ class Archive(models.Model):
         big_transcription_dictionary = {}
         for relfile in self.relfiles.all():
             big_transcription_dictionary.update(relfile.transcription_dictionary)
+
         for audio_file in self.file_list:
-            if audio_file in big_transcription_dictionary: #actually is an audio file
-                kwargs = big_transcription_dictionary[audio_file]
-                kwargs += {'audio_file':audio_file}
+            file_name = os.path.basename(audio_file)
+            try:
+                file_name = os.path.basename(audio_file)
+                kwargs = big_transcription_dictionary[file_name]
+                kwargs['audio_file'] = audio_file
                 self.transcriptions.create(**kwargs)
+            except KeyError:
+                pass
 
         #4. remove extract tree after use
         sh.rmtree(os.path.join(self.extract_path, self.extract_tree))
@@ -97,11 +103,13 @@ class RelFile(models.Model):
         for line in lines:
 #             line_split = line.split(self.relfile_delimiter)
             line_split = line.split('|')
-            self.transcription_dictionary[line[0]] = {'column2':line_split[1], #grammar type?
+            file_name = os.path.basename(line_split[0])
+            self.transcription_dictionary[file_name] = {'column2':line_split[1], #grammar type?
                                                       'column3':line_split[2], #translation?
                                                       'utterance':line_split[3],
                                                       'column5':line_split[4], #boolean value?
                                                       'column6':line_split[5],} #some value?
+
 
 
     def delete(self, *args, **kwargs):
