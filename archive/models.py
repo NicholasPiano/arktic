@@ -20,7 +20,6 @@ ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
 class Archive(models.Model):
     #properties
     file = ContentTypeRestrictedFileField(upload_to='archive', max_length=255, content_types=['application/zip'])
-    relfile_delimiter = models.CharField(max_length=1) #only used the first time
 
     #save
     def save(self, *args, **kwargs):
@@ -48,7 +47,7 @@ class Archive(models.Model):
                 if re.search(r'.csv', file) is not None: #relfile
                     open_file = File(open(os.path.join(self.extract_path, file)))
                     (file_subpath, filename) = os.path.split(file) #path splitter os.path.split
-                    self.relfiles.create(file=open_file, name=filename, relfile_delimiter=self.relfile_delimiter)
+                    self.relfiles.create(file=open_file, name=filename)
 
         #3. link relfiles and transcriptions
         big_transcription_dictionary = {}
@@ -56,7 +55,6 @@ class Archive(models.Model):
             big_transcription_dictionary.update(relfile.transcription_dictionary)
 
         for audio_file in self.file_list:
-            file_name = os.path.basename(audio_file)
             try:
                 file_name = os.path.basename(audio_file)
                 kwargs = big_transcription_dictionary[file_name]
@@ -88,7 +86,6 @@ class RelFile(models.Model):
     file = models.FileField(upload_to='relfile', max_length=255, editable=False) #switch to audiofield when ready
     name = models.CharField(max_length=100, editable=False)
     archive = models.ForeignKey(Archive, related_name='relfiles', editable=False)
-    relfile_delimiter = models.CharField(max_length=1)
     transcription_dictionary = {}
 
     def __unicode__(self):
@@ -101,14 +98,13 @@ class RelFile(models.Model):
         lines = self.file.file.readlines()
         #2. for each lines, get audio_file name, utterance, any other information
         for line in lines:
-#             line_split = line.split(self.relfile_delimiter)
-            line_split = line.split('|')
+            line_split = line.split('|') #always a pipe, and always 5 columns
             file_name = os.path.basename(line_split[0])
-            self.transcription_dictionary[file_name] = {'column2':line_split[1], #grammar type?
-                                                      'column3':line_split[2], #translation?
+            self.transcription_dictionary[file_name] = {'grammar':line_split[1],
+                                                      'confidence':line_split[2],
                                                       'utterance':line_split[3],
-                                                      'column5':line_split[4], #boolean value?
-                                                      'column6':line_split[5],} #some value?
+                                                      'value':line_split[4],
+                                                      'confidence_value':line_split[5],}
 
 
 
