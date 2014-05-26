@@ -1,3 +1,8 @@
+#django
 from django.contrib import admin
 
-# Register your models here.
+#local
+from distribution.models import Distributor, Job
+
+admin.site.register(Distributor)
+admin.site.register(Job)

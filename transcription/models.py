@@ -1,6 +1,5 @@
 #django
 from django.core.files import File
-from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.fields.files import FileField
 
@@ -9,6 +8,8 @@ from archive.models import Archive
 # from transcription.fields import AudioField
 from transcription.base_model import Model
 from arktic.settings import MEDIA_ROOT
+from users.models import Employee as User
+from distribution.models import Job
 
 #third party
 
@@ -28,7 +29,9 @@ WAV_ROOT = os.path.join(MEDIA_ROOT, WAV_TYPE)
 class Transcription(Model):
     #properties
     archive = models.ForeignKey(Archive, related_name='transcriptions')
-    audio_file = FileField(upload_to='audio', max_length=255)
+    users = models.ManyToManyField(User)
+    jobs = models.ManyToManyField(Job)
+    audio_file = FileField(upload_to='audio', max_length=255) #use audiofield when done
     grammar = models.CharField(max_length=255)
     confidence = models.CharField(max_length=255)
     utterance = models.CharField(max_length=255)
@@ -51,6 +54,10 @@ class Transcription(Model):
             else:
                 kwargs['confidence_value'] = 0.0
 
+            #other stuff
+            #1. ensure file is .wav
+            #2.
+
         super(Transcription, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
@@ -59,10 +66,6 @@ class Transcription(Model):
     #save - always called by 'create'
     def save(self, *args, **kwargs):
         super(Transcription, self).save(*args, **kwargs)
-
-        #other stuff
-        #1. ensure file is .wav
-        #2.
 
     def delete(self, *args, **kwargs):
         self.audio_file.delete(save=False)

@@ -26,7 +26,8 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-ANONYMOUS_USER_ID = '8db1vPx8xxYrb7m3hch' #this has something to do with the guardian system
+ANONYMOUS_USER_ID = '8db1vPx8xxYrb7m3hch'
+AUTH_PROFILE_MODULE = 'users.Employee'
 
 
 # Application definition
@@ -48,12 +49,14 @@ DEFAULT_APPS = (
 
 THIRD_PARTY_APPS = (
 #     'south', #database migrations
-#     'userena', #user login
+    'userena', #user login
 )
 
 LOCAL_APPS = (
     'transcription', #handles transcription frontend
     'archive',
+    'distribution',
+    'users',
 )
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
