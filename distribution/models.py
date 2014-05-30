@@ -1,3 +1,5 @@
+#distribution.models
+
 #django
 from django.db import models
 
@@ -15,8 +17,14 @@ class Distributor(models.Model):
     def __unicode__(self):
         return self.name
 
-    def register(self, transcription):
-        pass
+
+    #delete
+    def delete(self, *args, **kwargs):
+        #archives
+        for archive in self.archives.all():
+            archive.delete() #call custom delete method
+
+        super(Distributor, self).delete(*args, **kwargs)
 
 class Job(models.Model):
     #properties

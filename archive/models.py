@@ -1,3 +1,5 @@
+#archive.models
+
 #django
 from django.db import models
 from django.core.files import File
@@ -5,6 +7,7 @@ from django.core.files import File
 #local
 from arktic.settings import MEDIA_ROOT
 from archive.fields import ContentTypeRestrictedFileField
+from distribution.models import Distributor
 
 #util
 import os
@@ -19,6 +22,7 @@ ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
 
 class Archive(models.Model):
     #properties
+    distributor = models.ForeignKey(Distributor, related_name='archives')
     file = ContentTypeRestrictedFileField(upload_to='archive', max_length=255, content_types=['application/zip'])
 
     #save
@@ -59,7 +63,7 @@ class Archive(models.Model):
                 file_name = os.path.basename(audio_file)
                 kwargs = big_transcription_dictionary[file_name]
                 kwargs['audio_file'] = audio_file
-                self.transcriptions.create(**kwargs)
+                self.distributor.transcriptions.create(**kwargs)
             except KeyError:
                 pass
 
@@ -86,7 +90,6 @@ class RelFile(models.Model):
     file = models.FileField(upload_to='relfile', max_length=255, editable=False) #switch to audiofield when ready
     name = models.CharField(max_length=100, editable=False)
     archive = models.ForeignKey(Archive, related_name='relfiles', editable=False)
-    transcription_dictionary = {}
 
     def __unicode__(self):
         return self.name

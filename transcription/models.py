@@ -1,3 +1,5 @@
+#transcription.models
+
 #django
 from django.core.files import File
 from django.db import models
@@ -9,7 +11,7 @@ from archive.models import Archive
 from transcription.base_model import Model
 from arktic.settings import MEDIA_ROOT
 from users.models import Employee as User
-from distribution.models import Job
+from distribution.models import Job, Distributor
 
 #third party
 
@@ -24,13 +26,17 @@ import subprocess as sp
 WAV_TYPE = 'wav'
 ORIGINAL_AUDIO_ROOT = os.path.join(MEDIA_ROOT, 'original_audio')
 WAV_ROOT = os.path.join(MEDIA_ROOT, WAV_TYPE)
+transcription_types = [
+    'yes-no',
+]
 
 #main transcription model
 class Transcription(Model):
     #properties
-    archive = models.ForeignKey(Archive, related_name='transcriptions')
+    distributor = models.ForeignKey(Distributor, related_name='transcriptions')
     users = models.ManyToManyField(User)
     jobs = models.ManyToManyField(Job)
+    type = models.CharField(max_length=100)
     audio_file = FileField(upload_to='audio', max_length=255) #use audiofield when done
     grammar = models.CharField(max_length=255)
     confidence = models.CharField(max_length=255)
@@ -70,3 +76,7 @@ class Transcription(Model):
     def delete(self, *args, **kwargs):
         self.audio_file.delete(save=False)
         super(RelFile, self).delete(*args, **kwargs)
+
+class Revision(models.Model):
+    #properties
+    transcription = models.ForeignKey(Transcription)
