@@ -54,7 +54,6 @@ DEFAULT_APPS = (
 
 THIRD_PARTY_APPS = (
 #     'south', #database migrations
-    'userena', #user login
 )
 
 LOCAL_APPS = (
