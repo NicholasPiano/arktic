@@ -6,7 +6,6 @@ from django.db import models
 from django.db.models.fields.files import FileField
 
 #local
-from archive.models import Archive
 # from transcription.fields import AudioField
 from transcription.base_model import Model
 from arktic.settings import MEDIA_ROOT
@@ -30,7 +29,6 @@ transcription_types = [
     'yes-no',
 ]
 
-#main transcription model
 class Transcription(Model):
     #connections
     distributor = models.ForeignKey(Distributor, related_name='transcriptions')
@@ -62,7 +60,7 @@ class Transcription(Model):
                 kwargs['confidence_value'] = 0.0
 
         super(Transcription, self).__init__(*args, **kwargs)
-        self.audio_file.file.close()
+#         self.audio_file.file.close()
 
     def __unicode__(self):
         return self.utterance
@@ -73,7 +71,7 @@ class Transcription(Model):
 
     def delete(self, *args, **kwargs):
         self.audio_file.delete(save=False)
-        super(RelFile, self).delete(*args, **kwargs)
+        super(Transcription, self).delete(*args, **kwargs)
 
 class Revision(models.Model):
     #connections

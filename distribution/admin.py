@@ -5,29 +5,31 @@ from django.contrib import admin
 from distribution.models import Distributor, Job
 from archive.models import Archive
 
-#define admin
 class ArchiveInline(admin.TabularInline):
-	model = Archive
-	extra = 0
+    model = Archive
+    extra = 0
 
 class DistributorAdmin(admin.ModelAdmin):
-	inlines = [ArchiveInline]
-	actions = ['delete_model'] #add custom method
+    inlines = [ArchiveInline]
+    actions = ['delete_model']
 
-	#custom action for bulk deletion
-	def delete_model(self, request, obj):
-		try:
-			for o in obj.all():
-				o.delete()
-		except AttributeError: #if only one object is selected
-			obj.delete()
-	delete_model.short_description = "Delete selected distributors"
+    #custom action for bulk deletion
+    def delete_model(self, request, obj):
+        try:
+            for o in obj.all():
+                o.delete()
+        except AttributeError:
+            obj.delete()
+    delete_model.short_description = 'Delete selected distributors'
 
-	#override to remove default 'delete_selected' action from list of actions
-	def get_actions(self, request):
-		actions = super(DistributorAdmin, self).get_actions(request)
-		del actions['delete_selected']
-		return actions
+    def get_actions(self, request):
+        actions = super(DistributorAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def save_model(self, request, obj, form, change):
+        obj.save()
+        super(DistributorAdmin, self).save_model(request, obj, form, change)
 
 admin.site.register(Distributor, DistributorAdmin)
 admin.site.register(Job)

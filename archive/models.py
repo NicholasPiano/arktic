@@ -70,13 +70,19 @@ class Archive(models.Model):
 #                             open_file = File(f)
 #                             kwargs['audio_file'] = open_file
 
-                        open_file = File(open(os.path.join(self.extract_path, audio_file)))
-                        kwargs['audio_file'] = open_file
+#                         open_file = File(open(os.path.join(self.extract_path, audio_file)))
+#                         kwargs['audio_file'] = open_file
 
-                        T = Transcription(**kwargs)
-                        T.save()
+#                         T = Transcription(**kwargs)
 
-                        self.distributor.transcriptions.add(T)
+#                         open_file.close()
+
+#                         self.distributor.transcriptions.add(T)
+                        with open(os.path.join(self.extract_path, audio_file)) as f:
+                            open_file = File(f)
+                            kwargs['audio_file'] = open_file
+                            self.distributor.transcriptions.create(**kwargs)
+
                     except KeyError:
                         pass
 
@@ -124,8 +130,6 @@ class RelFile(models.Model):
                 'value':line_split[4],
                 'confidence_value':line_split[5],
             }
-
-
 
     def delete(self, *args, **kwargs):
         self.file.delete(save=False)
