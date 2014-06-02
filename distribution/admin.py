@@ -21,7 +21,7 @@ class DistributorAdmin(admin.ModelAdmin):
 				o.delete()
 		except AttributeError: #if only one object is selected
 			obj.delete()
-	delete_model.short_description = "Delete selected archives"
+	delete_model.short_description = "Delete selected distributors"
 
 	#override to remove default 'delete_selected' action from list of actions
 	def get_actions(self, request):

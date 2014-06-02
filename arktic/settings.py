@@ -32,6 +32,11 @@ AUTH_PROFILE_MODULE = 'users.Employee'
 
 # Application definition
 
+FILE_UPLOAD_HANDLERS = (
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+)
+
 AUTHENTICATION_BACKENDS = (
     'userena.backends.UserenaAuthenticationBackend',
     'guardian.backends.ObjectPermissionBackend',
@@ -89,10 +94,6 @@ DATABASES = {
         'PASSWORD': DATABASE_PASSWORD,
         'HOST': 'localhost',
         'PORT': '8888',
-#         'USER': 'root', #for use with MAMP
-#         'PASSWORD': 'root',
-#         'HOST': '/Applications/MAMP/tmp/mysql/mysql.sock',
-#         'PORT': '',
     }
 }
 

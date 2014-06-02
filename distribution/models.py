@@ -17,7 +17,6 @@ class Distributor(models.Model):
     def __unicode__(self):
         return self.name
 
-
     #delete
     def delete(self, *args, **kwargs):
         #archives
@@ -30,4 +29,9 @@ class Job(models.Model):
     #properties
     distributor = models.ForeignKey(Distributor, related_name='jobs')
     user = models.ForeignKey(User, related_name='jobs')
+    #-performance
+    #-average confidence
+    #-time taken
+    #-average time
+    #-types of transcription
     date_created = models.DateTimeField(auto_now_add=True)

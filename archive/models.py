@@ -8,6 +8,7 @@ from django.core.files import File
 from arktic.settings import MEDIA_ROOT
 from archive.fields import ContentTypeRestrictedFileField
 from distribution.models import Distributor
+from transcription.models import Transcription
 
 #util
 import os
@@ -59,13 +60,25 @@ class Archive(models.Model):
             big_transcription_dictionary.update(relfile.transcription_dictionary)
 
         for audio_file in self.file_list:
-            try:
-                file_name = os.path.basename(audio_file)
-                kwargs = big_transcription_dictionary[file_name]
-                kwargs['audio_file'] = audio_file
-                self.distributor.transcriptions.create(**kwargs)
-            except KeyError:
-                pass
+            if re.search(r'\w+\/$', audio_file) is None: #matches trailing slash to weed out directories
+                if re.search(r'.wav', audio_file) is not None: #relfile
+                    try:
+                        file_name = os.path.basename(audio_file)
+                        kwargs = big_transcription_dictionary[file_name]
+
+#                         with open(os.path.join(self.extract_path, audio_file)) as f:
+#                             open_file = File(f)
+#                             kwargs['audio_file'] = open_file
+
+                        open_file = File(open(os.path.join(self.extract_path, audio_file)))
+                        kwargs['audio_file'] = open_file
+
+                        T = Transcription(**kwargs)
+                        T.save()
+
+                        self.distributor.transcriptions.add(T)
+                    except KeyError:
+                        pass
 
         #4. remove extract tree after use
         sh.rmtree(os.path.join(self.extract_path, self.extract_tree))
@@ -87,9 +100,10 @@ class Archive(models.Model):
 
 class RelFile(models.Model):
     #properties
-    file = models.FileField(upload_to='relfile', max_length=255, editable=False) #switch to audiofield when ready
-    name = models.CharField(max_length=100, editable=False)
-    archive = models.ForeignKey(Archive, related_name='relfiles', editable=False)
+    archive = models.ForeignKey(Archive, related_name='relfiles')
+    file = models.FileField(upload_to='relfile', max_length=255) #switch to audiofield when ready
+    name = models.CharField(max_length=100)
+    transcription_dictionary = {}
 
     def __unicode__(self):
         return self.name
@@ -103,11 +117,13 @@ class RelFile(models.Model):
         for line in lines:
             line_split = line.split('|') #always a pipe, and always 5 columns
             file_name = os.path.basename(line_split[0])
-            self.transcription_dictionary[file_name] = {'grammar':line_split[1],
-                                                      'confidence':line_split[2],
-                                                      'utterance':line_split[3],
-                                                      'value':line_split[4],
-                                                      'confidence_value':line_split[5],}
+            self.transcription_dictionary[file_name] = {
+                'grammar':line_split[1],
+                'confidence':line_split[2],
+                'utterance':line_split[3],
+                'value':line_split[4],
+                'confidence_value':line_split[5],
+            }
 
 
 

@@ -32,18 +32,19 @@ transcription_types = [
 
 #main transcription model
 class Transcription(Model):
-    #properties
+    #connections
     distributor = models.ForeignKey(Distributor, related_name='transcriptions')
     users = models.ManyToManyField(User)
     jobs = models.ManyToManyField(Job)
+
+    #properties
     type = models.CharField(max_length=100)
     audio_file = FileField(upload_to='audio', max_length=255) #use audiofield when done
     grammar = models.CharField(max_length=255)
     confidence = models.CharField(max_length=255)
     utterance = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
-#     confidence_value = models.DecimalField(max_digits=20, decimal_places=9)
-    confidence_value = models.CharField(max_length=255)
+    confidence_value = models.DecimalField(max_digits=20, decimal_places=9)
     requests = models.IntegerField(default=0) #number of times the transcription has been requested.
     add_date = models.DateTimeField(auto_now_add=True)
     date_last_requested = models.DateTimeField(auto_now_add=True)
@@ -60,11 +61,8 @@ class Transcription(Model):
             else:
                 kwargs['confidence_value'] = 0.0
 
-            #other stuff
-            #1. ensure file is .wav
-            #2.
-
         super(Transcription, self).__init__(*args, **kwargs)
+        self.audio_file.file.close()
 
     def __unicode__(self):
         return self.utterance
@@ -78,5 +76,8 @@ class Transcription(Model):
         super(RelFile, self).delete(*args, **kwargs)
 
 class Revision(models.Model):
+    #connections
+    transcription = models.ForeignKey(Transcription, related_name='revisions')
+
     #properties
-    transcription = models.ForeignKey(Transcription)
+
