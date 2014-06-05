@@ -10,7 +10,8 @@ from django.db.models.fields.files import FileField
 from transcription.base_model import Model
 from transcription.fields import ContentTypeRestrictedFileField
 from arktic.settings import MEDIA_ROOT
-from users.models import Employee as User
+from users.models import User
+from distribution.models import Distributor, Job
 
 #util
 import wave as wv
@@ -19,44 +20,6 @@ import os
 import subprocess as sp
 
 #class vars
-
-#########################################################################################################################
-######################
-############################################     Distributor
-#vars
-
-class Distributor(models.Model):
-    #connections
-
-    #properties
-    name = models.CharField(max_length=100)
-    #init
-
-    #instance methods
-    def __unicode__(self):
-        return self.name
-
-    #delete
-    def delete(self, *args, **kwargs):
-        #archives
-        for archive in self.archives.all():
-            archive.delete() #call custom delete method
-
-        super(Distributor, self).delete(*args, **kwargs)
-
-class Job(models.Model):
-    #properties
-    distributor = models.ForeignKey(Distributor, related_name='jobs')
-    user = models.ForeignKey(User, related_name='jobs')
-    #-performance
-    #-average confidence
-    #-time taken
-    #-average time
-    #-types of transcription
-    date_created = models.DateTimeField(auto_now_add=True)
-
-###################### Distributor ^^^
-#########################################################################################################################
 
 #########################################################################################################################
 ######################
@@ -170,22 +133,11 @@ class Archive(models.Model):
                         file_name = os.path.basename(audio_file)
                         kwargs = big_transcription_dictionary[file_name]
 
-#                         with open(os.path.join(self.extract_path, audio_file)) as f:
-#                             open_file = File(f)
-#                             kwargs['audio_file'] = open_file
-
-#                         open_file = File(open(os.path.join(self.extract_path, audio_file)))
-#                         kwargs['audio_file'] = open_file
-
-#                         T = Transcription(**kwargs)
-
-#                         open_file.close()
-
-#                         self.distributor.transcriptions.add(T)
                         with open(os.path.join(self.extract_path, audio_file)) as f:
                             open_file = File(f)
                             kwargs['audio_file'] = open_file
-                            self.distributor.transcriptions.create(**kwargs)
+                            self.distributor.transcriptions.create(**kwargs) #create while file is open
+                            #file is then automatically closed by 'with'.
 
                     except KeyError:
                         pass

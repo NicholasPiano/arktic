@@ -10,25 +10,23 @@ urlpatterns = patterns('',
     #home and client side
     url(r'^$', IndexView.as_view()),
     #-about
-    url(r'^$', AboutView.as_view()),
+    url(r'^about/', AboutView.as_view()),
     #-system
-    url(r'^$', SystemView.as_view()),
+    url(r'^system/', SystemView.as_view()),
     #-prices
-    url(r'^$', PricesView.as_view()),
+    url(r'^prices/', PricesView.as_view()),
     #-security
-    url(r'^$', SecurityView.as_view()),
+    url(r'^security/', SecurityView.as_view()),
 
     #login
     url(r'^login/', LoginView.as_view()),
 
     #admin
     url(r'^admin/', include(admin.site.urls)),
-    #-archive upload form
-    url(r'^archive/', include('archive.urls', namespace='archive')),
     #-statistics interface
     url(r'^statistics/', include('statistics.urls', namespace='statistics')),
-    #-distribution interface
-    url(r'^distribution/', include('distribution.urls', namespace='distribution')),
+    #-distribution
+    url(r'^distribution/', include('distribution.urls', namespace='distribution'))
 
     #employee
     #-landing page
