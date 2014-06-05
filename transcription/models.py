@@ -8,6 +8,7 @@ from django.db.models.fields.files import FileField
 #local
 # from transcription.fields import AudioField
 from transcription.base_model import Model
+from transcription.fields import ContentTypeRestrictedFileField
 from arktic.settings import MEDIA_ROOT
 from users.models import Employee as User
 
@@ -18,6 +19,44 @@ import os
 import subprocess as sp
 
 #class vars
+
+#########################################################################################################################
+######################
+############################################     Distributor
+#vars
+
+class Distributor(models.Model):
+    #connections
+
+    #properties
+    name = models.CharField(max_length=100)
+    #init
+
+    #instance methods
+    def __unicode__(self):
+        return self.name
+
+    #delete
+    def delete(self, *args, **kwargs):
+        #archives
+        for archive in self.archives.all():
+            archive.delete() #call custom delete method
+
+        super(Distributor, self).delete(*args, **kwargs)
+
+class Job(models.Model):
+    #properties
+    distributor = models.ForeignKey(Distributor, related_name='jobs')
+    user = models.ForeignKey(User, related_name='jobs')
+    #-performance
+    #-average confidence
+    #-time taken
+    #-average time
+    #-types of transcription
+    date_created = models.DateTimeField(auto_now_add=True)
+
+###################### Distributor ^^^
+#########################################################################################################################
 
 #########################################################################################################################
 ######################
@@ -78,7 +117,7 @@ class Revision(models.Model):
 
     #properties
 
-###################### Transcription unit
+###################### Transcription unit ^^^
 #########################################################################################################################
 
 #########################################################################################################################
@@ -200,5 +239,5 @@ class RelFile(models.Model):
         self.file.delete(save=False)
         super(RelFile, self).delete(*args, **kwargs)
 
-###################### Archive
+###################### Archive ^^^
 #########################################################################################################################
