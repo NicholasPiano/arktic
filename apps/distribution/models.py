@@ -15,7 +15,12 @@ class Distributor(models.Model):
 
     #properties
     name = models.CharField(max_length=100)
-    #init
+
+    #save
+    def save(self, *args, **kwargs):
+        super(self, Distributor).save(*args, **kwargs)
+        #sort archives into jobs
+
 
     #instance methods
     def __unicode__(self):
@@ -29,7 +34,7 @@ class Distributor(models.Model):
 
         super(Distributor, self).delete(*args, **kwargs)
 
-class Job(models.Model):
+class Job(models.Model): #a group of 50 transcriptions given to each user.
     #properties
     distributor = models.ForeignKey(Distributor, related_name='jobs')
     user = models.ForeignKey(User, related_name='jobs')
