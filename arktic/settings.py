@@ -27,7 +27,7 @@ TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
 
 ANONYMOUS_USER_ID = '8db1vPx8xxYrb7m3hch'
-AUTH_PROFILE_MODULE = 'users.Employee'
+AUTH_PROFILE_MODULE = 'users.User'
 
 
 # Application definition
@@ -57,9 +57,10 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
-    'transcription', #handles transcription frontend
-    'distribution',
-    'users',
+    'apps.transcription', #handles transcription frontend
+    'apps.distribution',
+    'apps.users',
+    'apps.pages',
 )
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -71,6 +72,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
+
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates'),
 )
 
 ROOT_URLCONF = 'arktic.urls'
@@ -116,4 +121,5 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     MEDIA_ROOT,
+    os.path.join(BASE_DIR, 'static'),
 )

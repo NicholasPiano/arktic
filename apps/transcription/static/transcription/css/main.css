@@ -1,0 +1,18 @@
+/*
+
+==========================================================================
+transcription.static.css.main
+========================================================================== */
+
+#user-dropdown
+{
+  position:relative;
+  right:15px;
+}
+
+#job-table
+{
+  position:relative;
+  top:65px;
+  margin-bottom:125px;
+}
