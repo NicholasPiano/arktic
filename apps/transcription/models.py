@@ -11,15 +11,19 @@ from apps.transcription.base_model import Model
 from apps.transcription.fields import ContentTypeRestrictedFileField
 from arktic.settings import MEDIA_ROOT
 from apps.users.models import User
-from apps.distribution.models import Distributor, Job
+from apps.distribution.models import Client, Job
 
 #util
 import wave as wv
 import numpy as np
 import os
+import re
 import subprocess as sp
+import zipfile as zp
+import shutil as sh
 
 #class vars
+ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
 
 #########################################################################################################################
 ######################
@@ -32,9 +36,9 @@ transcription_types = [
 
 class Transcription(Model):
     #connections
-    distributor = models.ForeignKey(Distributor, related_name='transcriptions')
+    client = models.ForeignKey(Client, related_name='transcriptions')
+    job = models.ForeignKey(Job, null=True, related_name='transcriptions')
     users = models.ManyToManyField(User)
-    jobs = models.ManyToManyField(Job)
 
     #properties
     type = models.CharField(max_length=100)
@@ -80,6 +84,12 @@ class Revision(models.Model):
 
     #properties
 
+class Action(models.Model):
+    #connections
+    transcription = models.ForeignKey(Transcription, related_name='actions')
+
+    #properties
+
 ###################### Transcription unit ^^^
 #########################################################################################################################
 
@@ -90,7 +100,7 @@ class Revision(models.Model):
 
 class Archive(models.Model):
     #properties
-    distributor = models.ForeignKey(Distributor, related_name='archives')
+    client = models.ForeignKey(Client, related_name='archives')
     file = ContentTypeRestrictedFileField(upload_to='archive', max_length=255, content_types=['application/zip'])
 
     #save
@@ -136,7 +146,7 @@ class Archive(models.Model):
                         with open(os.path.join(self.extract_path, audio_file)) as f:
                             open_file = File(f)
                             kwargs['audio_file'] = open_file
-                            self.distributor.transcriptions.create(**kwargs) #create while file is open
+                            self.client.transcriptions.create(**kwargs) #create while file is open
                             #file is then automatically closed by 'with'.
 
                     except KeyError:

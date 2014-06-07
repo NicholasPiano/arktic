@@ -10,17 +10,11 @@ from apps.users.models import User
 
 #class vars
 
-class Distributor(models.Model):
+class Client(models.Model):
     #connections
 
     #properties
     name = models.CharField(max_length=100)
-
-    #save
-    def save(self, *args, **kwargs):
-        super(self, Distributor).save(*args, **kwargs)
-        #sort archives into jobs
-
 
     #instance methods
     def __unicode__(self):
@@ -32,15 +26,34 @@ class Distributor(models.Model):
         for archive in self.archives.all():
             archive.delete() #call custom delete method
 
-        super(Distributor, self).delete(*args, **kwargs)
+        super(Client, self).delete(*args, **kwargs)
 
-class Job(models.Model): #a group of 50 transcriptions given to each user.
-    #properties
-    distributor = models.ForeignKey(Distributor, related_name='jobs')
+class Job(models.Model): #a group of 50 transcriptions given to a user.
+    #connections
+    client = models.ForeignKey(Client, null=True, related_name='jobs')
     user = models.ForeignKey(User, related_name='jobs')
+
+    #properties
+    is_active = models.BooleanField(default=True)
     #-performance
     #-average confidence
+    #-total time of transcriptions
+    total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5)
     #-time taken
-    #-average time
     #-types of transcription
     date_created = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return ('Job ' + str(self.pk))
+
+    def get_transcription_set(self):
+        #get all transcriptions and sort them by utterance
+        sorted_transcription_set = sorted(self.client.transcriptions.filter(requests=0), key=lambda x: x.utterance, reverse=False)
+        transcription_set = sorted_transcription_set #however many remain
+        if len(sorted_transcription_set) >= 50:
+            transcription_set = sorted_transcription_set[:50] #first 50 transcriptions
+
+        #add to job object
+        for transcription in transcription_set:
+            transcription.requests += 1
+            self.transcriptions.add(transcription)
