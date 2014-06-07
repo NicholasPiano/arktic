@@ -38,10 +38,17 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
     #-performance
     #-average confidence
     #-total time of transcriptions
-    total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5)
+    total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5, editable=False, default=0.0)
     #-time taken
     #-types of transcription
     date_created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            super(Job, self).save(*args, **kwargs)
+        else:
+            super(Job, self).save(*args, **kwargs)
+            self.get_transcription_set()
 
     def __unicode__(self):
         return ('Job ' + str(self.pk))

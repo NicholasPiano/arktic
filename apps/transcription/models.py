@@ -43,11 +43,12 @@ class Transcription(Model):
     #properties
     type = models.CharField(max_length=100)
     audio_file = FileField(upload_to='audio', max_length=255) #use audiofield when done
+    time = models.DecimalField(max_digits=3, decimal_places=2, default=0.5)
     grammar = models.CharField(max_length=255)
     confidence = models.CharField(max_length=255)
     utterance = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
-    confidence_value = models.DecimalField(max_digits=20, decimal_places=9)
+    confidence_value = models.DecimalField(max_digits=3, decimal_places=2)
     requests = models.IntegerField(default=0) #number of times the transcription has been requested.
     add_date = models.DateTimeField(auto_now_add=True)
     date_last_requested = models.DateTimeField(auto_now_add=True)
@@ -63,6 +64,8 @@ class Transcription(Model):
                 kwargs['confidence_value'] = float(float(confidence_value)/1000.0) #show as decimal
             else:
                 kwargs['confidence_value'] = 0.0
+            #time
+            self.time = len(kwargs['utterance'])/10.0 #number of characters divided by ten (completely arbitrary)
 
         super(Transcription, self).__init__(*args, **kwargs)
 #         self.audio_file.file.close()

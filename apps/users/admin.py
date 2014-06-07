@@ -10,6 +10,6 @@ class JobInline(admin.TabularInline):
     extra = 0
 
 class UserAdmin(admin.ModelAdmin):
-    inlines = [JobInline]
+    pass#inlines = [JobInline]
 
 admin.site.register(User, UserAdmin)
