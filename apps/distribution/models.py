@@ -30,18 +30,17 @@ class Client(models.Model):
 
 class Job(models.Model): #a group of 50 transcriptions given to a user.
     #connections
-    client = models.ForeignKey(Client, null=True, related_name='jobs')
     user = models.ForeignKey(User, related_name='jobs')
 
     #properties
+    client_id = models.CharField(max_length=100) #stores name of associated client.
     is_active = models.BooleanField(default=True)
+    total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5, editable=False, default=0.0)
+    date_created = models.DateTimeField(auto_now_add=True)
     #-performance
     #-average confidence
-    #-total time of transcriptions
-    total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5, editable=False, default=0.0)
     #-time taken
     #-types of transcription
-    date_created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
@@ -51,11 +50,12 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
             self.get_transcription_set()
 
     def __unicode__(self):
-        return ('Job ' + str(self.pk))
+        return ('Job ' + str(self.pk) + ': ' + self.user.user.username)
 
     def get_transcription_set(self):
         #get all transcriptions and sort them by utterance
-        sorted_transcription_set = sorted(self.client.transcriptions.filter(requests=0), key=lambda x: x.utterance, reverse=False)
+        client = Client.objects.get(name=self.client_id)
+        sorted_transcription_set = sorted(client.transcriptions.filter(requests=0), key=lambda x: x.utterance, reverse=False)
         transcription_set = sorted_transcription_set #however many remain
         if len(sorted_transcription_set) >= 50:
             transcription_set = sorted_transcription_set[:50] #first 50 transcriptions
@@ -63,4 +63,5 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
         #add to job object
         for transcription in transcription_set:
             transcription.requests += 1
+            transcription.users[user.user.username] += 1 #increment request dictionary
             self.transcriptions.add(transcription)

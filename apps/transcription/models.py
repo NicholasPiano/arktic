@@ -21,6 +21,7 @@ import re
 import subprocess as sp
 import zipfile as zp
 import shutil as sh
+import collections as cl
 
 #class vars
 ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
@@ -38,7 +39,7 @@ class Transcription(Model):
     #connections
     client = models.ForeignKey(Client, related_name='transcriptions')
     job = models.ForeignKey(Job, null=True, related_name='transcriptions')
-    users = models.ManyToManyField(User)
+    users = cl.defaultdict(int) #dictionary of {user_id:number_of_requests} or just [user_id]
 
     #properties
     type = models.CharField(max_length=100)

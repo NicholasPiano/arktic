@@ -18,14 +18,6 @@ class User(models.Model):
 
     def create_job_for_client(self, client_name):
         #make job
-        job = self.jobs.create()
-        job.save()
-
-        #add to client
-        client = Client.objects.get(name=client_name)
-        client.jobs.add(job)
-        client.save()
-
-        #get transcription set
+        job = self.jobs.create(client_id=client_name)
         job.get_transcription_set()
         job.save()
