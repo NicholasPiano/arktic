@@ -10,7 +10,6 @@ from django.db.models.fields.files import FileField
 from apps.transcription.base_model import Model
 from apps.transcription.fields import ContentTypeRestrictedFileField
 from arktic.settings import MEDIA_ROOT
-from apps.users.models import User
 from apps.distribution.models import Client, Job
 
 #util
@@ -22,6 +21,7 @@ import subprocess as sp
 import zipfile as zp
 import shutil as sh
 import collections as cl
+import string as st
 
 #class vars
 ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
@@ -48,6 +48,7 @@ class Transcription(Model):
     grammar = models.CharField(max_length=255)
     confidence = models.CharField(max_length=255)
     utterance = models.CharField(max_length=255)
+    utterance_list = []
     value = models.CharField(max_length=255)
     confidence_value = models.DecimalField(max_digits=3, decimal_places=2)
     requests = models.IntegerField(default=0) #number of times the transcription has been requested.
@@ -65,8 +66,6 @@ class Transcription(Model):
                 kwargs['confidence_value'] = float(float(confidence_value)/1000.0) #show as decimal
             else:
                 kwargs['confidence_value'] = 0.0
-            #time
-            self.time = len(kwargs['utterance'])/10.0 #number of characters divided by ten (completely arbitrary)
 
         super(Transcription, self).__init__(*args, **kwargs)
 #         self.audio_file.file.close()
@@ -77,6 +76,10 @@ class Transcription(Model):
     #save - always called by 'create'
     def save(self, *args, **kwargs):
         super(Transcription, self).save(*args, **kwargs)
+        #time
+        self.time = len(self.utterance)/10.0 #number of characters divided by ten (completely arbitrary)
+        #utterance_list
+        self.utterance_list = st.split(self.utterance)
 
     def delete(self, *args, **kwargs):
         self.audio_file.delete(save=False)
@@ -150,7 +153,8 @@ class Archive(models.Model):
                         with open(os.path.join(self.extract_path, audio_file)) as f:
                             open_file = File(f)
                             kwargs['audio_file'] = open_file
-                            self.client.transcriptions.create(**kwargs) #create while file is open
+                            t = self.client.transcriptions.create(**kwargs) #create while file is open
+                            t.save()
                             #file is then automatically closed by 'with'.
 
                     except KeyError:

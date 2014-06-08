@@ -11,6 +11,7 @@ from apps.transcription.models import Transcription, Revision
 from apps.distribution.models import Job
 
 #util
+import string as st
 
 #class vars
 
@@ -27,5 +28,13 @@ class MainJobView(View):
         #check permission
         #request['USER']
         #job id
-        return render(request, 'transcription/main_transcription.html', {})
+        job = Job.objects.get(pk=1)
+        transcriptions = job.transcriptions.all()
+        utterance_list = []
+        for transcription in transcriptions:
+            utterance_list.append(st.split(transcription.utterance))
+
+        zipped_transcriptions = zip(transcriptions, utterance_list)
+
+        return render(request, 'transcription/main_transcription.html', {'transcriptions':zipped_transcriptions,})
 

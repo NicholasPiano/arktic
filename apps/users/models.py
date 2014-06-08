@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
 #local
-from apps.distribution.models import Client, Job
+
 
 class User(models.Model):
     user = models.OneToOneField(User,
@@ -19,5 +19,4 @@ class User(models.Model):
     def create_job_for_client(self, client_name):
         #make job
         job = self.jobs.create(client_id=client_name)
-        job.get_transcription_set()
         job.save()

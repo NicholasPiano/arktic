@@ -63,5 +63,5 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
         #add to job object
         for transcription in transcription_set:
             transcription.requests += 1
-            transcription.users[user.user.username] += 1 #increment request dictionary
+            transcription.users[self.user.user.username] += 1 #increment request dictionary
             self.transcriptions.add(transcription)

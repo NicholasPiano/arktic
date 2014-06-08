@@ -16,3 +16,7 @@ transcription.static.css.main
   top:65px;
   margin-bottom:125px;
 }
+
+audio {
+  display:none;
+}
