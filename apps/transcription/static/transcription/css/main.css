@@ -4,19 +4,73 @@
 transcription.static.css.main
 ========================================================================== */
 
-#user-dropdown
-{
+#user-dropdown {
   position:relative;
   right:15px;
 }
 
-#job-table
-{
+#wrapper {
+
+}
+
+#job-table {
   position:relative;
   top:65px;
   margin-bottom:125px;
+  padding:0px;
+}
+
+#working-surface {
+  position:fixed;
+  width:inherit;
+  top:65px;
+  padding-left:0px;
 }
 
 audio {
+  display:none;
+}
+
+ul.control {
+  position:fixed;
+  width:600px;
+}
+
+ul.autocomplete {
+  position:fixed;
+  top:300px;
+  width:600px;
+}
+
+#typeahead {
+  width:568px;
+  border-radius:3px;
+}
+
+.autocomplete .input-group {
+  height:34px;
+
+  /* Internet Explorer 10 */
+  display:-ms-flexbox;
+  -ms-flex-pack:center;
+  -ms-flex-align:center;
+
+  /* Firefox */
+  display:-moz-box;
+  -moz-box-pack:center;
+  -moz-box-align:center;
+
+  /* Safari, Chrome, and Opera */
+  display:-webkit-box;
+  -webkit-box-pack:center;
+  -webkit-box-align:center;
+
+  /* W3C */
+  display:box;
+  box-pack:center;
+  box-align:center;
+}
+
+form {
   display:none;
 }

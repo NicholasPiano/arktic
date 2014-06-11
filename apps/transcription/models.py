@@ -39,7 +39,6 @@ class Transcription(Model):
     #connections
     client = models.ForeignKey(Client, related_name='transcriptions')
     job = models.ForeignKey(Job, null=True, related_name='transcriptions')
-    users = cl.defaultdict(int) #dictionary of {user_id:number_of_requests} or just [user_id]
 
     #properties
     type = models.CharField(max_length=100)
@@ -48,7 +47,6 @@ class Transcription(Model):
     grammar = models.CharField(max_length=255)
     confidence = models.CharField(max_length=255)
     utterance = models.CharField(max_length=255)
-    utterance_list = []
     value = models.CharField(max_length=255)
     confidence_value = models.DecimalField(max_digits=3, decimal_places=2)
     requests = models.IntegerField(default=0) #number of times the transcription has been requested.
@@ -75,11 +73,16 @@ class Transcription(Model):
 
     #save - always called by 'create'
     def save(self, *args, **kwargs):
-        super(Transcription, self).save(*args, **kwargs)
-        #time
+        if self.pk is None: #if the archive is being uploaded for the first time
+            super(Transcription, self).save(*args, **kwargs)
+            self.configure()
+        else:
+            super(Transcription, self).save(*args, **kwargs)
+
+    def configure(self):
         self.time = len(self.utterance)/10.0 #number of characters divided by ten (completely arbitrary)
-        #utterance_list
-        self.utterance_list = st.split(self.utterance)
+        for word in st.split(self.utterance):
+            self.words.create(char=word)
 
     def delete(self, *args, **kwargs):
         self.audio_file.delete(save=False)
@@ -96,6 +99,14 @@ class Action(models.Model):
     transcription = models.ForeignKey(Transcription, related_name='actions')
 
     #properties
+
+class Word(models.Model):
+    transcription = models.ForeignKey(Transcription, related_name='words')
+
+    char = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return self.char
 
 ###################### Transcription unit ^^^
 #########################################################################################################################

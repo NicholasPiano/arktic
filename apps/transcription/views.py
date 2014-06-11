@@ -9,6 +9,7 @@ from django.views.generic import View
 #local
 from apps.transcription.models import Transcription, Revision
 from apps.distribution.models import Job
+from apps.transcription.forms import MainJobForm
 
 #util
 import string as st
@@ -28,13 +29,22 @@ class MainJobView(View):
         #check permission
         #request['USER']
         #job id
-        job = Job.objects.get(pk=1)
+        job = Job.objects.get(pk=2)
         transcriptions = job.transcriptions.all()
-        utterance_list = []
-        for transcription in transcriptions:
-            utterance_list.append(st.split(transcription.utterance))
-
-        zipped_transcriptions = zip(transcriptions, utterance_list)
-
-        return render(request, 'transcription/main_transcription.html', {'transcriptions':zipped_transcriptions,})
-
+        form = MainJobForm(job=job)
+        json_file = open(job.client.data_json.path,'r')
+        json = json_file.read()
+        print(json)
+        return render(request, 'transcription/main_transcription.html', {'transcriptions':transcriptions,
+                                                                         'form':form,
+                                                                         'json':json})
+    def post(self, request): #for submitting form
+        #extract utterance dictionary by transcription id
+        job = Job.objects.get(pk=2)
+        transcriptions = job.transcriptions.all()
+        form = MainJobForm(request.POST, job=job)
+        if form.is_valid():
+            return HttpResponseRedirect('/admin/')
+        else:
+            return render(request, 'transcription/main_transcription.html', {'transcriptions':transcriptions,
+                                                                             'form':form,})
