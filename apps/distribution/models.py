@@ -7,9 +7,9 @@ from django.core.files import File
 
 #local
 from apps.users.models import User
+from arktic.settings import MEDIA_ROOT
 
 #util
-import json
 import os
 
 #class vars
@@ -20,7 +20,6 @@ class Client(models.Model):
 
     #properties
     name = models.CharField(max_length=100)
-    data_json = FileField(max_length=255, upload_to='json', editable=False, null=True)
 
     #instance methods
     def __unicode__(self):
@@ -34,30 +33,29 @@ class Client(models.Model):
 
         super(Client, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
-        if self.pk is not None:
-            super(Client, self).save(*args, **kwargs)
-            self.create_data_json()
-        else:
-            self.data_json = File(open(self.name+'.json', 'w+'))
-            super(Client, self).save(*args, **kwargs)
-            self.create_data_json()
+    def __init__(self, *args, **kwargs):
+            super(Client, self).__init__(*args, **kwargs)
+            self.create_autocomplete_words()
 
-    def create_data_json(self):
-        unique_words_list = []
-        #store list of unique words in each transcription
+    def create_autocomplete_words(self):
+        #get list of current words
+        current_word_list = []
+        for word in self.words.all():
+            if word.char not in current_word_list:
+                current_word_list.append(word.char)
+        #get all unique words and phrases from transcriptions
+        new_word_list = []
         for transcription in self.transcriptions.all():
-            unique_words_list.append(transcription.utterance)
-            for word in transcription.words.all():
-                if word.char not in unique_words_list:
-                    unique_words_list.append(word.char)
+            if transcription.utterance not in current_word_list and transcription.utterance not in new_word_list:
+                new_word_list.append(transcription.utterance)
+                for word in transcription.words.all():
+                    if word.char not in current_word_list and word.char not in new_word_list:
+                        new_word_list.append(word.char)
 
-        f = open(self.data_json.path, 'w+')
-        f.write(json.dumps(unique_words_list))
-        self.data_json = File(f)
+        #add one AutocompleteWord for each one.
+        for word in new_word_list:
+            self.words.create(char=word)
 
-    def update_data_json(self):
-        pass
 
 class Job(models.Model): #a group of 50 transcriptions given to a user.
     #connections
@@ -94,3 +92,7 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
         for transcription in transcription_set:
             transcription.requests += 1
             self.transcriptions.add(transcription)
+
+class AutocompleteWord(models.Model):
+    client = models.ForeignKey(Client, related_name='words')
+    char = models.CharField(max_length=100)
