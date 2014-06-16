@@ -5,5 +5,5 @@ from django.conf.urls import patterns, include, url
 from apps.transcription.views import MainJobView
 
 urlpatterns = patterns('',
-    url(r'^$', MainJobView.as_view()),
+    url(r'^(?P<job_id>[0-9]+)/$', MainJobView.as_view()),
 )

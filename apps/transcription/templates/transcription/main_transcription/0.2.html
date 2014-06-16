@@ -1,0 +1,149 @@
+{% extends 'base/0.2.html' %}
+{% load staticfiles %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'transcription/css/typeahead.css' %}">
+<link rel="stylesheet" href="{% static 'transcription/css/main/0.2.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- main table -->
+
+<div id="wrapper" class="container">
+    <div id="job-table" class="container col-md-6">
+        <ul class="list-group">
+            {% for transcription in transcriptions %}
+            <li id="li-{{transcription.pk}}" class="list-group-item transcription">
+                <!--
+                <audio id="{{transcription.pk}}">
+                    <source src="{% static transcription.audio_file %}" type="audio/wav">
+                </audio>
+                <!-- -->
+                <div class="btn-group">
+                    <button id="button-{{transcription.pk}}" type="button" class="btn btn-default btn-play-pause transcription-play-pause" play="{{transcription.pk}}"><span class="glyphicon glyphicon-pause"></span><span class="glyphicon glyphicon-play"></span></button>
+                    {% if transcription.utterance %}
+                    <button id="utterance-{{transcription.pk}}" type="button" class="btn btn-default transcription-utterance" play="{{transcription.pk}}">{{transcription.utterance}}</button>
+                    {% else %}
+                    <button id="utterance-{{transcription.pk}}" type="button" class="btn btn-default transcription-utterance" play="{{transcription.pk}}">blank</button>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="working-surface-wrapper" class="container col-md-5">
+        <div id="working-surface" class="container">
+            <ul class="list-group audio-control">
+                <!-- Audio controls and controls for moving backwards or forwards in the transcription list -->
+                <li class="list-group-item audio-controls">
+                    <div class=btn-group>
+                        <button id="previous-transcription" type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-up"></span></button>
+                        <button id="main-play-pause" type="button" class="btn btn-default" play=""><span class="glyphicon glyphicon-pause"></span><span class="glyphicon glyphicon-play"></span></button>
+                        <button id="main-waveform" type="button" class="btn btn-default">Waveform</button>
+                        <button id="next-transcription" type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-down"></span></button>
+                    </div>
+                </li>
+            </ul>
+            {% for transcription in transcriptions %}
+            <ul id="ws-{{transcription.pk}}" class="list-group control">
+                <!-- Original utterance - this will never change, but each button will modify the word clicked. -->
+                <li class="list-group-item words original">
+                    <!--<h4 class="list-group-item-heading">Original utterance</h4>-->
+                    <div class=btn-group>
+                        {% for word in transcription.words.all %}
+                        <button type="button" class="btn btn-default original-utterance">{{word.char}}</button>
+                        {% empty %}
+                        <button type="button" class="btn btn-default">blank</button>
+                        {% endfor %}
+                        <button type="button" class="btn btn-success copy-down"><span class="glyphicon glyphicon-arrow-down"></span></button>
+                    </div>
+                </li>
+                <!-- Modified utterance -->
+                <li class="list-group-item words modified">
+                    <!--<h4 class="list-group-item-heading">Modified</h4>-->
+                    <div class="btn-group modified">
+                        <button type="button" class="btn btn-default modified-add"><span class="glyphicon glyphicon-plus"></span></button>
+                    </div>
+                </li>
+                <!-- Utterance controls
+                <li class="list-group-item utterance-control">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default modified-add"><span class="glyphicon glyphicon-chevron-left"></span></button>
+                        <button type="button" class="btn btn-default modified-add"><span class="glyphicon glyphicon-remove"></span></button>
+                        <button type="button" class="btn btn-default modified-add"><span class="glyphicon glyphicon-repeat"></span></button>
+                        <button type="button" class="btn btn-default modified-add"><span class="glyphicon glyphicon-chevron-right"></span></button>
+                    </div>
+                </li>
+                -->
+            </ul>
+            {% endfor %}
+            <ul class="list-group autocomplete">
+                <li class="list-group-item">
+                    <div id="typeahead-group" class="input-group">
+                        <input id="typeahead" class="form-control" type="text" placeholder="Enter a new word...">
+                        <span class="input-group-btn">
+                            <button id="add-new-word" class="btn btn-success" type="button">Add new word</button>
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div><!-- working surface -->
+    <form id="return-form" action="/transcription/" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" />
+    </form>
+</div>
+
+<!-- bottom div -->
+
+{% endblock %}
+
+<!-- js -->
+{% block post_main_script %}
+<script src="{% static 'js/typeahead.js' %}"></script>
+<script src="{% static 'js/pulse.js' %}"></script>
+<script src="{% static 'transcription/js/transcription-control/0.2.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substringRegex;
+
+    // an array that will be populated with substring matches
+    matches = [];
+
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        // the typeahead jQuery plugin expects suggestions to a
+        // JavaScript object, refer to typeahead docs for more info
+        matches.push({ value: str });
+      }
+    });
+
+    cb(matches);
+  };
+};
+
+var states = ["[noise]","[breath noise]","[fragment]","[side speech]","[hesitation]","[unintelligible]","{% for word in words %}{{word}}","{% endfor %}"];
+
+$('#typeahead').typeahead({
+  hint: true,
+  highlight: true,
+  minLength: 1
+},
+{
+  name: 'states',
+  displayKey: 'value',
+  source: substringMatcher(states)
+});
+});
+</script>
+{% endblock %}

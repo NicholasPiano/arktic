@@ -4,3 +4,7 @@
 arktic.static.css.main
 ========================================================================== */
 
+#wrapper {
+  position:relative;
+  top:50px;
+}

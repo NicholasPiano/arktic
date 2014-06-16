@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %} Start {{user}} {% endblock %}
+
+{% block css %}<link rel="stylesheet" href="{% static 'users/css/start.css' %}">{% endblock %}
+
+{% block content %}
+<div id="wrapper" class="container">
+    <div id="job-list" class="list-group">
+        {% for job in jobs %}
+        <a href="/transcription/{{job.pk}}" class="list-group-item">{{job}}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
