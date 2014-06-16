@@ -1,3 +1,5 @@
+#transcription.admin
+
 #django
 from django.contrib import admin
 
@@ -5,7 +7,29 @@ from django.contrib import admin
 from apps.transcription.models import Transcription, Revision, Archive, RelFile
 
 # Register your models here.
-admin.site.register(Transcription)
+
+#transcription
+class RevisionInline(admin.TabularInline):
+    model = Revision
+    extra = 0
+
+class TranscriptionAdmin(admin.ModelAdmin):
+    inlines = [RevisionInline]
+
+admin.site.register(Transcription, TranscriptionAdmin)
+
+#revision
 admin.site.register(Revision)
-admin.site.register(Archive)
+
+#archive
+class RelFileInline(admin.TabularInline):
+    model = RelFile
+    extra = 0
+
+class ArchiveAdmin(admin.ModelAdmin):
+    inlines = [RelFileInline]
+
+admin.site.register(Archive, ArchiveAdmin)
+
+#relfile
 admin.site.register(RelFile)

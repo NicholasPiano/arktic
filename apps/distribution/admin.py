@@ -1,19 +1,25 @@
+#distribution.admin
+
 #django
 from django.contrib import admin
 
 #local
-from apps.distribution.models import Client, Job
+from apps.distribution.models import Client, Job, Action
 from apps.transcription.models import Archive, Transcription
 
 # Register your models here.
 #job
+
+class ActionInline(admin.TabularInline):
+    model = Action
+    extra = 0
 
 class TranscriptionInline(admin.TabularInline):
     model = Transcription
     extra = 0
 
 class JobAdmin(admin.ModelAdmin):
-    inlines = [TranscriptionInline]
+    inlines = [TranscriptionInline, ActionInline]
     actions = ['delete_model', 'get_transcription_set']
 
     #custom action for bulk deletion
@@ -72,3 +78,6 @@ class ClientAdmin(admin.ModelAdmin):
         super(ClientAdmin, self).save_model(request, obj, form, change)
 
 admin.site.register(Client, ClientAdmin)
+
+#action
+admin.site.register(Action)

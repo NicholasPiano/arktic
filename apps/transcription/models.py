@@ -11,6 +11,7 @@ from apps.transcription.base_model import Model
 from apps.transcription.fields import ContentTypeRestrictedFileField
 from arktic.settings import MEDIA_ROOT
 from apps.distribution.models import Client, Job
+from apps.users.models import User
 
 #util
 import wave as wv
@@ -26,9 +27,6 @@ import string as st
 #class vars
 ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
 
-#########################################################################################################################
-######################
-############################################     Transcription unit
 #vars
 WAV_TYPE = 'wav'
 transcription_types = [
@@ -66,7 +64,6 @@ class Transcription(Model):
                 kwargs['confidence_value'] = 0.0
 
         super(Transcription, self).__init__(*args, **kwargs)
-#         self.audio_file.file.close()
 
     def __unicode__(self):
         return self.utterance
@@ -91,35 +88,31 @@ class Transcription(Model):
 class Revision(models.Model):
     #connections
     transcription = models.ForeignKey(Transcription, related_name='revisions')
+    user = models.ForeignKey(User, related_name='revisions')
 
     #properties
+    utterance = models.CharField(max_length=255)
+    date_created = models.DateTimeField(auto_now_add=True)
 
-class Action(models.Model):
-    #connections
-    transcription = models.ForeignKey(Transcription, related_name='actions')
-
-    #properties
+    def __unicode__(self):
+        return 'Revision of #' + str(self.transcription.pk) + ' by ' + str(self.user) + ': "' + self.utterance + '"' #maybe also format date
 
 class Word(models.Model):
+    #connections
     transcription = models.ForeignKey(Transcription, related_name='words')
 
+    #properties
     char = models.CharField(max_length=100)
 
     def __unicode__(self):
         return self.char
 
-###################### Transcription unit ^^^
-#########################################################################################################################
-
-#########################################################################################################################
-######################
-############################################     Archive
-#vars
-
 class Archive(models.Model):
     #properties
     client = models.ForeignKey(Client, related_name='archives')
     file = ContentTypeRestrictedFileField(upload_to='archive', max_length=255, content_types=['application/zip'])
+    date_created = models.DateTimeField(auto_now_add=True)
+    #sub: relfiles
 
     #save
     def save(self, *args, **kwargs):
@@ -188,12 +181,12 @@ class Archive(models.Model):
 
         super(Archive, self).delete(*args, **kwargs)
 
-
 class RelFile(models.Model):
     #properties
     archive = models.ForeignKey(Archive, related_name='relfiles')
     file = models.FileField(upload_to='relfile', max_length=255) #switch to audiofield when ready
     name = models.CharField(max_length=100)
+    date_created = models.DateTimeField(auto_now_add=True)
     transcription_dictionary = {}
 
     def __unicode__(self):
@@ -220,5 +213,3 @@ class RelFile(models.Model):
         self.file.delete(save=False)
         super(RelFile, self).delete(*args, **kwargs)
 
-###################### Archive ^^^
-#########################################################################################################################

@@ -31,20 +31,40 @@ audio {
   display:none;
 }
 
-ul.control {
+ul.audio-control {
   position:fixed;
   width:600px;
+}
+
+ul.control {
+  position:fixed;
+  top:136px;
+  width:600px;
+}
+
+ul.control:first {
+  display:block;
 }
 
 ul.autocomplete {
   position:fixed;
-  top:300px;
+  top:316px;
   width:600px;
 }
 
 #typeahead {
-  width:568px;
-  border-radius:3px;
+  width:455px;
+
+  -webkit-border-top-left-radius: 3px;
+  -moz-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-bottom-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+span.tt-dropdown-menu {
+  width:455px;
 }
 
 .autocomplete .input-group {
@@ -73,4 +93,19 @@ ul.autocomplete {
 
 form {
   display:none;
+}
+
+span.glyphicon-pause {
+  display:none;
+}
+
+div.tooltip-inner {
+  text-align: center;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  background-color: #505050;
+  font-size: 12px;
+  width:100px;
 }

@@ -4,8 +4,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import View
+from django.contrib.auth import authenticate, login, logout
 
 #local
+from apps.pages.forms import LoginForm
 
 #using expo
 class IndexView(View):
@@ -15,7 +17,6 @@ class IndexView(View):
 
     #override view methods
     def get(self, request):
-
         context = {'GA_CODE':'5A'}
         return render(request, 'base.html', context)
 
@@ -64,12 +65,21 @@ class SecurityView(View):
         return HttpResponse('security')
 
 class LoginView(View):
-    #home page
-
-    #template
 
     #override view methods
     def get(self, request):
+        return render(request, 'pages/login.html', {})
 
+    def post(self, request):
+        form = LoginForm(request.POST)
 
-        return HttpResponse('login')
+        if form.is_valid():
+            user = authenticate(username=request.POST['username'], password=request.POST['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return HttpResponseRedirect('/start/') #go to employee summary page
+            else:
+                return render(request, 'pages/login.html', {'invalid_username_or_password':True})
+        else:
+            return render(request, 'pages/login.html', {'bad_formatting':True})

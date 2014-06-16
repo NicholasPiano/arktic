@@ -1,10 +1,10 @@
+#transcription.forms
+
 #django
 from django import forms
 
 #local
 from apps.distribution.models import Job
-
-#transcription.forms
 
 class MainJobForm(forms.Form): #invisible form included with transcription interface to gather utterance data, validate it, and make revisions.
 
@@ -17,4 +17,4 @@ class MainJobForm(forms.Form): #invisible form included with transcription inter
         super(MainJobForm, self).__init__(*args, **kwargs)
 
         for pk in transcription_pk_list:
-            self.fields['%s_field' % pk] = forms.CharField(max_length=100)
+            self.fields['%s' % pk] = forms.CharField(max_length=100)

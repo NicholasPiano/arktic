@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %} Start {{user}} {% endblock %}
+
+{% block css %}<link rel="stylesheet" href="{% static 'users/css/start.css' %}">{% endblock %}
+
+{% block content %}
+Start {{user}}
+{% endblock %}

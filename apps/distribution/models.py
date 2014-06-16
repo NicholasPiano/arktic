@@ -14,9 +14,13 @@ import os
 
 #class vars
 
-
+#need to talk about clients and batches.
+#-When is a batch finished?
+#-Does a batch have a due date?
 class Client(models.Model):
     #connections
+    #sub: jobs
+    #sub: AutocompleteWords
 
     #properties
     name = models.CharField(max_length=100)
@@ -33,9 +37,9 @@ class Client(models.Model):
 
         super(Client, self).delete(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-            super(Client, self).__init__(*args, **kwargs)
-            self.create_autocomplete_words()
+    def save(self, *args, **kwargs):
+        super(Client, self).save(*args, **kwargs)
+        self.create_autocomplete_words()
 
     def create_autocomplete_words(self):
         #get list of current words
@@ -61,15 +65,15 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
     #connections
     client = models.ForeignKey(Client, related_name='jobs')
     user = models.ForeignKey(User, related_name='jobs')
+    #sub: actions
+    #sub: transcriptions
 
     #properties
     is_active = models.BooleanField(default=True)
     total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5, editable=False, default=0.0)
     date_created = models.DateTimeField(auto_now_add=True)
-    #-performance
     #-average confidence
     #-time taken
-    #-types of transcription
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
@@ -79,7 +83,7 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
             self.get_transcription_set()
 
     def __unicode__(self):
-        return ('Job ' + str(self.pk) + ': ' + self.user.user.username)
+        return ('#' + str(self.pk) + ': ' + str(self.user) + ', ' + str(self.client))
 
     def get_transcription_set(self):
         #get all transcriptions and sort them by utterance
@@ -88,11 +92,31 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
         if len(sorted_transcription_set) >= 50:
             transcription_set = sorted_transcription_set[:50] #first 50 transcriptions
 
+        #add up time from transcriptions
+
         #add to job object
         for transcription in transcription_set:
             transcription.requests += 1
+            #make date last requested equal to now
             self.transcriptions.add(transcription)
+
+class Action(models.Model): #lawsuit
+    #connections
+    job = models.ForeignKey(Job, related_name='actions')
+
+    #properties
+    button_id = models.CharField(max_length=255)
+    transcription_id = models.CharField(max_length=255)
+    transcription_content = models.CharField(max_length=255)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return 'for job ' + str(self.job) #datetime, button_id, etc.
 
 class AutocompleteWord(models.Model):
     client = models.ForeignKey(Client, related_name='words')
     char = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return '"' + self.char + '" for client "' + str(self.client) + '"'

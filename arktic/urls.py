@@ -21,7 +21,8 @@ urlpatterns = patterns('',
     url(r'^security/', SecurityView.as_view()),
 
     #login
-    url(r'^login/', LoginView.as_view()),
+    url(r'^login/$', LoginView.as_view()),
+    url(r'^logout/$', 'django.contrib.auth.views.logout',{'next_page': '/login/'}),
 
     #admin
     url(r'^admin/', include(admin.site.urls)),
@@ -32,7 +33,7 @@ urlpatterns = patterns('',
 
     #employee
     #-landing page
-#     url(r'^start/', include('users.urls', namespace='users')),
+    url(r'^start/', include('apps.users.urls', namespace='users')),
     #-main transcription interface
     url(r'^transcription/', include('apps.transcription.urls', namespace='transcription')),
 )
