@@ -1,10 +1,13 @@
 """Development settings and globals."""
 
-
+#util
 from os.path import join, normpath
 
+#local
 from common import *
 
+########## VERSIONING
+VERSION = '0.1'
 
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug

@@ -1,11 +1,12 @@
 """Common settings and globals."""
 
+#django
+from djcelery import setup_loader
 
+#util
 from datetime import timedelta
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
-
-from djcelery import setup_loader
 
 
 ########## PATH CONFIGURATION
@@ -36,7 +37,7 @@ TEMPLATE_DEBUG = DEBUG
 ########## MANAGER CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = (
-    ('Your Name', 'your_email@example.com'),
+    ('Nicholas Piano', 'nicholas.d.piano@gmail.com'),
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
@@ -61,7 +62,7 @@ DATABASES = {
 
 ########## GENERAL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
-TIME_ZONE = 'America/Los_Angeles'
+TIME_ZONE = 'Europe/London'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#language-code
 LANGUAGE_CODE = 'en-us'
@@ -199,9 +200,26 @@ THIRD_PARTY_APPS = (
 
     # Asynchronous task queue:
     'djcelery',
+
+    # Progress dar upload for admin
+    'progressbarupload',
 )
 
 LOCAL_APPS = (
+    # Transcription object definition and processing
+    'transcription',
+
+    # Client registration and job creation
+    'distribution',
+
+    # Pre-client frontend
+    'pages',
+
+    # Stats
+    'statistics',
+
+    # Augmented django user object
+    'users',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -276,3 +294,11 @@ COMPRESS_JS_FILTERS = [
     'compressor.filters.template.TemplateFilter',
 ]
 ########## END COMPRESSION CONFIGURATION
+
+########## FILE UPLOAD CONFIGURATION
+FILE_UPLOAD_HANDLERS = (
+    "progressbarupload.uploadhandler.ProgressBarUploadHandler",
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)
+########## END FILE UPLOAD CONFIGURATION
