@@ -8,6 +8,8 @@ from datetime import timedelta
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
+########## AUTH
+AUTH_USER_MODEL = 'users.User'
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
@@ -207,19 +209,19 @@ THIRD_PARTY_APPS = (
 
 LOCAL_APPS = (
     # Transcription object definition and processing
-    'transcription',
+    'apps.transcription',
 
     # Client registration and job creation
-    'distribution',
+    'apps.distribution',
 
     # Pre-client frontend
-    'pages',
+    'apps.pages',
 
     # Stats
-    'statistics',
+    'apps.statistics',
 
-    # Augmented django user object
-    'users',
+    # Augmented auth model
+    'apps.users',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
