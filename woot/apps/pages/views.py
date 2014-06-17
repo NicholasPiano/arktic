@@ -3,9 +3,12 @@
 #django
 from django.shortcuts import render
 from django.views.generic import View
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth import authenticate, login
 
 #local
 from settings.dev import VERSION
+from apps.pages.forms import LoginForm
 
 #vars
 login_templates = {'0.1':'pages/login/login.0.1.html',
@@ -20,7 +23,7 @@ class LoginView(View):
         form = LoginForm(request.POST)
 
         if form.is_valid():
-            user = authenticate(username=request.POST['username'], password=request.POST['password'])
+            user = authenticate(email=request.POST['email'], password=request.POST['password'])
             if user is not None:
                 if user.is_active:
                     login(request, user)

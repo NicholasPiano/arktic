@@ -5,7 +5,7 @@ from django.contrib import admin
 
 #local
 from apps.distribution.models import Client, Job, Action
-from apps.transcription.models import Archive
+from apps.transcription.models import Transcription, Archive
 
 #vars
 
@@ -26,7 +26,14 @@ class ClientAdmin(admin.ModelAdmin):
 admin.site.register(Client, ClientAdmin)
 
 #JOB
-admin.site.register(Job)
+class TranscriptionInline(admin.TabularInline):
+    model = Transcription
+    extra = 0
+
+class JobAdmin(admin.ModelAdmin):
+    inlines = [TranscriptionInline,]
+
+admin.site.register(Job, JobAdmin)
 
 #ACTION
 admin.site.register(Action)

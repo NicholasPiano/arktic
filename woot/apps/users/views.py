@@ -19,7 +19,7 @@ class StartView(View):
         user = request.user
         if user.is_authenticated():
             #get user object
-            user = User.objects.get(username=user)
+            user = User.objects.get(email=user)
 
             #list of jobs
             jobs = user.jobs.filter(is_active=True)
@@ -37,7 +37,7 @@ def create_new_job(request):
             client = Client.objects.get(name='Allstate') #currently just allstate
 
             #get user object
-            user = User.objects.get(username=user)
+            user = User.objects.get(email=user)
 
             #create job
             job = user.jobs.create(client=client)

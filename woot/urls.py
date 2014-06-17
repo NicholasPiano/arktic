@@ -28,4 +28,7 @@ urlpatterns = patterns('',
 
     # Transcription
     url(r'^transcription/', include('apps.transcription.urls', namespace='transcription')), #note: open ended for job number
+
+    # Progress bar upload
+    url(r'^progressbarupload/', include('progressbarupload.urls')),
 )

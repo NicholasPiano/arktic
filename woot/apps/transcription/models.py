@@ -49,6 +49,7 @@ class Transcription(models.Model):
     requests = models.IntegerField(default=0) #number of times the transcription has been requested.
     add_date = models.DateTimeField(auto_now_add=True)
     date_last_requested = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
 
     def __init__(self, *args, **kwargs):
         if kwargs:

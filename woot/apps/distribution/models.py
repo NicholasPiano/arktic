@@ -40,8 +40,13 @@ class Client(models.Model):
         super(Client, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        super(Client, self).save(*args, **kwargs)
-        self.create_autocomplete_words()
+        if self.pk is not None:
+            self.create_autocomplete_words()
+            super(Client, self).save(*args, **kwargs)
+        else:
+            super(Client, self).save(*args, **kwargs)
+            self.create_autocomplete_words()
+            self.save() #call again I guess
 
     def create_autocomplete_words(self):
         #get list of current words
@@ -72,6 +77,7 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
 
     #properties
     is_active = models.BooleanField(default=True)
+    active_transcriptions = models.IntegerField(default=50)
     total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5, editable=False, default=0.0)
     date_created = models.DateTimeField(auto_now_add=True)
     #-average confidence
@@ -79,6 +85,14 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
+            #get remaining transcriptions in the job
+            active_transcriptions = 0
+            for transcription in self.transcriptions.all():
+                if transcription.is_active:
+                    active_transcriptions += 1
+            self.active_transcriptions = active_transcriptions
+            if active_transcriptions == 0:
+                self.is_active = False
             super(Job, self).save(*args, **kwargs)
         else:
             super(Job, self).save(*args, **kwargs)
