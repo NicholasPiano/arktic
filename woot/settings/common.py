@@ -101,6 +101,7 @@ STATIC_URL = '/static/'
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
+    MEDIA_ROOT,
     normpath(join(DJANGO_ROOT, 'assets')),
 )
 
@@ -299,8 +300,8 @@ COMPRESS_JS_FILTERS = [
 
 ########## FILE UPLOAD CONFIGURATION
 FILE_UPLOAD_HANDLERS = (
-    "progressbarupload.uploadhandler.ProgressBarUploadHandler",
-    "django.core.files.uploadhandler.MemoryFileUploadHandler",
-    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+    'progressbarupload.uploadhandler.ProgressBarUploadHandler',
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 )
 ########## END FILE UPLOAD CONFIGURATION

@@ -77,7 +77,7 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
 
     #properties
     is_active = models.BooleanField(default=True)
-    active_transcriptions = models.IntegerField(default=50)
+    active_transcriptions = models.IntegerField(default=5)
     total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5, editable=False, default=0.0)
     date_created = models.DateTimeField(auto_now_add=True)
     #-average confidence
@@ -106,7 +106,7 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
         sorted_transcription_set = sorted(self.client.transcriptions.filter(requests=0), key=lambda x: x.utterance, reverse=False)
         transcription_set = sorted_transcription_set #however many remain
         if len(sorted_transcription_set) >= 50:
-            transcription_set = sorted_transcription_set[:50] #first 50 transcriptions
+            transcription_set = sorted_transcription_set[:5] #first 50 transcriptions
 
         #add up time from transcriptions
 

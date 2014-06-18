@@ -1,0 +1,81 @@
+html {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.2;
+  color: #333;
+}
+
+#wrapper {
+  width:800px;
+}
+
+#job-table {
+  display:none;
+}
+
+#interface {
+  position:fixed;
+  top:50%;
+  left:50%;
+  margin-top:-150px;
+  margin-left:-350px;
+  height:300px;
+  width:700px;
+  border:none;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+}
+
+#audio-controls {
+  margin-top:15px;
+  margin-left:15px;
+}
+
+#typeahead-input-group {
+  top:113px;
+  width:500px;
+  left:15px;
+}
+
+#typeahead {
+  width:455px;
+  -webkit-border-top-left-radius: 3px;
+  -moz-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-bottom-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+#typeahead-input-group span.input-group-btn {
+  position:relative;
+  top:-2px;
+}
+
+span.glyphicon-pause {
+  display:none;
+}
+
+div.transcription {
+  position:absolute;
+  padding:15px;
+  border:none;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+  display:none;
+}
+
+div.transcription.transcription1 {
+  display:block;
+}
+
+div.transcription div.panel {
+  border:none;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+  margin-bottom:15px;
+}
+
+div.transcription span {
+  display:inline-block;
+}

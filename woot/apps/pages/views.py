@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
+from django.template import RequestContext
 
 #local
 from settings.dev import VERSION

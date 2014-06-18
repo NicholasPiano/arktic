@@ -1,0 +1,112 @@
+{% extends 'base/base.0.1.html' %}
+{% load staticfiles %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'transcription/css/typeahead.css' %}">
+<link rel="stylesheet" href="{% static 'transcription/css/main_transcription/main_transcription.0.1.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="wrapper" class="container">
+<!-- list of audio tags -->
+    <div id="job-table">
+        <ul class="list-group">
+            {% for transcription in transcriptions %}
+            <li id="li-{{transcription.pk}}" index="{{forloop.counter}}" class="list-group-item audio">
+                <!-- -->
+                <audio id="{{transcription.pk}}">
+                    <source src="{% static transcription.audio_file %}" type="audio/wav">
+                </audio>
+                <!-- -->
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+<!-- interface -->
+    <div id="interface" class="panel panel-default">
+        <div id="audio-controls" class="btn-group">
+            <button id="previous" type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-up"></span></button>
+            <button id="replay" type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-backward"></span></button>
+            <button id="play-pause" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play"></span><span class="glyphicon glyphicon-pause"></span></button>
+            <button id="waveform" type="button" class="btn btn-default">Waveform</button>
+            <button id="next" type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-down"></span></button>
+            <button id="counter" type="button" class="btn btn-default"><span>1</span> of {{transcriptions|length}}</button>
+        </div>
+        <!-- repeat -->
+        {% for transcription in transcriptions %}
+        <div id="panel-{{transcription.pk}}" class="panel panel-default transcription transcription{{forloop.counter}}">
+            <div class="panel original-panel">
+                <div class="btn-group">
+                    {% for word in transcription.words.all %}
+                    <button type="button" class="btn btn-default original-utterance">{{word.char}}</button>
+                    {% empty %}
+                    <button type="button" class="btn btn-default">blank</button>
+                    {% endfor %}
+                    <button type="button" class="btn btn-success copy-down"><span class="glyphicon glyphicon-arrow-down"></span></button>
+                </div>
+            </div>
+            <div class="panel modified-panel">
+                <div class="btn-group modified">
+                    <button type="button" class="btn btn-default modified begin-modified active">...</button>
+                    <button type="button" class="btn btn-default add-modified"><span class="glyphicon glyphicon-plus"></span></button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <!-- end repeat -->
+        <div id="typeahead-input-group" class="input-group">
+            <input id="typeahead" class="form-control" type="text" placeholder="Enter a new word...">
+            <span class="input-group-btn">
+                <button id="add-new-word" class="btn btn-success" type="button">Add new word</button>
+            </span>
+        </div>
+    </div>
+</div> <!-- !wrapper -->
+{% endblock %}
+
+<!-- js -->
+{% block post_main_script %}
+<script src="{% static 'transcription/js/typeahead.js' %}"></script>
+<script src="{% static 'transcription/js/main_transcription/transcription-control.0.1.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substringRegex;
+
+    // an array that will be populated with substring matches
+    matches = [];
+
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        // the typeahead jQuery plugin expects suggestions to a
+        // JavaScript object, refer to typeahead docs for more info
+        matches.push({ value: str });
+      }
+    });
+
+    cb(matches);
+  };
+};
+
+var states = ["[noise]","[breath noise]","[fragment]","[side speech]","[hesitation]","[unintelligible]","{% for word in words %}{{word.char}}","{% endfor %}"];
+
+$('#typeahead').typeahead({
+  hint: true,
+  highlight: true,
+  minLength: 1
+},
+{
+  name: 'states',
+  displayKey: 'value',
+  source: substringMatcher(states)
+});
+});
+</script>
+{% endblock %}
