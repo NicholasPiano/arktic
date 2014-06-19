@@ -31,6 +31,11 @@ html {
   margin-left:15px;
 }
 
+#done-group {
+  margin-top:15px;
+  margin-left:10px;
+}
+
 #typeahead-input-group {
   top:113px;
   width:500px;

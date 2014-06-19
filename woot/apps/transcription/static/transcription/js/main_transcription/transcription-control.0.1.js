@@ -19,6 +19,7 @@ $(document).ready(function() {
 
   //bind audio player end
   $('audio').on('ended', function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'audio_ended', 'transcription_id':$('#play-pause').attr('play')});
     //toggle the play-pause button glyphicons if the play variable is the same
     if ($('#play-pause').attr('play') == $(this).attr('id')) {
       $('#play-pause').children('span.glyphicon').toggle();
@@ -28,6 +29,7 @@ $(document).ready(function() {
   //--BUTTONS
   //-id main control buttons
   $('#previous').click(function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'previous', 'transcription_id':$('#play-pause').attr('play')});
     //get current play
     var currentPlay = $('#play-pause').attr('play');
     //pause current player and set currentTime=0
@@ -59,12 +61,14 @@ $(document).ready(function() {
   });
 
   $('#replay').click(function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'replay', 'transcription_id':$('#play-pause').attr('play')});
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
     player.currentTime=0;
   });
 
   $('#play-pause').click(function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'play_pause', 'transcription_id':$('#play-pause').attr('play')});
     //toggle glyphicons
     $(this).children('span.glyphicon').toggle();
     //play audio player
@@ -79,6 +83,7 @@ $(document).ready(function() {
   });
 
   $('#next').click(function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'next', 'transcription_id':$('#play-pause').attr('play')});
     //get current play
     var currentPlay = $('#play-pause').attr('play');
     //pause current player and set currentTime=0
@@ -106,13 +111,23 @@ $(document).ready(function() {
     //show utterance and hide others
     $('div.transcription').css('display','none');
     $('#panel-'+nextPlay).css('display','block');
+
+    //send transcription update
+    var utterance = '';
+    $('#panel-'+currentPlay + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
+      utterance += $(this).html() + ' ';
+    });
+    if (utterance!='') {
+      Dajaxice.apps.transcription.update_transcription(update_transcription_callback, {'job_id':$('#job').attr('job_id'), 'transcription_id':currentPlay, 'transcription_utterance':utterance,});
+    }
   });
 
   $('#waveform').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'waveform', 'transcription_id':$('#play-pause').attr('play')});
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'waveform', 'transcription_id':$('#play-pause').attr('play')});
   });
 
   $('#add-new-word').click(function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'add_new_word', 'transcription_id':$('#play-pause').attr('play')});
     //make a new button and add it to the current modified list with copied text from input
     var play = $('#play-pause').attr('play');
     if (play!='') {
@@ -130,14 +145,20 @@ $(document).ready(function() {
 
   //-class buttons (general for each transcription object)
   $('button.copy-down').click(function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'copy_down', 'transcription_id':$('#play-pause').attr('play')});
+
 
   });
 
   $('button.add-modified').click(function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'add_modified', 'transcription_id':$('#play-pause').attr('play')});
+
 
   });
 
   $('button.modified').click(function(){
+//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'modified', 'transcription_id':$('#play-pause').attr('play')});
+
 
   });
 

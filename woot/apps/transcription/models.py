@@ -80,12 +80,30 @@ class Transcription(models.Model):
         self.time = len(self.utterance)/10.0 #number of characters divided by ten (completely arbitrary)
 
     def latest_revision_words(self):
-        latest_revision = self.revisions.latest('date_created')
-        return latest_revision.words.all()
+        latest_revision_words = []
+        try:
+            latest_revision = self.revisions.latest()
+            latest_revision_words = latest_revision.words.all()
+        except Revision.DoesNotExist:
+            pass
+        for word in self.words.all(): #remove current words
+            word.delete()
+        for word in latest_revision_words:
+            self.words.create(char=word)
 
     def delete(self, *args, **kwargs):
         self.audio_file.delete(save=False)
         super(Transcription, self).delete(*args, **kwargs)
+
+class TranscriptionWord(models.Model):
+    #connections
+    transcription = models.ForeignKey(Transcription, related_name='words')
+
+    #properties
+    char = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return self.char
 
 class Revision(models.Model):
     #connections
@@ -96,10 +114,21 @@ class Revision(models.Model):
     utterance = models.CharField(max_length=255)
     date_created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        get_latest_by = 'date_created'
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            for word in self.utterance.split():
+                self.words.create(char=word)
+            super(Revision, self).save(*args, **kwargs)
+        else:
+            super(Revision, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return 'Revision of #' + str(self.transcription.pk) + ' by ' + str(self.user) + ': "' + self.utterance + '"' #maybe also format date
 
-class Word(models.Model):
+class RevisionWord(models.Model):
     #connections
     revision = models.ForeignKey(Revision, related_name='words')
 

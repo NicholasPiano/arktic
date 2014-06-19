@@ -26,6 +26,9 @@ class MainTranscriptionView(View):
 
             client = job.client
             transcriptions = job.transcriptions.all()
+            for transcription in transcriptions:
+                transcription.latest_revision_words()
+                transcription.save()
             words = client.words.all()
 
             return render(request, main_transcription_templates[VERSION], {'transcriptions':transcriptions,
