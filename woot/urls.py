@@ -8,6 +8,10 @@ from django.conf.urls import patterns, include, url
 from apps.pages.views import LoginView
 from apps.users.views import StartView
 
+#third party
+from dajaxice.core import dajaxice_autodiscover, dajaxice_config
+dajaxice_autodiscover()
+
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/admin/#hooking-adminsite-instances-into-your-urlconf
 admin.autodiscover()
 
@@ -31,4 +35,7 @@ urlpatterns = patterns('',
 
     # Progress bar upload
     url(r'^progressbarupload/', include('progressbarupload.urls')),
+
+    # Dajax
+    url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
 )

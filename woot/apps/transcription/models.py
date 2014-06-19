@@ -78,8 +78,10 @@ class Transcription(models.Model):
 
     def configure(self):
         self.time = len(self.utterance)/10.0 #number of characters divided by ten (completely arbitrary)
-        for word in st.split(self.utterance):
-            self.words.create(char=word)
+
+    def latest_revision_words(self):
+        latest_revision = self.revisions.latest('date_created')
+        return latest_revision.words.all()
 
     def delete(self, *args, **kwargs):
         self.audio_file.delete(save=False)
@@ -99,7 +101,7 @@ class Revision(models.Model):
 
 class Word(models.Model):
     #connections
-    transcription = models.ForeignKey(Transcription, related_name='words')
+    revision = models.ForeignKey(Revision, related_name='words')
 
     #properties
     char = models.CharField(max_length=100)

@@ -29,7 +29,8 @@ class MainTranscriptionView(View):
             words = client.words.all()
 
             return render(request, main_transcription_templates[VERSION], {'transcriptions':transcriptions,
-                                                                           'words':words,})
+                                                                           'words':words,
+                                                                           'job_id':job_id,})
         else:
             return HttpResponseRedirect('/login/')
 

@@ -110,6 +110,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
+    'dajaxice.finders.DajaxiceFinder',
 )
 ########## END STATIC FILE CONFIGURATION
 
@@ -145,6 +146,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
+    'django.template.loaders.eggs.Loader',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
@@ -206,6 +208,9 @@ THIRD_PARTY_APPS = (
 
     # Progress dar upload for admin
     'progressbarupload',
+
+    # Ajax requests
+    'dajaxice',
 )
 
 LOCAL_APPS = (

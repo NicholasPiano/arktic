@@ -59,9 +59,9 @@ class Client(models.Model):
         for transcription in self.transcriptions.all():
             if transcription.utterance not in current_word_list and transcription.utterance not in new_word_list:
                 new_word_list.append(transcription.utterance)
-                for word in transcription.words.all():
-                    if word.char not in current_word_list and word.char not in new_word_list:
-                        new_word_list.append(word.char)
+                for word in transcription.utterance.split():
+                    if word not in current_word_list and word not in new_word_list:
+                        new_word_list.append(word)
 
         #add one AutocompleteWord for each one.
         for word in new_word_list:
@@ -119,6 +119,7 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
 class Action(models.Model): #lawsuit
     #connections
     job = models.ForeignKey(Job, related_name='actions')
+    user = models.ForeignKey(User, related_name='actions')
 
     #properties
     button_id = models.CharField(max_length=255)
@@ -128,7 +129,7 @@ class Action(models.Model): #lawsuit
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return 'for job ' + str(self.job) #datetime, button_id, etc.
+        return 'for job ' + str(self.job) + ' ' + self.button_id + ', ' + self.transcription_id + ', ' + str(self.date_created) #datetime, button_id, etc.
 
 class AutocompleteWord(models.Model):
     client = models.ForeignKey(Client, related_name='words')

@@ -10,6 +10,7 @@
 <div id="wrapper" class="container">
 <!-- list of audio tags -->
     <div id="job-table">
+        <a id="job" job_id="{{job_id}}"></a>
         <ul class="list-group">
             {% for transcription in transcriptions %}
             <li id="li-{{transcription.pk}}" index="{{forloop.counter}}" class="list-group-item audio">
@@ -38,17 +39,28 @@
         <div id="panel-{{transcription.pk}}" class="panel panel-default transcription transcription{{forloop.counter}}">
             <div class="panel original-panel">
                 <div class="btn-group">
-                    {% for word in transcription.words.all %}
-                    <button type="button" class="btn btn-default original-utterance">{{word.char}}</button>
-                    {% empty %}
+                    {% if transcription.utterance %}
+                    <button type="button" class="btn btn-default original-utterance">{{transcription.utterance}}</button>
+                    {% else %}
                     <button type="button" class="btn btn-default">blank</button>
-                    {% endfor %}
+                    {% endif %}
                     <button type="button" class="btn btn-success copy-down"><span class="glyphicon glyphicon-arrow-down"></span></button>
                 </div>
             </div>
             <div class="panel modified-panel">
                 <div class="btn-group modified">
-                    <button type="button" class="btn btn-default modified begin-modified active">...</button>
+                    {% if transcription.latest_revision_words %}
+                        <button type="button" class="btn btn-default modified begin-modified">...</button>
+                        {% for word in transcription.latest_revision_words %}
+                            {% if forloop.last %}
+                                <button type="button" class="btn btn-default modified begin-modified active">{{word}}</button>
+                            {% else %}
+                                <button type="button" class="btn btn-default modified begin-modified">{{word}}</button>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <button type="button" class="btn btn-default modified begin-modified active">...</button>
+                    {% endif %}
                     <button type="button" class="btn btn-default add-modified"><span class="glyphicon glyphicon-plus"></span></button>
                 </div>
             </div>

@@ -1,3 +1,12 @@
+//--CALLBACKS
+function action_register_callback (data) { //data is serialized json object
+
+}
+
+function update_transcription_callback (data) {
+
+}
+
 $(document).ready(function() {
 
   //--SETUP AND BINDINGS
@@ -97,6 +106,10 @@ $(document).ready(function() {
     //show utterance and hide others
     $('div.transcription').css('display','none');
     $('#panel-'+nextPlay).css('display','block');
+  });
+
+  $('#waveform').click(function(){
+    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'waveform', 'transcription_id':$('#play-pause').attr('play')});
   });
 
   $('#add-new-word').click(function(){
