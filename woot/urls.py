@@ -7,6 +7,7 @@ from django.conf.urls import patterns, include, url
 #local
 from apps.pages.views import LoginView
 from apps.users.views import StartView
+from settings.common import MEDIA_ROOT
 
 #third party
 from dajaxice.core import dajaxice_autodiscover, dajaxice_config
@@ -17,6 +18,9 @@ admin.autodiscover()
 
 # See: https://docs.djangoproject.com/en/dev/topics/http/urls/
 urlpatterns = patterns('',
+    # Serving media
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': MEDIA_ROOT, 'show_indexes': True }),
+
     # Admin panel and documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),

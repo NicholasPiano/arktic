@@ -32,112 +32,6 @@ transcription_types = [
 ]
 
 #classes
-class Transcription(models.Model):
-    #connections
-    client = models.ForeignKey(Client, related_name='transcriptions')
-    job = models.ForeignKey(Job, null=True, related_name='transcriptions')
-
-    #properties
-    type = models.CharField(max_length=100)
-    audio_file = FileField(upload_to='audio', max_length=255) #use audiofield when done
-    time = models.DecimalField(max_digits=3, decimal_places=2, default=0.5)
-    grammar = models.CharField(max_length=255)
-    confidence = models.CharField(max_length=255)
-    utterance = models.CharField(max_length=255)
-    value = models.CharField(max_length=255)
-    confidence_value = models.DecimalField(max_digits=3, decimal_places=2)
-    requests = models.IntegerField(default=0) #number of times the transcription has been requested.
-    add_date = models.DateTimeField(auto_now_add=True)
-    date_last_requested = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
-
-    def __init__(self, *args, **kwargs):
-        if kwargs:
-            #modify keywords
-            #-grammar
-            kwargs['grammar'] = os.path.splitext(os.path.basename(kwargs['grammar']))[0] #just get grammar name
-            #-confidence_value
-            confidence_value = kwargs['confidence_value'].rstrip() #chomp newline
-            if confidence_value is not '':
-                kwargs['confidence_value'] = float(float(confidence_value)/1000.0) #show as decimal
-            else:
-                kwargs['confidence_value'] = 0.0
-
-        super(Transcription, self).__init__(*args, **kwargs)
-
-    def __unicode__(self):
-        return self.utterance
-
-    #save - always called by 'create'
-    def save(self, *args, **kwargs):
-        if self.pk is None: #if the archive is being uploaded for the first time
-            super(Transcription, self).save(*args, **kwargs)
-            self.configure()
-        else:
-            super(Transcription, self).save(*args, **kwargs)
-
-    def configure(self):
-        self.time = len(self.utterance)/10.0 #number of characters divided by ten (completely arbitrary)
-
-    def latest_revision_words(self):
-        latest_revision_words = []
-        try:
-            latest_revision = self.revisions.latest()
-            latest_revision_words = latest_revision.words.all()
-        except Revision.DoesNotExist:
-            pass
-        for word in self.words.all(): #remove current words
-            word.delete()
-        for word in latest_revision_words:
-            self.words.create(char=word)
-
-    def delete(self, *args, **kwargs):
-        self.audio_file.delete(save=False)
-        super(Transcription, self).delete(*args, **kwargs)
-
-class TranscriptionWord(models.Model):
-    #connections
-    transcription = models.ForeignKey(Transcription, related_name='words')
-
-    #properties
-    char = models.CharField(max_length=100)
-
-    def __unicode__(self):
-        return self.char
-
-class Revision(models.Model):
-    #connections
-    transcription = models.ForeignKey(Transcription, related_name='revisions')
-    user = models.ForeignKey(User, related_name='revisions')
-
-    #properties
-    utterance = models.CharField(max_length=255)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        get_latest_by = 'date_created'
-
-    def save(self, *args, **kwargs):
-        if self.pk is not None:
-            for word in self.utterance.split():
-                self.words.create(char=word)
-            super(Revision, self).save(*args, **kwargs)
-        else:
-            super(Revision, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return 'Revision of #' + str(self.transcription.pk) + ' by ' + str(self.user) + ': "' + self.utterance + '"' #maybe also format date
-
-class RevisionWord(models.Model):
-    #connections
-    revision = models.ForeignKey(Revision, related_name='words')
-
-    #properties
-    char = models.CharField(max_length=100)
-
-    def __unicode__(self):
-        return self.char
-
 class Archive(models.Model):
     #properties
     client = models.ForeignKey(Client, related_name='archives')
@@ -184,10 +78,13 @@ class Archive(models.Model):
                     try:
                         file_name = os.path.basename(audio_file)
                         kwargs = big_transcription_dictionary[file_name]
+                        relfile_id = kwargs.pop('relfile_id')
+                        relfile = self.relfiles.get(pk=relfile_id)
 
                         with open(os.path.join(self.extract_path, audio_file)) as f:
                             open_file = File(f)
                             kwargs['audio_file'] = open_file
+                            kwargs['relfile'] = relfile
                             t = self.client.transcriptions.create(**kwargs) #create while file is open
                             t.save()
                             #file is then automatically closed by 'with'.
@@ -233,6 +130,7 @@ class RelFile(models.Model):
             line_split = line.split('|') #always a pipe, and always 5 columns
             file_name = os.path.basename(line_split[0])
             self.transcription_dictionary[file_name] = {
+                'relfile_id':self.pk,
                 'grammar':line_split[1],
                 'confidence':line_split[2],
                 'utterance':line_split[3],
@@ -243,3 +141,113 @@ class RelFile(models.Model):
     def delete(self, *args, **kwargs):
         self.file.delete(save=False)
         super(RelFile, self).delete(*args, **kwargs)
+
+class Transcription(models.Model):
+    #connections
+    client = models.ForeignKey(Client, related_name='transcriptions')
+    relfile = models.ForeignKey(RelFile, related_name='transcriptions')
+    job = models.ForeignKey(Job, null=True, related_name='transcriptions')
+
+    #properties
+    type = models.CharField(max_length=100)
+    audio_file = FileField(upload_to='audio', max_length=255) #use audiofield when done
+    time = models.DecimalField(max_digits=3, decimal_places=2, default=0.5)
+    grammar = models.CharField(max_length=255)
+    confidence = models.CharField(max_length=255)
+    utterance = models.CharField(max_length=255)
+    value = models.CharField(max_length=255)
+    confidence_value = models.DecimalField(max_digits=3, decimal_places=2)
+    requests = models.IntegerField(default=0) #number of times the transcription has been requested.
+    add_date = models.DateTimeField(auto_now_add=True)
+    date_last_requested = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    latest_revision_done_by_current_user = models.BooleanField(default=False)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs:
+            #modify keywords
+            #-grammar
+            kwargs['grammar'] = os.path.splitext(os.path.basename(kwargs['grammar']))[0] #just get grammar name
+            #-confidence_value
+            confidence_value = kwargs['confidence_value'].rstrip() #chomp newline
+            if confidence_value is not '':
+                kwargs['confidence_value'] = float(float(confidence_value)/1000.0) #show as decimal
+            else:
+                kwargs['confidence_value'] = 0.0
+
+        super(Transcription, self).__init__(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.utterance
+
+    #save - always called by 'create'
+    def save(self, *args, **kwargs):
+        if self.pk is None: #if the archive is being uploaded for the first time
+            super(Transcription, self).save(*args, **kwargs)
+            self.configure()
+        else:
+            super(Transcription, self).save(*args, **kwargs)
+
+    def configure(self):
+        self.time = len(self.utterance)/10.0 #number of characters divided by ten (completely arbitrary)
+
+    def latest_revision_words(self):
+        latest_revision_words = []
+        try:
+            latest_revision = self.revisions.latest()
+            latest_revision_words = latest_revision.words.all()
+            user = self.job.user
+            self.latest_revision_done_by_current_user = latest_revision.user.pk == user.pk
+        except Revision.DoesNotExist:
+            pass
+        for word in self.words.all(): #remove current words
+            word.delete()
+        for word in latest_revision_words:
+            self.words.create(char=word)
+
+    def delete(self, *args, **kwargs):
+        self.audio_file.delete(save=False)
+        super(Transcription, self).delete(*args, **kwargs)
+
+class TranscriptionWord(models.Model):
+    #connections
+    transcription = models.ForeignKey(Transcription, related_name='words')
+
+    #properties
+    char = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return self.char
+
+class Revision(models.Model):
+    #connections
+    transcription = models.ForeignKey(Transcription, related_name='revisions')
+    user = models.ForeignKey(User, related_name='revisions')
+
+    #properties
+    utterance = models.CharField(max_length=255)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        get_latest_by = 'date_created'
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            for word in self.utterance.split():
+                self.words.create(char=word)
+            super(Revision, self).save(*args, **kwargs)
+        else:
+            super(Revision, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return 'Revision of #' + str(self.transcription.pk) + ' by ' + str(self.user) + ': "' + self.utterance + '" on ' + str(self.date_created) #maybe also format date
+
+class RevisionWord(models.Model):
+    #connections
+    revision = models.ForeignKey(Revision, related_name='words')
+
+    #properties
+    char = models.CharField(max_length=100)
+
+    def __unicode__(self):
+        return self.char

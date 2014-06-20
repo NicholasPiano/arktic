@@ -8,6 +8,8 @@ from datetime import timedelta
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
+NUMBER_OF_TRANSCRIPTIONS_PER_JOB = 20
+
 ########## AUTH
 AUTH_USER_MODEL = 'users.User'
 

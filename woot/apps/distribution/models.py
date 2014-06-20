@@ -7,7 +7,7 @@ from django.core.files import File
 
 #local
 from apps.users.models import User
-from settings.common import MEDIA_ROOT
+from settings.common import MEDIA_ROOT, NUMBER_OF_TRANSCRIPTIONS_PER_JOB
 
 #util
 import os
@@ -105,8 +105,8 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
         #get all transcriptions and sort them by utterance
         sorted_transcription_set = sorted(self.client.transcriptions.filter(requests=0), key=lambda x: x.utterance, reverse=False)
         transcription_set = sorted_transcription_set #however many remain
-        if len(sorted_transcription_set) >= 50:
-            transcription_set = sorted_transcription_set[:5] #first 50 transcriptions
+        if len(sorted_transcription_set) >= NUMBER_OF_TRANSCRIPTIONS_PER_JOB:
+            transcription_set = sorted_transcription_set[:NUMBER_OF_TRANSCRIPTIONS_PER_JOB] #first 50 transcriptions
 
         #add up time from transcriptions
 

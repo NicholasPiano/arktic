@@ -64,7 +64,11 @@ $(document).ready(function() {
 //     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'replay', 'transcription_id':$('#play-pause').attr('play')});
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
-    player.currentTime=0;
+    if (player.paused) {
+      $('#play-pause').click();
+    } else {
+      player.currentTime=0;
+    }
   });
 
   $('#play-pause').click(function(){
@@ -146,22 +150,97 @@ $(document).ready(function() {
   //-class buttons (general for each transcription object)
   $('button.copy-down').click(function(){
 //     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'copy_down', 'transcription_id':$('#play-pause').attr('play')});
-
+    var play = $('#play-pause').attr('play');
+    if ($('#panel-'+play+' div.modified-panel div.modified').children().size() == 2) { //only ... should be there
+      var utterance = $('#panel-'+play+' div.original-panel div.original button.original-utterance').html();
+      if (typeof utterance === "undefined") {
+        $('#panel-'+play+' div.modified-panel div.modified button.add-modified').click();
+      } else {
+        $('#panel-'+play+' div.modified-panel div.modified button.begin-modified').removeClass('active');
+        var word_array = utterance.split(" ");
+        word_array.forEach(function(word){
+          $('#panel-'+play+' div.modified-panel div.modified button.add-modified').before('<button type="button" class="btn btn-default modified">' + word + '</button>');
+        });
+        //remove class 'active'
+        $('#panel-'+play+' div.modified-panel div.modified button.add-modified').prev().addClass('active');
+      }
+    }
 
   });
 
   $('button.add-modified').click(function(){
 //     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'add_modified', 'transcription_id':$('#play-pause').attr('play')});
-
-
+      $('#typeahead').focus();
+      $('#typeahead').typeahead('val', '');
   });
 
-  $('button.modified').click(function(){
+  $('div.modified').on('click', 'button.modified', function(){
 //     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'modified', 'transcription_id':$('#play-pause').attr('play')});
-
-
+    //add active class and remove from all others
+    $('button.modified').removeClass('active');
+    $(this).addClass('active');
+    $('#typeahead').focus();
+    $('#typeahead').typeahead('val', '');
   });
 
   //--KEYBOARD SHORTCUTS
+  //prevent default actions for arrow keys and space
+  window.addEventListener("keydown", function(e) {
+    // space and arrow keys
+    if([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+    }
+  }, false);
+
+  $(document).keydown(function(e) {
+    var play = $('#play-pause').attr('play');
+    if(e.keyCode === 13) { //enter
+      //controlling word copying
+      if ($('#typeahead').is(':focus') && $('#typeahead').val()!='') {
+        $('#add-new-word').click();
+      } else {
+        $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
+      }
+    } else if (e.keyCode === 40) { //down arrow
+      if ($('#typeahead').val()=='') {
+        $('#next').click();
+      }
+    } else if (e.keyCode === 38) { //up arrow
+      if ($('#typeahead').val()=='') {
+        $('#previous').click();
+      }
+    } else if (e.keyCode === 37) { //left arrow
+      if ($('#typeahead').val()=='') {
+        //get active button in group
+        var active = $('#panel-'+play+' div.modified-panel div.modified button.modified.active');
+        //make button to the left active, if it exists
+        if (active.prev().length) {
+          active.prev().click();
+        }
+      }
+    } else if (e.keyCode === 39) { //right arrow
+      if ($('#typeahead').val()=='') {
+        //get active button in group
+        var active = $('#panel-'+play+' div.modified-panel div.modified button.modified.active');
+        //make button to the right active, if it isn't add-modified
+        active.next().not('button.add-modified').click();
+      }
+    } else if (e.keyCode === 32) { //space bar
+      $('#replay').click();
+      $('#typeahead').focus();
+    } else if (e.keyCode === 8) {
+      if ($('#typeahead').val()=='') {
+        //delete active button and make the button to the left active
+        //if the button is the left most, make the button to thr right active
+        var active = $('#panel-'+play+' div.modified-panel div.modified button.modified.active');
+        if (active.prev().length) {
+          active.prev().addClass('active');
+        } else {
+          active.next().not('button.add-modified').addClass('active');
+        }
+        active.not('button.begin-modified').remove();
+      }
+    }
+  });
 
 });
