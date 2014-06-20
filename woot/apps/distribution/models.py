@@ -31,14 +31,6 @@ class Client(models.Model):
     def __unicode__(self):
         return self.name
 
-    #delete
-    def delete(self, *args, **kwargs):
-        #archives
-        for archive in self.archives.all():
-            archive.delete() #call custom delete method
-
-        super(Client, self).delete(*args, **kwargs)
-
     def save(self, *args, **kwargs):
         if self.pk is not None:
             self.create_autocomplete_words()
@@ -67,10 +59,17 @@ class Client(models.Model):
         for word in new_word_list:
             self.words.create(char=word)
 
+class Project(models.Model):
+    #connections
+    client = models.ForeignKey(Client, related_name='projects')
+
+    #properties
+    name = models.CharField(max_length=255)
 
 class Job(models.Model): #a group of 50 transcriptions given to a user.
     #connections
     client = models.ForeignKey(Client, related_name='jobs')
+    project = models.ForeignKey(Project, related_name='jobs')
     user = models.ForeignKey(User, related_name='jobs')
     #sub: actions
     #sub: transcriptions
@@ -103,7 +102,7 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
 
     def get_transcription_set(self):
         #get all transcriptions and sort them by utterance
-        sorted_transcription_set = sorted(self.client.transcriptions.filter(requests=0), key=lambda x: x.utterance, reverse=False)
+        sorted_transcription_set = sorted(self.project.transcriptions.filter(requests=0), key=lambda x: x.utterance, reverse=False)
         transcription_set = sorted_transcription_set #however many remain
         if len(sorted_transcription_set) >= NUMBER_OF_TRANSCRIPTIONS_PER_JOB:
             transcription_set = sorted_transcription_set[:NUMBER_OF_TRANSCRIPTIONS_PER_JOB] #first 50 transcriptions
