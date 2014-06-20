@@ -77,7 +77,7 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
 
     #properties
     is_active = models.BooleanField(default=True)
-    active_transcriptions = models.IntegerField(default=5)
+    active_transcriptions = models.IntegerField(default=NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
     total_transcription_time = models.DecimalField(max_digits=5, decimal_places=5, editable=False, default=0.0)
     date_created = models.DateTimeField(auto_now_add=True)
     #-average confidence
@@ -115,6 +115,17 @@ class Job(models.Model): #a group of 50 transcriptions given to a user.
             transcription.requests += 1
             #make date last requested equal to now
             self.transcriptions.add(transcription)
+
+    def check_transcriptions(self): #check for completions and set is_active = False
+        active_transcriptions = 0
+        for transcription in self.transcriptions.all():
+            if not transcription.revisions.all():
+                active_transcriptions += 1
+
+        self.active_transcriptions = active_transcriptions
+        if self.active_transcriptions == 0:
+            self.is_active = False
+        self.save()
 
 class Action(models.Model): #lawsuit
     #connections

@@ -183,6 +183,20 @@ $(document).ready(function() {
     $('#typeahead').typeahead('val', '');
   });
 
+  $('button.tick').click(function(){
+    //send transcription update
+    var play = $('#play-pause').attr('play');
+    var utterance = '';
+    $('#panel-'+play + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
+      utterance += $(this).html() + ' ';
+    });
+    if (utterance!='') {
+      Dajaxice.apps.transcription.update_transcription(update_transcription_callback, {'job_id':$('#job').attr('job_id'), 'transcription_id':play, 'transcription_utterance':utterance,});
+      //toggle green
+      $(this).addClass('btn-success').removeClass('btn-default');
+    }
+  });
+
   //--KEYBOARD SHORTCUTS
   //prevent default actions for arrow keys and space
   window.addEventListener("keydown", function(e) {
@@ -199,7 +213,15 @@ $(document).ready(function() {
       if ($('#typeahead').is(':focus') && $('#typeahead').val()!='') {
         $('#add-new-word').click();
       } else {
-        $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
+        var utterance = '';
+        $('#panel-'+play + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
+          utterance += $(this).html() + ' ';
+        });
+        if (utterance=='') {
+          $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
+        } else {
+          $('#panel-'+play+' div.modified-panel div.tick button.tick').click();
+        }
       }
     } else if (e.keyCode === 40) { //down arrow
       if ($('#typeahead').val()=='') {
@@ -225,10 +247,10 @@ $(document).ready(function() {
         //make button to the right active, if it isn't add-modified
         active.next().not('button.add-modified').click();
       }
-    } else if (e.keyCode === 32) { //space bar
+    } else if (e.ctrlKey && e.which === 82) { //ctrl + r
       $('#replay').click();
       $('#typeahead').focus();
-    } else if (e.keyCode === 8) {
+    } else if (e.keyCode === 8) { //backspace
       if ($('#typeahead').val()=='') {
         //delete active button and make the button to the left active
         //if the button is the left most, make the button to thr right active
@@ -239,6 +261,8 @@ $(document).ready(function() {
           active.next().not('button.add-modified').addClass('active');
         }
         active.not('button.begin-modified').remove();
+        //make tick button not green
+        $('#panel-'+play+' div.modified-panel div.tick button.tick').addClass('btn-default').removeClass('btn-success');
       }
     }
   });

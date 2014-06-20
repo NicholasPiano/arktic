@@ -66,6 +66,8 @@
                 <div class="btn-group tick">
                     {% if transcription.latest_revision_done_by_current_user %}
                     <button type="button" class="btn btn-success tick"><span class="glyphicon glyphicon-ok"></span></button>
+                    {% else %}
+                    <button type="button" class="btn btn-default tick"><span class="glyphicon glyphicon-ok"></span></button>
                     {% endif %}
                 </div>
             </div>

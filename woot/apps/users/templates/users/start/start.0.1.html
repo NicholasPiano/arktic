@@ -9,7 +9,9 @@
 <div id="wrapper" class="container">
     <div id="job-list" class="list-group">
         {% for job in jobs %}
+        {% if job.is_active %}
         <a href="/transcription/{{job.pk}}" class="list-group-item">#{{forloop.counter}}: {{job.client}}<span class="right-label">{{job.active_transcriptions}} of {{job.transcriptions.all|length}}</span></a>
+        {% endif %}
         {% endfor %}
     </div>
 </div>

@@ -24,6 +24,7 @@ import string as st
 
 #class vars
 ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
+COMPLETED_ROOT = os.path.join(MEDIA_ROOT, 'completed')
 
 #vars
 WAV_TYPE = 'wav'
@@ -49,21 +50,21 @@ class Archive(models.Model):
 
     def extract(self, *args, **kwargs):
         #1. extract zip
-        self.file_list = []
+        file_list = []
 
-        self.zip_file = zp.ZipFile(self.file.file)
-        for name in self.zip_file.namelist():
-            self.file_list.append(name)
+        zip_file = zp.ZipFile(self.file.file)
+        for name in zip_file.namelist():
+            file_list.append(name)
 
-        self.extract_tree, self.ext = os.path.splitext(self.zip_file.filename)
-        self.extract_path = os.path.join(ARCHIVE_ROOT, self.extract_tree)
-        self.zip_file.extractall(path=self.extract_path)
+        extract_tree, ext = os.path.splitext(zip_file.filename)
+        extract_path = os.path.join(ARCHIVE_ROOT, extract_tree)
+        zip_file.extractall(path=extract_path)
 
         #2. sort into relfile and audio files - first make relfile from each object, then validate.
-        for file in self.file_list:
+        for file in file_list:
             if re.search(r'\w+\/$', file) is None: #matches trailing slash to weed out directories
                 if re.search(r'.csv', file) is not None: #relfile
-                    open_file = File(open(os.path.join(self.extract_path, file)))
+                    open_file = File(open(os.path.join(extract_path, file)))
                     (file_subpath, filename) = os.path.split(file) #path splitter os.path.split
                     self.relfiles.create(file=open_file, name=filename)
 
@@ -72,7 +73,7 @@ class Archive(models.Model):
         for relfile in self.relfiles.all():
             big_transcription_dictionary.update(relfile.transcription_dictionary)
 
-        for audio_file in self.file_list:
+        for audio_file in file_list:
             if re.search(r'\w+\/$', audio_file) is None: #matches trailing slash to weed out directories
                 if re.search(r'.wav', audio_file) is not None: #relfile
                     try:
@@ -81,7 +82,7 @@ class Archive(models.Model):
                         relfile_id = kwargs.pop('relfile_id')
                         relfile = self.relfiles.get(pk=relfile_id)
 
-                        with open(os.path.join(self.extract_path, audio_file)) as f:
+                        with open(os.path.join(extract_path, audio_file)) as f:
                             open_file = File(f)
                             kwargs['audio_file'] = open_file
                             kwargs['relfile'] = relfile
@@ -93,7 +94,43 @@ class Archive(models.Model):
                         pass
 
         #4. remove extract tree after use
-        sh.rmtree(os.path.join(self.extract_path, self.extract_tree))
+        sh.rmtree(os.path.join(extract_path, extract_tree))
+
+    def compress(self): #package for download when all constituent transcriptions are complete
+        #filename
+        filename = os.path.splitext(os.path.basename(self.file.name))[0] #u'archive/file.zip' -> 'file'
+        filename += '.out.zip' #'file' -> 'file.out.zip'
+        #remove any previous compression
+        if os.path.isfile(os.path.join(COMPLETED_ROOT, filename)): #if file already exists
+            os.remove(os.path.join(COMPLETED_ROOT, filename))
+        #open zipfile
+        #1. extract zip
+        file_list = []
+
+        zip_file = zp.ZipFile(self.file.file)
+        for name in zip_file.namelist():
+            file_list.append(name)
+
+        extract_tree, ext = os.path.splitext(zip_file.filename)
+        extract_path = os.path.join(COMPLETED_ROOT, extract_tree)
+        zip_file.extractall(path=extract_path)
+
+        #open each relfile
+        #replace utterances with that from latest revision of transcription with same line number and relfile
+        #rename foo.csv to foo.out.csv
+        #recompress archive into archive.out.zip
+        pass
+
+    def check_transcriptions(self): #check if all transcriptions have a revision. If so, compress
+        #each transcription in each relfile must have a revision object
+        will_compress = True
+        for relfile in self.relfiles.all():
+            for transcription in relfile.transcriptions.all():
+                if not transcription.revisions.all():
+                    will_compress = False
+                    break; #even if one transcription is incomplete
+        if will_compress:
+            self.compress()
 
     #instance methods
     def __unicode__(self):
@@ -108,6 +145,15 @@ class Archive(models.Model):
             relfile.file.delete(save=False)
 
         super(Archive, self).delete(*args, **kwargs)
+
+class CompletedArchive(models.Model):
+    #connections
+    client = models.ForeignKey(Client, related_name='completed_archives')
+    archive = models.OneToOneField(Archive, related_name='completed_archive')
+
+    #properties
+    file = ContentTypeRestrictedFileField(upload_to='completed', max_length=255, content_types=['application/zip'])
+    date_created = models.DateTimeField(auto_now_add=True)
 
 class RelFile(models.Model):
     #properties
@@ -126,11 +172,13 @@ class RelFile(models.Model):
         #1. read lines
         lines = self.file.file.readlines()
         #2. for each lines, get audio_file name, utterance, any other information
-        for line in lines:
+        for line_index in range(len(lines)):
+            line = lines[line_index]
             line_split = line.split('|') #always a pipe, and always 5 columns
             file_name = os.path.basename(line_split[0])
             self.transcription_dictionary[file_name] = {
                 'relfile_id':self.pk,
+                'line_number':line_index,
                 'grammar':line_split[1],
                 'confidence':line_split[2],
                 'utterance':line_split[3],
@@ -151,6 +199,7 @@ class Transcription(models.Model):
     #properties
     type = models.CharField(max_length=100)
     audio_file = FileField(upload_to='audio', max_length=255) #use audiofield when done
+    line_number = models.IntegerField()
     time = models.DecimalField(max_digits=3, decimal_places=2, default=0.5)
     grammar = models.CharField(max_length=255)
     confidence = models.CharField(max_length=255)
@@ -169,7 +218,7 @@ class Transcription(models.Model):
             #-grammar
             kwargs['grammar'] = os.path.splitext(os.path.basename(kwargs['grammar']))[0] #just get grammar name
             #-confidence_value
-            confidence_value = kwargs['confidence_value'].rstrip() #chomp newline
+            confidence_value = kwargs['confidence_value'].rstrip() #chomp
             if confidence_value is not '':
                 kwargs['confidence_value'] = float(float(confidence_value)/1000.0) #show as decimal
             else:
@@ -199,7 +248,7 @@ class Transcription(models.Model):
             user = self.job.user
             self.latest_revision_done_by_current_user = latest_revision.user.pk == user.pk
         except Revision.DoesNotExist:
-            pass
+            self.latest_revision_done_by_current_user = False
         for word in self.words.all(): #remove current words
             word.delete()
         for word in latest_revision_words:
