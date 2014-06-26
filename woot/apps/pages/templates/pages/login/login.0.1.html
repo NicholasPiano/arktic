@@ -1,0 +1,33 @@
+{% extends 'base/base.0.1.html' %}
+{% load staticfiles %}
+
+{% block title %} Login {% endblock %}
+
+{% block css %}<link rel="stylesheet" href="{% static 'pages/css/login.css' %}">{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div id="wrapper" class="container">
+    <div id="login-panel">
+        <form id="login-form" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <span class="input-group-addon glyphicon glyphicon-user"></span>
+                <input name="email" type="text" class="form-control" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon glyphicon glyphicon-tower"></span>
+                <input name="password" type="password" class="form-control" placeholder="Password">
+            </div>
+            <button type="submit" class="btn btn-default">Login</button>
+            {% if bad_formatting %}
+            <button type="button" class="btn btn-default">Bad formatting</button>
+            {% endif %}
+            {% if invalid_username_or_password %}
+            <button type="button" class="btn btn-default">Invalid username or password</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
