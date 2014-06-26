@@ -7,7 +7,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 #local
 from settings.dev import VERSION
-from apps.distribution.models import Client
+from settings.common import NUMBER_OF_TRANSCRIPTIONS_PER_JOB
+from apps.distribution.models import Client, Project
 from apps.users.models import User
 
 #vars
@@ -36,12 +37,15 @@ def create_new_job(request):
         if user.is_authenticated():
             #get client
             client = Client.objects.get(name='Allstate') #currently just allstate
+            project = Project.objects.get(name='2014')
 
             #get user object
             user = User.objects.get(email=user)
 
             #create job
-            job = user.jobs.create(client=client)
+            job = user.jobs.create(client=client, project=project, active_transcriptions=NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
+            job.get_transcription_set()
+            job.save()
 
             return HttpResponseRedirect('/transcription/' + str(job.pk))
         else:

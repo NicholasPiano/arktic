@@ -18,7 +18,10 @@ login_templates = {'0.1':'pages/login/login.0.1.html',
 #classes
 class LoginView(View):
     def get(self, request):
-        return render(request, login_templates[VERSION], {})
+        if request.user.is_authenticated():
+            return HttpResponseRedirect('/start/')
+        else:
+            return render(request, login_templates[VERSION], {})
 
     def post(self, request):
         form = LoginForm(request.POST)

@@ -36,19 +36,48 @@ def update_transcription(request, job_id, transcription_id, transcription_uttera
         latest_revision = transcription.revisions.latest()
         if transcription_utterance != latest_revision.utterance:
             revision = transcription.revisions.create(user=job.user, utterance=transcription_utterance)
+            for word in transcription_utterance.split():
+                revision.words.create(content=word)
             revision.save()
+
+            #create new action object to mark the completion of another revision
+            button_id = 'closing revision: #' + str(revision.pk)
+            action = job.actions.create(user=job.user, button_id=button_id, transcription_id=transcription_id)
+            action.save()
+
     except Revision.DoesNotExist:
         revision = transcription.revisions.create(user=job.user, utterance=transcription_utterance)
+        for word in transcription_utterance.split():
+            revision.words.create(content=word)
         revision.save()
 
-    transcription.is_active = False
+        #create new action object to mark the completion of another revision
+        button_id = 'closing revision: #' + str(revision.pk)
+        action = job.actions.create(user=job.user, button_id=button_id, transcription_id=transcription_id)
+        action.save()
+
+    transcription.update()
     transcription.save()
 
     #check archive and compress
-    transcription.relfile.archive.check_transcriptions()
+    relfile = transcription.relfile
+    relfile.update()
+    relfile.save()
+    #transcription.relfile.archive.check_transcriptions()
 
     #check job and calculate remaining transcriptions
-    job.check_transcriptions()
+    job.update()
+    job.save()
+
+    #save project
+    project = job.project
+    project.update()
+    project.save()
+
+    #client for export
+    client = project.client
+    client.update()
+    client.save()
 
     #return status
     return json.dumps({'status':'success'})

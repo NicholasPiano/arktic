@@ -28,6 +28,10 @@ html {
 
 #audio-controls {
   margin-top:15px;
+}
+
+#audio-control-label {
+  margin-top:15px;
   margin-left:15px;
 }
 
