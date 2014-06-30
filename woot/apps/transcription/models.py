@@ -17,6 +17,7 @@ import wave as wv
 import numpy as np
 import os
 import re
+import json
 import subprocess as sp
 import zipfile as zp
 import shutil as sh
@@ -51,7 +52,7 @@ class Archive(models.Model):
     def save(self, *args, **kwargs):
         if self.pk is None:
             super(Archive, self).save(*args, **kwargs)
-            self.extract() #necessary here becasue this is done through the admin. When I write an upload view, this will not be necessary.
+            self.extract() #necessary here because this is done through the admin. When I write an upload view, this will not be necessary.
         else:
             super(Archive, self).save(*args, **kwargs) #first time
 
@@ -69,12 +70,19 @@ class Archive(models.Model):
         zip_file.extractall(path=inner_zip_path)
 
         #sort into relfile an audio files
+        #make dictionary of files
+        file_dictionary = {}
+        for file_name in zip_file_list:
+            file_dictionary.update({str(os.path.basename(file_name)):str(os.path.join(inner_zip_path, file_name))})
+
+        print(json.dumps(file_dictionary, indent=4))
+
         for file_name in zip_file_list:
             if re.search(r'\w+\/$', file_name) is None and re.search(r'Unsorted', file_name) is None and re.search(r'.csv', file_name) is not None:
                 with open(os.path.join(inner_zip_path, file_name)) as open_relfile:
                     file_subpath, relfile_file_name = os.path.split(file_name)
                     relfile = self.relfiles.create(client=self.project.client, project=self.project, name=relfile_file_name, file=File(open_relfile))
-                    relfile.extract(inner_zip_path, zip_file_list)
+                    relfile.extract(inner_zip_path=inner_zip_path, file_dictionary=file_dictionary)
                     relfile.save()
 
         sh.rmtree(os.path.join(inner_zip_path, outer_zip_path))
@@ -102,16 +110,13 @@ class RelFile(models.Model):
             if self.is_active:
                 self.is_active = False
 
-    def extract(self, inner_zip_path, zip_file_list):
-        #make dictionary of files
-        file_dictionary = {}
-        for file_name in zip_file_list:
-            file_dictionary.update({os.path.basename(file_name):os.path.join(inner_zip_path, file_name)})
+    def extract(self, inner_zip_path=None, file_dictionary=None):
         #open file
         lines = self.file.file.readlines()
         for line_number, line in enumerate(lines):
             tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
             transcription_audio_file_name = os.path.basename(tokens[0])
+            transcription_audio_file_name = transcription_audio_file_name.rstrip()
             grammar = os.path.splitext(os.path.basename(tokens[1]))[0]
             confidence = tokens[2]
             utterance = tokens[3]
@@ -123,17 +128,18 @@ class RelFile(models.Model):
                 confidence_value = 0.0
 
             #open file and create transcription
-            with open(file_dictionary[transcription_audio_file_name]) as transcription_audio_file:
-                self.transcriptions.create(client=self.client,
-                                           project=self.project,
-                                           archive=self.archive,
-                                           audio_file=File(transcription_audio_file),
-                                           line_number=line_number,
-                                           grammar=grammar,
-                                           confidence=confidence,
-                                           utterance=utterance,
-                                           value=value,
-                                           confidence_value=confidence_value)
+            if transcription_audio_file_name in file_dictionary:
+                with open(file_dictionary[transcription_audio_file_name]) as transcription_audio_file:
+                    self.transcriptions.create(client=self.client,
+                                               project=self.project,
+                                               archive=self.archive,
+                                               audio_file=File(transcription_audio_file),
+                                               line_number=line_number,
+                                               grammar=grammar,
+                                               confidence=confidence,
+                                               utterance=utterance,
+                                               value=value,
+                                               confidence_value=confidence_value)
 
         self.client.create_autocomplete_words() #run once for every relfile.
 
