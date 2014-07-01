@@ -13,12 +13,9 @@ from apps.distribution.models import Client, Project, Job
 from apps.users.models import User
 
 #util
-import wave as wv
-import numpy as np
 import os
 import re
 import json
-import subprocess as sp
 import zipfile as zp
 import shutil as sh
 import collections as cl
