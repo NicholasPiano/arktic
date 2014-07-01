@@ -225,9 +225,6 @@ LOCAL_APPS = (
     # Pre-client frontend
     'apps.pages',
 
-    # Stats
-    'apps.statistics',
-
     # Augmented auth model
     'apps.users',
 )
