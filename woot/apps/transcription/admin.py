@@ -16,11 +16,7 @@ admin.site.register(Transcription)
 admin.site.register(Revision)
 
 #ARCHIVE
-class ArchiveAdmin(admin.ModelAdmin):
-    change_form_template = 'progressbarupload/change_form.html'
-    add_form_template = 'progressbarupload/change_form.html'
-
-admin.site.register(Archive, ArchiveAdmin)
+admin.site.register(Archive)
 
 #RELFILE
 admin.site.register(RelFile)

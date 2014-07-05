@@ -6,14 +6,9 @@ from django.views.generic import View
 from django.http import HttpResponse, HttpResponseRedirect
 
 #local
-from settings.dev import VERSION
 from settings.common import NUMBER_OF_TRANSCRIPTIONS_PER_JOB
 from apps.distribution.models import Client, Project
 from apps.users.models import User
-
-#vars
-start_templates = {'0.1':'users/start/start.0.1.html',
-                   '0.2':'users/start/start.0.2.html',}
 
 #class views
 class StartView(View):
@@ -26,7 +21,7 @@ class StartView(View):
             #list of jobs
             jobs = user.jobs.filter(is_active=True)
 
-            return render(request, start_templates[VERSION], {'user':user,'jobs':jobs,})
+            return render(request, 'users/start.html', {'user':user,'jobs':jobs,})
         else:
             return HttpResponseRedirect('/login/')
 

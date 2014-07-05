@@ -8,12 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.template import RequestContext
 
 #local
-from settings.dev import VERSION
 from apps.pages.forms import LoginForm
-
-#vars
-login_templates = {'0.1':'pages/login/login.0.1.html',
-                   '0.2':'pages/login/login.0.2.html',}
 
 #classes
 class LoginView(View):
@@ -21,7 +16,7 @@ class LoginView(View):
         if request.user.is_authenticated():
             return HttpResponseRedirect('/start/')
         else:
-            return render(request, login_templates[VERSION], {})
+            return render(request, 'pages/login.html', {})
 
     def post(self, request):
         form = LoginForm(request.POST)
@@ -33,6 +28,6 @@ class LoginView(View):
                     login(request, user)
                     return HttpResponseRedirect('/start/') #go to employee summary page
             else:
-                return render(request, login_templates[VERSION], {'invalid_username_or_password':True})
+                return render(request, 'pages/login.html', {'invalid_username_or_password':True})
         else:
-            return render(request, login_templates[VERSION], {'bad_formatting':True})
+            return render(request, 'pages/login.html', {'bad_formatting':True})
