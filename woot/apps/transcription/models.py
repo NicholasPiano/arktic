@@ -70,16 +70,22 @@ class Archive(models.Model):
         #make dictionary of files
         file_dictionary = {}
         for file_name in zip_file_list:
-            file_dictionary.update({str(os.path.basename(file_name)):str(os.path.join(inner_zip_path, file_name))})
+            file_dictionary.update({os.path.basename(file_name):os.path.join(inner_zip_path, file_name)})
 
-        print(json.dumps(file_dictionary, indent=4))
+#         print(json.dumps(file_dictionary, indent=4))
+
+        number_of_relfiles = 0
 
         for file_name in zip_file_list:
-            if re.search(r'\w+\/$', file_name) is None and re.search(r'Unsorted', file_name) is None and re.search(r'.csv', file_name) is not None:
+            if re.search(r'\w+\/$', file_name) is None and re.search(r'Unsorted', file_name) is None and re.search(r'\.csv', file_name) is not None and re.search(r'\._', file_name) is None:
+                number_of_relfiles += 1
+                print('relfile ' + str(number_of_relfiles))
                 with open(os.path.join(inner_zip_path, file_name)) as open_relfile:
                     file_subpath, relfile_file_name = os.path.split(file_name)
                     relfile = self.relfiles.create(client=self.project.client, project=self.project, name=relfile_file_name, file=File(open_relfile))
-                    relfile.extract(inner_zip_path=inner_zip_path, file_dictionary=file_dictionary)
+                    print(str(number_of_relfiles) + ' extracting...')
+                    relfile.extract(inner_zip_path=inner_zip_path, file_dictionary=file_dictionary, index=number_of_relfiles)
+                    print(str(number_of_relfiles) + ' done.')
                     relfile.save()
 
         sh.rmtree(os.path.join(inner_zip_path, outer_zip_path))
@@ -107,16 +113,18 @@ class RelFile(models.Model):
             if self.is_active:
                 self.is_active = False
 
-    def extract(self, inner_zip_path=None, file_dictionary=None):
+    def extract(self, inner_zip_path=None, file_dictionary=None, index=None):
         #open file
         lines = self.file.file.readlines()
+        total_number_of_lines = len(lines)
         for line_number, line in enumerate(lines):
+            print('relfile ' + str(index) + ' processing transcription ' + str(line_number) + ' of ' + str(total_number_of_lines))
             tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
             transcription_audio_file_name = os.path.basename(tokens[0])
             transcription_audio_file_name = transcription_audio_file_name.rstrip()
-            grammar = os.path.splitext(os.path.basename(tokens[1]))[0]
+            grammar = os.path.splitext(os.path.basename(tokens[1]))[0] if tokens[1] else ''
             confidence = tokens[2]
-            utterance = tokens[3]
+            utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
             value = tokens[4]
             confidence_value = tokens[5].rstrip() #chomp newline
             if confidence_value is not '':

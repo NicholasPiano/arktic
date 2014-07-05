@@ -1,6 +1,4 @@
-#from apps.transcription.models import Transcription, RelFile; T = Transcription.objects.all(); R = RelFile.objects.all();
-#from apps.users.models import User; u = User.objects.get()
-#from apps.distribution.models import Client, Project; client = Client.objects.get();
+#from apps.transcription.models import Transcription, RelFile; T = Transcription.objects.all(); R = RelFile.objects.all(); from apps.users.models import User; u = User.objects.get(); from apps.distribution.models import Client, Project; client = Client.objects.get(); p = Project.objects.get();
 
 #distribution.models
 
@@ -21,12 +19,6 @@ import datetime as dt
 
 #vars
 COMPLETED_PROJECT_ROOT = os.path.join(MEDIA_ROOT, 'completed')
-
-#class methods
-def zipdir(path, zip):
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            zip.write(os.path.join(root, file))
 
 #classes
 class Client(models.Model):
@@ -108,11 +100,12 @@ class Project(models.Model):
                 self.completed_relfiles.create(client=self.client, archive=relfile.archive, relfile=relfile, file=File(complete_relfile), name=relfile.name)
 
         #zip directory
-        zipfile = zp.ZipFile(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed.zip'), 'w')
-        zipdir(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'), zipfile)
-        completed_project = self.client.completed_projects.create(name=self.name, file=File(zipfile))
-        completed_project.save()
-        zipfile.close()
+        zip_file = zp.ZipFile(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed.zip'), 'w', zp.ZIP_DEFLATED)
+        for f in self.completed_relfiles.all():
+            file_path = f.file.file.name
+            zip_file.write(file_path, os.path.relpath(file_path, COMPLETED_PROJECT_ROOT))
+
+        zip_file.close()
 
         #remove tree
 #         sh.rmtree(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'))

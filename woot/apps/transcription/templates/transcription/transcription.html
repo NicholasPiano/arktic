@@ -1,9 +1,9 @@
-{% extends 'base/base.0.1.html' %}
+{% extends 'base.html' %}
 {% load staticfiles %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'transcription/css/typeahead.css' %}">
-<link rel="stylesheet" href="{% static 'transcription/css/main_transcription/main_transcription.0.1.css' %}">
+<link rel="stylesheet" href="{% static 'transcription/css/transcription.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -96,7 +96,7 @@
 <!-- js -->
 {% block post_main_script %}
 <script src="{% static 'transcription/js/typeahead.js' %}"></script>
-<script src="{% static 'transcription/js/main_transcription/transcription-control.0.1.js' %}"></script>
+<script src="{% static 'transcription/js/transcription.js' %}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 var substringMatcher = function(strs) {

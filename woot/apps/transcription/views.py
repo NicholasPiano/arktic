@@ -7,12 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 
 #local
-from settings.dev import VERSION
 from apps.users.models import User
-
-#vars
-main_transcription_templates = {'0.1':'transcription/main_transcription/main_transcription.0.1.html',
-                                '0.2':'transcription/main_transcription/main_transcription.0.2.html',}
 
 #class views
 class MainTranscriptionView(View):
@@ -31,9 +26,9 @@ class MainTranscriptionView(View):
                 transcription.save()
             words = sorted(client.words.all(), key=lambda x: len(x.content), reverse=False)
 
-            return render(request, main_transcription_templates[VERSION], {'transcriptions':transcriptions,
-                                                                           'words':words,
-                                                                           'job_id':job_id,})
+            return render(request, 'transcription/transcription.html', {'transcriptions':transcriptions,
+                                                                        'words':words,
+                                                                        'job_id':job_id,})
         else:
             return HttpResponseRedirect('/login/')
 

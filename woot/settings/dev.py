@@ -2,12 +2,10 @@
 
 #util
 from os.path import join, normpath
+import os
 
 #local
 from common import *
-
-########## VERSIONING
-VERSION = '0.1'
 
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
@@ -26,14 +24,16 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ########## DATABASE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': normpath(join(DJANGO_ROOT, 'default.db')),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'arktic_db',
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': 'localhost',
     }
 }
 ########## END DATABASE CONFIGURATION
@@ -47,15 +47,6 @@ CACHES = {
     }
 }
 ########## END CACHE CONFIGURATION
-
-
-########## CELERY CONFIGURATION
-# See: http://docs.celeryq.org/en/latest/configuration.html#celery-always-eager
-CELERY_ALWAYS_EAGER = True
-
-# See: http://docs.celeryproject.org/en/latest/configuration.html#celery-eager-propagates-exceptions
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-########## END CELERY CONFIGURATION
 
 
 ########## TOOLBAR CONFIGURATION

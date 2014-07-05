@@ -111,7 +111,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
     'dajaxice.finders.DajaxiceFinder',
 )
 ########## END STATIC FILE CONFIGURATION
@@ -202,15 +201,6 @@ THIRD_PARTY_APPS = (
     # Database migration helpers:
     'south',
 
-    # Static file management:
-    'compressor',
-
-    # Asynchronous task queue:
-    'djcelery',
-
-    # Progress dar upload for admin
-    'progressbarupload',
-
     # Ajax requests
     'dajaxice',
 )
@@ -266,41 +256,11 @@ LOGGING = {
 ########## END LOGGING CONFIGURATION
 
 
-########## CELERY CONFIGURATION
-# See: http://celery.readthedocs.org/en/latest/configuration.html#celery-task-result-expires
-CELERY_TASK_RESULT_EXPIRES = timedelta(minutes=30)
-
-# See: http://docs.celeryproject.org/en/master/configuration.html#std:setting-CELERY_CHORD_PROPAGATES
-CELERY_CHORD_PROPAGATES = True
-
-# See: http://celery.github.com/celery/django/
-setup_loader()
-########## END CELERY CONFIGURATION
-
-
 ########## WSGI CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
 WSGI_APPLICATION = 'wsgi.application'
 ########## END WSGI CONFIGURATION
 
-
-########## COMPRESSION CONFIGURATION
-# See: http://django_compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_ENABLED
-COMPRESS_ENABLED = True
-
-# See: http://django-compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_CSS_HASHING_METHOD
-COMPRESS_CSS_HASHING_METHOD = 'content'
-
-# See: http://django_compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_CSS_FILTERS
-COMPRESS_CSS_FILTERS = [
-    'compressor.filters.template.TemplateFilter',
-]
-
-# See: http://django_compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_JS_FILTERS
-COMPRESS_JS_FILTERS = [
-    'compressor.filters.template.TemplateFilter',
-]
-########## END COMPRESSION CONFIGURATION
 
 ########## FILE UPLOAD CONFIGURATION
 FILE_UPLOAD_HANDLERS = (
