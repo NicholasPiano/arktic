@@ -48,7 +48,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'arkaeologic$arktic',
         'USER': 'arkaeologic',
-        'PASSWORD': 'uqnhs77f',
+        'PASSWORD': DATABASE_PWD,
         'HOST': 'mysql.server',
     }
 }
