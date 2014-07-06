@@ -40,7 +40,7 @@ SECRET_KEY = environ.get('SECRET_KEY', SECRET_KEY)
 
 
 ########## DATABASE CONFIGURATION
-DATABASE_PWD = os.environ.get("DB_PWD")
+DATABASE_PWD = environ.get('DB_PWD', DATABASE_PWD)
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
@@ -50,6 +50,7 @@ DATABASES = {
         'USER': 'arkaeologic',
         'PASSWORD': DATABASE_PWD,
         'HOST': 'mysql.server',
+        'PORT': '',
     }
 }
 ########## END DATABASE CONFIGURATION
