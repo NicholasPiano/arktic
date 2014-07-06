@@ -24,16 +24,30 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ########## DATABASE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
-DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
+# DB_USER = os.getenv('DB_USER')
+# DB_PASSWORD = os.getenv('DB_PASSWORD')
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'arktic_db',
+#         'USER': DB_USER,
+#         'PASSWORD': DB_PASSWORD,
+#         'HOST': 'localhost',
+#     }
+# }
+
+DATABASE_PWD = environ.get('DB_PWD', DATABASE_PWD)
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'arktic_db',
-        'USER': DB_USER,
-        'PASSWORD': DB_PASSWORD,
-        'HOST': 'localhost',
+        'NAME': 'arkaeologic$arktic',
+        'USER': 'arkaeologic',
+        'PASSWORD': DATABASE_PWD,
+        'HOST': 'mysql.server',
+        'PORT': '',
     }
 }
 ########## END DATABASE CONFIGURATION
@@ -51,17 +65,17 @@ CACHES = {
 
 ########## TOOLBAR CONFIGURATION
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
-INSTALLED_APPS += (
-    'debug_toolbar',
-)
+# INSTALLED_APPS += (
+#     'debug_toolbar',
+# )
 
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
 INTERNAL_IPS = ('127.0.0.1',)
 
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
-MIDDLEWARE_CLASSES += (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-)
+# MIDDLEWARE_CLASSES += (
+#     'debug_toolbar.middleware.DebugToolbarMiddleware',
+# )
 
 DEBUG_TOOLBAR_CONFIG = {
 
