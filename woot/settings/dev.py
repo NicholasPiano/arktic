@@ -37,7 +37,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #     }
 # }
 
-DATABASE_PWD = os.environ.get('DB_PWD', DATABASE_PWD)
+DATABASE_PWD = os.getenv('DB_PWD')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
