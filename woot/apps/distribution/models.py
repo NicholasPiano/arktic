@@ -105,10 +105,12 @@ class Project(models.Model):
             file_path = f.file.file.name
             zip_file.write(file_path, os.path.relpath(file_path, COMPLETED_PROJECT_ROOT))
 
+        self.client.completed_projects.create(name=self.name+'_completed', file=File(zip_file))
+
         zip_file.close()
 
         #remove tree
-#         sh.rmtree(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'))
+        sh.rmtree(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'))
 
 class CompletedProject(models.Model):
     #connections
