@@ -30,9 +30,8 @@ def create_new_job(request):
     if request.method == 'GET':
         user = request.user
         if user.is_authenticated():
-            #get client
-            client = Client.objects.get(name='Allstate') #currently just allstate
-            project = Project.objects.get(name='2014')
+            #get latest project
+
 
             #get user object
             user = User.objects.get(email=user)
