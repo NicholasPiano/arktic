@@ -105,8 +105,9 @@ class Project(models.Model):
             file_path = f.file.file.name
             zip_file.write(file_path, os.path.relpath(file_path, COMPLETED_PROJECT_ROOT))
 
-        completed_project = self.client.completed_projects.create(name=self.name, file=File(zip_file))
-        completed_project.file.save(self.name + '_completed.zip', File(zip_file))
+        completed_project = self.client.completed_projects.create(name=self.name)
+
+        completed_project.file.name = os.path.join('completed', self.name + '_completed.zip')
         completed_project.save()
 
         zip_file.close()

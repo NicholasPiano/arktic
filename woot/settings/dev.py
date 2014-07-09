@@ -43,11 +43,10 @@ DATABASE_PWD = os.getenv('DB_PWD')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'arkaeologic$arktic',
-        'USER': 'arkaeologic',
+        'NAME': 'arktic_db',
+        'USER': 'nicholas',
         'PASSWORD': DATABASE_PWD,
-        'HOST': 'mysql.server',
-        'PORT': '',
+        'HOST': 'localhost',
     }
 }
 ########## END DATABASE CONFIGURATION

@@ -79,13 +79,13 @@ class Archive(models.Model):
         for file_name in zip_file_list:
             if re.search(r'\w+\/$', file_name) is None and re.search(r'Unsorted', file_name) is None and re.search(r'\.csv', file_name) is not None and re.search(r'\._', file_name) is None:
                 number_of_relfiles += 1
-                print('relfile ' + str(number_of_relfiles))
+#                 print('relfile ' + str(number_of_relfiles))
                 with open(os.path.join(inner_zip_path, file_name)) as open_relfile:
                     file_subpath, relfile_file_name = os.path.split(file_name)
                     relfile = self.relfiles.create(client=self.project.client, project=self.project, name=relfile_file_name, file=File(open_relfile))
-                    print(str(number_of_relfiles) + ' extracting...')
+#                     print(str(number_of_relfiles) + ' extracting...')
                     relfile.extract(inner_zip_path=inner_zip_path, file_dictionary=file_dictionary, index=number_of_relfiles)
-                    print(str(number_of_relfiles) + ' done.')
+#                     print(str(number_of_relfiles) + ' done.')
                     relfile.save()
 
         sh.rmtree(os.path.join(inner_zip_path, outer_zip_path))
@@ -118,7 +118,7 @@ class RelFile(models.Model):
         lines = self.file.file.readlines()
         total_number_of_lines = len(lines)
         for line_number, line in enumerate(lines):
-            print('relfile ' + str(index) + ' processing transcription ' + str(line_number) + ' of ' + str(total_number_of_lines))
+#             print('relfile ' + str(index) + ' processing transcription ' + str(line_number) + ' of ' + str(total_number_of_lines))
             tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
             transcription_audio_file_name = os.path.basename(tokens[0])
             transcription_audio_file_name = transcription_audio_file_name.rstrip()
