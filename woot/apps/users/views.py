@@ -30,14 +30,14 @@ def create_new_job(request):
     if request.method == 'GET':
         user = request.user
         if user.is_authenticated():
-            #get latest project
-
+            #get oldest project
+            project = Project.objects.all().order_by('date_created')[0]
 
             #get user object
             user = User.objects.get(email=user)
 
             #create job
-            job = user.jobs.create(client=client, project=project, active_transcriptions=NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
+            job = user.jobs.create(client=project.client, project=project, active_transcriptions=NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
             job.get_transcription_set()
             job.save()
 
