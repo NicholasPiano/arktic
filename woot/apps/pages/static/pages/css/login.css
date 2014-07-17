@@ -1,0 +1,40 @@
+#login-panel {
+  width:400px;
+  margin-left:auto;
+  margin-right:auto;
+  margin-top:250px;
+}
+
+span.input-group-addon {
+  top:0px;
+}
+
+div.input-group {
+  margin-bottom:5px;
+}
+
+
+/*
+<div id="wrapper" class="container">
+    <div id="login-panel">
+        <form id="login-form" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <span class="input-group-addon glyphicon glyphicon-user"></span>
+                <input name="email" type="text" class="form-control" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon glyphicon glyphicon-tower"></span>
+                <input name="password" type="password" class="form-control" placeholder="Password">
+            </div>
+            <button type="submit" class="btn btn-default">Login</button>
+            {% if bad_formatting %}
+            <button type="button" class="btn btn-default">Bad formatting</button>
+            {% endif %}
+            {% if invalid_username_or_password %}
+            <button type="button" class="btn btn-default">Invalid username or password</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+/**/
