@@ -133,9 +133,9 @@ $(document).ready(function() {
     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'add_new_word', 'transcription_id':$('#play-pause').attr('play')});
     //make a new button and add it to the current modified list with copied text from input
     var play = $('#play-pause').attr('play');
-    if (play!='') {
+    if (play!=='') {
       var text = $('#typeahead').val();
-      if (text!='undefined' && text!='') {
+      if (text!='undefined' && text!=='') {
         var active = $('#panel-'+play+' div.modified-panel div.btn-group.modified button.active');
         active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
         active.removeClass('active');
@@ -190,7 +190,7 @@ $(document).ready(function() {
     $('#panel-'+play + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
       utterance += $(this).html() + ' ';
     });
-    if (utterance!='') {
+    if (utterance!=='') {
       Dajaxice.apps.transcription.update_transcription(update_transcription_callback, {'job_id':$('#job').attr('job_id'), 'transcription_id':play, 'transcription_utterance':utterance,});
       //toggle green
       $(this).addClass('btn-success').removeClass('btn-default');
@@ -242,7 +242,7 @@ $(document).ready(function() {
     var play = $('#play-pause').attr('play');
     if(e.keyCode === 13) { //enter
       //controlling word copying
-      if ($('#typeahead').is(':focus') && $('#typeahead').val()!='') {
+      if ($('#typeahead').is(':focus') && $('#typeahead').val()!=='') {
         $('#add-new-word').click();
       } else {
         var utterance = '';
