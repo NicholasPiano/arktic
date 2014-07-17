@@ -16,10 +16,6 @@ html {
   width:800px;
 }
 
-#job-table {
-  display:block;
-}
-
 #interface {
   position:fixed;
   top:50%;
