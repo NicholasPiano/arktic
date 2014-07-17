@@ -9,13 +9,13 @@
 {% block content %}
 <div id="wrapper" class="container">
 <!-- list of audio tags -->
-    <div id="job-table" style="display:block;">
+    <div id="job-table" style="display:none;">
         <a id="job" job_id="{{job_id}}"></a>
         <ul class="list-group">
             {% for transcription in transcriptions %}
             <li id="li-{{transcription.pk}}" index="{{forloop.counter}}" class="list-group-item audio">
                 <!-- -->
-                <audio id="{{transcription.pk}}" controls>
+                <audio id="{{transcription.pk}}">
                     <source src="{{ transcription.audio_file.url }}" type="audio/wav">
                 </audio>
                 <!-- -->
