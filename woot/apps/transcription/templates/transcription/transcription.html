@@ -15,7 +15,7 @@
             {% for transcription in transcriptions %}
             <li id="li-{{transcription.pk}}" index="{{forloop.counter}}" class="list-group-item audio">
                 <!-- -->
-                <audio id="{{transcription.pk}}">
+                <audio id="{{transcription.pk}}" controls>
                     <source src="{{ transcription.audio_file.url }}" type="audio/wav">
                 </audio>
                 <!-- -->
@@ -29,9 +29,9 @@
         <div id="indicators" class="panel">
             {% for transcription in transcriptions %}
                 {% if transcription.latest_revision_done_by_current_user %}
-                <div id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-success indicator indicator-ok"><span class="glyphicon glyphicon-ok"></span></div>
+                <div play="{{transcription.pk}}" id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-success indicator indicator-ok"><span class="glyphicon glyphicon-ok"></span></div>
                 {% else %}
-                <div id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-ok"><span class="glyphicon glyphicon-ok"></span></div>
+                <div play="{{transcription.pk}}" id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-ok"><span class="glyphicon glyphicon-ok"></span></div>
                 {% endif %}
             <div id="indicator-loading-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-loading" style="background-image:url('{% static 'transcription/img/spinner.gif' %}')"></div>
             {% endfor %}

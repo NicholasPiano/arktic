@@ -17,7 +17,7 @@ html {
 }
 
 #job-table {
-  display:none;
+  display:block;
 }
 
 #interface {

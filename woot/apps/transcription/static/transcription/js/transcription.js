@@ -198,6 +198,37 @@ $(document).ready(function() {
     }
   });
 
+  $('div.indicator-ok').click(function(){
+    //get current play
+    var currentPlay = $('#play-pause').attr('play');
+    $('#panel-'+currentPlay+' div.modified-panel div.tick button.tick').click();
+    //pause current player and set currentTime=0
+    var currentPlayer = document.getElementById(currentPlay);
+    if (!currentPlayer.paused) {
+      currentPlayer.pause();
+      currentPlayer.currentTime=0;
+    } else {
+      $('#play-pause').children('span.glyphicon').toggle();
+    }
+
+    //get next id
+    var nextPlay = $(this).attr('play');
+
+    //set play-pause button play variable
+    $('#play-pause').attr('play', nextPlay);
+    //toggle and click button
+    $('#play-pause').children('span.glyphicon').toggle();
+    $('#play-pause').click();
+
+    //counter label
+    var counter = $('#li-'+nextPlay).attr('index');
+    $('#counter span').html(counter);
+
+    //show utterance and hide others
+    $('div.transcription').css('display','none');
+    $('#panel-'+nextPlay).css('display','block');
+  });
+
   //--KEYBOARD SHORTCUTS
   //prevent default actions for arrow keys and space
   window.addEventListener("keydown", function(e) {
@@ -221,7 +252,7 @@ $(document).ready(function() {
         if (utterance=='') {
           $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
         } else {
-          $('#panel-'+play+' div.modified-panel div.tick button.tick').click();
+          $('#panel-'+play+' div.modified-panel button.tick').click();
         }
       }
     } else if (e.keyCode === 40) { //down arrow
