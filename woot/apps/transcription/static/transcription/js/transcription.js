@@ -11,11 +11,18 @@ $(document).ready(function() {
 
   //--SETUP AND BINDINGS
   //set up play variable for play-pause button
-  var play = $('li.audio:first audio').attr('id')
+  var play = $('li.audio:first audio').attr('id');
   $('#play-pause').attr('play', play);
 
   //set up utterance buttons
 //   $('#panel-'+play).toggle();
+
+  //bind audio player load
+  $('audio').on('canplay canplaythrough', function(){
+    var play = $(this).attr('id');
+    $('#indicator-ok-'+play).css('display','inline-block');
+    $('#indicator-loading-'+play).hide();
+  });
 
   //bind audio player end
   $('audio').on('ended', function(){
@@ -187,6 +194,7 @@ $(document).ready(function() {
       Dajaxice.apps.transcription.update_transcription(update_transcription_callback, {'job_id':$('#job').attr('job_id'), 'transcription_id':play, 'transcription_utterance':utterance,});
       //toggle green
       $(this).addClass('btn-success').removeClass('btn-default');
+      $('#indicator-ok-'+play).addClass('btn-success').removeClass('btn-default');
     }
   });
 

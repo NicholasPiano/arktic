@@ -37,6 +37,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #     }
 # }
 
+DATABASE_USER = os.getenv('DB_USER')
 DATABASE_PWD = os.getenv('DB_PWD')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
@@ -44,7 +45,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'arktic_db',
-        'USER': 'nicholas',
+        'USER': DATABASE_USER,
         'PASSWORD': DATABASE_PWD,
         'HOST': 'localhost',
     }
@@ -64,9 +65,9 @@ CACHES = {
 
 ########## TOOLBAR CONFIGURATION
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
-# INSTALLED_APPS += (
-#     'debug_toolbar',
-# )
+INSTALLED_APPS += (
+    'debug_toolbar',
+)
 
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
 INTERNAL_IPS = ('127.0.0.1',)

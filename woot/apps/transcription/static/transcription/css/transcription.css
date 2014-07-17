@@ -5,6 +5,13 @@ html {
   color: #333;
 }
 
+.panel {
+  border: 0px solid transparent;
+  border-radius: 0px;
+  -webkit-box-shadow: 0 0px 0px rgba(0,0,0,.05);
+  box-shadow: 0 0px 0px rgba(0,0,0,.05);
+}
+
 #wrapper {
   width:800px;
 }
@@ -24,6 +31,11 @@ html {
   border:none;
   -webkit-box-shadow:none;
   box-shadow:none;
+}
+
+#indicators {
+  margin-left:15px;
+  width:700px;
 }
 
 #audio-controls {
@@ -91,4 +103,24 @@ div.transcription span {
 
 div.tick {
   margin-left:10px;
+}
+
+div.indicator {
+  margin-bottom:5px;
+  margin-right:5px;
+  border:0px;
+}
+
+div.indicator.indicator-loading {
+  width:42px;
+  height:34px;
+  background-size:200%;
+  background-repeat:no-repeat;
+  background-position:center;
+}
+
+div.indicator.indicator-ok {
+  display:none;
+  width:42px;
+  height:34px;
 }

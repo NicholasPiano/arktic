@@ -26,6 +26,16 @@
 
 <!-- interface -->
     <div id="interface" class="panel panel-default">
+        <div id="indicators" class="panel">
+            {% for transcription in transcriptions %}
+                {% if transcription.latest_revision_done_by_current_user %}
+                <div id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-success indicator indicator-ok"><span class="glyphicon glyphicon-ok"></span></div>
+                {% else %}
+                <div id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-ok"><span class="glyphicon glyphicon-ok"></span></div>
+                {% endif %}
+            <div id="indicator-loading-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-loading" style="background-image:url('{% static 'transcription/img/spinner.gif' %}')"></div>
+            {% endfor %}
+        </div>
         <div class="btn-group">
             <button id="audio-control-label" type="button" class="btn ninja">Controls</button>
         </div>
@@ -72,13 +82,11 @@
                     {% endif %}
                     <button type="button" class="btn btn-default add-modified"><span class="glyphicon glyphicon-plus"></span></button>
                 </div>
-                <div class="btn-group tick">
-                    {% if transcription.latest_revision_done_by_current_user %}
-                    <button type="button" class="btn btn-success tick"><span class="glyphicon glyphicon-ok"></span></button>
-                    {% else %}
-                    <button type="button" class="btn btn-default tick"><span class="glyphicon glyphicon-ok"></span></button>
-                    {% endif %}
-                </div>
+                {% if transcription.latest_revision_done_by_current_user %}
+                <button type="button" class="btn btn-success tick"><span class="glyphicon glyphicon-ok"></span></button>
+                {% else %}
+                <button type="button" class="btn btn-default tick"><span class="glyphicon glyphicon-ok"></span></button>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
