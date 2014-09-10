@@ -259,6 +259,8 @@ $(document).ready(function() {
       if ($('#typeahead').val()=='') {
         $('#next').click();
       }
+    } else if (e.keyCode === 16) { //shift (both)
+      $('#replay').click();
     } else if (e.keyCode === 38) { //up arrow
       if ($('#typeahead').val()=='') {
         $('#previous').click();
