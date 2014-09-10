@@ -65,6 +65,10 @@ $(document).ready(function() {
     //show utterance and hide others
     $('div.transcription').css('display','none');
     $('#panel-'+prevPlay).css('display','block');
+
+    //indicator highlight
+    $('div.indicator.active').removeClass('active');
+    $('#indicator-ok-'+prevPlay).addClass('active');
   });
 
   $('#replay').click(function(){
@@ -123,6 +127,10 @@ $(document).ready(function() {
     //show utterance and hide others
     $('div.transcription').css('display','none');
     $('#panel-'+nextPlay).css('display','block');
+
+    //indicator highlight
+    $('div.indicator.active').removeClass('active');
+    $('#indicator-ok-'+nextPlay).addClass('active');
   });
 
   $('#waveform').click(function(){
