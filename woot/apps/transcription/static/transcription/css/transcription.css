@@ -109,7 +109,7 @@ div.indicator {
 }
 
 div.indicator.active-indicator {
-  border:1px gray;
+  border:1px solid gray;
 }
 
 div.indicator.indicator-loading {
