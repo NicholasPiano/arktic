@@ -108,7 +108,7 @@ div.indicator {
   border:0px;
 }
 
-div.indicator.active {
+div.indicator.active-indicator {
   border:1px gray;
 }
 

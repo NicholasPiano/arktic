@@ -67,8 +67,9 @@ $(document).ready(function() {
     $('#panel-'+prevPlay).css('display','block');
 
     //indicator highlight
-    $('div.indicator.active').removeClass('active');
-    $('#indicator-ok-'+prevPlay).addClass('active');
+    //indicator highlight
+    $('div.indicator.active-indicator').removeClass('active-indicator');
+    $('#indicator-ok-'+prevPlay).addClass('active-indicator');
   });
 
   $('#replay').click(function(){
@@ -129,8 +130,8 @@ $(document).ready(function() {
     $('#panel-'+nextPlay).css('display','block');
 
     //indicator highlight
-    $('div.indicator.active').removeClass('active');
-    $('#indicator-ok-'+nextPlay).addClass('active');
+    $('div.indicator.active-indicator').removeClass('active-indicator');
+    $('#indicator-ok-'+nextPlay).addClass('active-indicator');
   });
 
   $('#waveform').click(function(){
@@ -235,6 +236,10 @@ $(document).ready(function() {
     //show utterance and hide others
     $('div.transcription').css('display','none');
     $('#panel-'+nextPlay).css('display','block');
+
+    //switch to active
+    $('div.indicator.active-indicator').removeClass('active-indicator');
+    $(this).addClass('active-indicator');
   });
 
   //--KEYBOARD SHORTCUTS

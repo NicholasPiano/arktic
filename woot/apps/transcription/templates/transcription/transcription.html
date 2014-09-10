@@ -29,9 +29,9 @@
         <div id="indicators" class="panel">
             {% for transcription in transcriptions %}
                 {% if transcription.latest_revision_done_by_current_user %}
-                <div play="{{transcription.pk}}" id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-success indicator indicator-ok {% if forloop.first %}active{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
+                <div play="{{transcription.pk}}" id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-success indicator indicator-ok {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
                 {% else %}
-                <div play="{{transcription.pk}}" id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-ok {% if forloop.first %}active{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
+                <div play="{{transcription.pk}}" id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-ok {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
                 {% endif %}
             <div id="indicator-loading-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-loading" style="background-image:url('{% static 'transcription/img/spinner.gif' %}')"></div>
             {% endfor %}
