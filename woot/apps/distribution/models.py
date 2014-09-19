@@ -53,7 +53,7 @@ class Client(models.Model):
 
     def update(self):
         for project in self.projects.filter(is_active=False):
-            if not self.completed_projects.get(name=project.name+'_completed'):
+            if self.completed_projects.filter(name=project.name+'_completed') == []:
                 project.export()
                 project.save()
 
