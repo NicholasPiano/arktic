@@ -256,22 +256,39 @@ $(document).ready(function() {
 
   $(document).keydown(function(e) {
     var play = $('#play-pause').attr('play');
-    if(e.keyCode === 13) { //enter
-      //controlling word copying
-      if ($('#typeahead').is(':focus') && $('#typeahead').val()!=='') {
-        $('#add-new-word').click();
-      } else {
+    if (e.ctrlKey && e.keyCode===74) { //ctrl + j
+        //previous transcription
+        $('#previous').click();
+    } else if (e.ctrlKey && e.keyCode===75) { //ctrl + k
+        //copy down, tick, next
         var utterance = '';
         $('#panel-'+play + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
           utterance += $(this).html() + ' ';
         });
         if (utterance=='') {
           $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
+          $('#panel-'+play+' div.modified-panel button.tick').click();
+          $('#next').click();
         } else {
-            $('#panel-'+play+' div.modified-panel button.tick').click();
-            $('#next').click();
+          $('#panel-'+play+' div.modified-panel button.tick').click();
+          $('#next').click();
         }
-      }
+    } else if (e.keyCode === 13) { //enter
+        //controlling word copying
+        if ($('#typeahead').is(':focus') && $('#typeahead').val()!=='') {
+          $('#add-new-word').click();
+        } else {
+          var utterance = '';
+          $('#panel-'+play + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
+            utterance += $(this).html() + ' ';
+          });
+          if (utterance=='') {
+            $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
+          } else {
+              $('#panel-'+play+' div.modified-panel button.tick').click();
+              $('#next').click();
+          }
+       }
     } else if (e.keyCode === 40) { //down arrow
       if ($('#typeahead').val()=='') {
         $('#next').click();
