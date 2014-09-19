@@ -65,6 +65,11 @@ $(document).ready(function() {
     //show utterance and hide others
     $('div.transcription').css('display','none');
     $('#panel-'+prevPlay).css('display','block');
+
+    //indicator highlight
+    //indicator highlight
+    $('div.indicator.active-indicator').removeClass('active-indicator');
+    $('#indicator-ok-'+prevPlay).addClass('active-indicator');
   });
 
   $('#replay').click(function(){
@@ -123,6 +128,10 @@ $(document).ready(function() {
     //show utterance and hide others
     $('div.transcription').css('display','none');
     $('#panel-'+nextPlay).css('display','block');
+
+    //indicator highlight
+    $('div.indicator.active-indicator').removeClass('active-indicator');
+    $('#indicator-ok-'+nextPlay).addClass('active-indicator');
   });
 
   $('#waveform').click(function(){
@@ -143,6 +152,9 @@ $(document).ready(function() {
         $('#typeahead').focus();
         $('#typeahead').typeahead('val', '');
       }
+      //make tick button not green
+      $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
+      $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
     }
   });
 
@@ -227,6 +239,10 @@ $(document).ready(function() {
     //show utterance and hide others
     $('div.transcription').css('display','none');
     $('#panel-'+nextPlay).css('display','block');
+
+    //switch to active
+    $('div.indicator.active-indicator').removeClass('active-indicator');
+    $(this).addClass('active-indicator');
   });
 
   //--KEYBOARD SHORTCUTS
@@ -252,13 +268,16 @@ $(document).ready(function() {
         if (utterance=='') {
           $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
         } else {
-          $('#panel-'+play+' div.modified-panel button.tick').click();
+            $('#panel-'+play+' div.modified-panel button.tick').click();
+            $('#next').click();
         }
       }
     } else if (e.keyCode === 40) { //down arrow
       if ($('#typeahead').val()=='') {
         $('#next').click();
       }
+    } else if (e.keyCode === 16) { //shift (both)
+    //   $('#replay').click();
     } else if (e.keyCode === 38) { //up arrow
       if ($('#typeahead').val()=='') {
         $('#previous').click();
@@ -272,6 +291,12 @@ $(document).ready(function() {
           active.prev().click();
         }
       }
+    } else if (e.keyCode === 9) { //tab
+        e.preventDefault()
+        $('#typeahead').focus();
+        $('#replay').click();
+        $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
+        $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
     } else if (e.keyCode === 39) { //right arrow
       if ($('#typeahead').val()=='') {
         //get active button in group
@@ -279,11 +304,9 @@ $(document).ready(function() {
         //make button to the right active, if it isn't add-modified
         active.next().not('button.add-modified').click();
       }
-    } else if (e.ctrlKey && e.which === 16) { //ctrl + r
-      $('#replay').click();
-      $('#typeahead').focus();
     } else if (e.keyCode === 8) { //backspace
       if ($('#typeahead').val()=='') {
+        e.preventDefault();
         //delete active button and make the button to the left active
         //if the button is the left most, make the button to thr right active
         var active = $('#panel-'+play+' div.modified-panel div.modified button.modified.active');
@@ -294,7 +317,8 @@ $(document).ready(function() {
         }
         active.not('button.begin-modified').remove();
         //make tick button not green
-        $('#panel-'+play+' div.modified-panel div.tick button.tick').addClass('btn-default').removeClass('btn-success');
+        $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
+        $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
       }
     }
   });
