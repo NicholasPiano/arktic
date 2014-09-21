@@ -30,6 +30,7 @@ $(document).ready(function() {
     //toggle the play-pause button glyphicons if the play variable is the same
     if ($('#play-pause').attr('play') == $(this).attr('id')) {
       $('#play-pause').children('span.glyphicon').toggle();
+      $('#play-pause').removeClass('btn-warning').addClass('btn-success');
     }
   });
 
@@ -87,6 +88,7 @@ $(document).ready(function() {
     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'play_pause', 'transcription_id':$('#play-pause').attr('play')});
     //toggle glyphicons
     $(this).children('span.glyphicon').toggle();
+    $(this).removeClass('btn-success').addClass('btn-warning');
     //play audio player
     var play = $(this).attr('play');
     var player = document.getElementById(play);
