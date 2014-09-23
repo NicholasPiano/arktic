@@ -21,7 +21,12 @@ class StartView(View):
             #list of jobs
             jobs = user.jobs.filter(is_active=True)
 
-            return render(request, 'users/start.html', {'user':user,'jobs':jobs,})
+            #total remaining transcriptions
+            remaining_transcriptions = 0
+            for project in Project.objects.filter(is_active=True):
+              remaining_transcriptions += project.transcriptions.filter(is_active=True).count()
+
+            return render(request, 'users/start.html', {'user':user,'jobs':jobs,'remaining_transcriptions':remaining_transcriptions,})
         else:
             return HttpResponseRedirect('/login/')
 
