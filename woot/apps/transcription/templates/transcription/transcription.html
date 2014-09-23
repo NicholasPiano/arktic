@@ -42,7 +42,7 @@
         <div id="audio-controls" class="btn-group">
             <button id="previous" type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-up"></span> Previous transcription</button>
             <button id="replay" type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-backward"></span> Repeat</button>
-            <button id="play-pause" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play"></span><span class="glyphicon glyphicon-pause"></span></button>
+            <button id="play-pause" type="button" class="btn btn-success"><span class="glyphicon glyphicon-play"></span><span class="glyphicon glyphicon-pause"></span></button>
             <button id="waveform" type="button" class="btn btn-default">Waveform</button>
             <button id="next" type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-down"></span> Next transcription</button>
             <button id="counter" type="button" class="btn btn-default"><span>1</span> of {{transcriptions|length}}</button>
@@ -131,7 +131,52 @@ var substringMatcher = function(strs) {
   };
 };
 
-var states = ["[noise]","[breath noise]","[fragment]","[side speech]","[hesitation]","[unintelligible]","[spanish]","[prompt echo]","[bad audio]","{% for word in words %}{{word.content}}","{% endfor %}"];
+// var states = ["[noise]","[breath noise]","[fragment]","[side speech]","[hesitation]","[unintelligible]","[spanish]","[prompt echo]","[bad audio]","{% for word in words %}{{word.content}}","{% endfor %}"];
+var states = ["[noise]",
+              "[breath noise]",
+              "[fragment]",
+              "[side speech]",
+              "[hesitation]",
+              "[unintelligible]",
+              "[spanish]",
+              "[prompt echo]",
+              "[background noise]",
+              "[speech in noise]",
+              "[no speech]",
+              "[skipped]",
+              "[bad audio]",
+              "help me with something else",
+              "help with something else",
+              "I don't have one",
+              "I don't have it",
+              "don't have one",
+              "don't have it",
+              "representative",
+              "file a new claim",
+              "file a claim",
+              "payments and billing",
+              "make a payment",
+              "billing",
+              "pay my bill",
+              "[tones]",
+              "i don't know it",
+              "customer service",
+              "payment",
+              "customer service rep",
+              "agent",
+              "operator",
+              "claims",
+              "claim",
+              "accident",
+              "roadside assistance",
+              "[mispronounciation]",
+              "[pause]",
+              "[non-native]",
+              "proof of insurance",
+              "insurance",
+              "liability",
+              "get a quote",
+              "customer service please"];
 
 $('#typeahead').typeahead({
   hint: true,

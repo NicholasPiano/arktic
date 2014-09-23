@@ -30,6 +30,7 @@ $(document).ready(function() {
     //toggle the play-pause button glyphicons if the play variable is the same
     if ($('#play-pause').attr('play') == $(this).attr('id')) {
       $('#play-pause').children('span.glyphicon').toggle();
+      $('#play-pause').removeClass('btn-warning').addClass('btn-success');
     }
   });
 
@@ -87,6 +88,7 @@ $(document).ready(function() {
     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'play_pause', 'transcription_id':$('#play-pause').attr('play')});
     //toggle glyphicons
     $(this).children('span.glyphicon').toggle();
+    $(this).removeClass('btn-success').addClass('btn-warning');
     //play audio player
     var play = $(this).attr('play');
     var player = document.getElementById(play);
@@ -256,22 +258,39 @@ $(document).ready(function() {
 
   $(document).keydown(function(e) {
     var play = $('#play-pause').attr('play');
-    if(e.keyCode === 13) { //enter
-      //controlling word copying
-      if ($('#typeahead').is(':focus') && $('#typeahead').val()!=='') {
-        $('#add-new-word').click();
-      } else {
+    if (e.ctrlKey && e.keyCode===74) { //ctrl + j
+        //previous transcription
+        $('#previous').click();
+    } else if (e.ctrlKey && e.keyCode===75) { //ctrl + k
+        //copy down, tick, next
         var utterance = '';
         $('#panel-'+play + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
           utterance += $(this).html() + ' ';
         });
         if (utterance=='') {
           $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
+          $('#panel-'+play+' div.modified-panel button.tick').click();
+          $('#next').click();
         } else {
-            $('#panel-'+play+' div.modified-panel button.tick').click();
-            $('#next').click();
+          $('#panel-'+play+' div.modified-panel button.tick').click();
+          $('#next').click();
         }
-      }
+    } else if (e.keyCode === 13) { //enter
+        //controlling word copying
+        if ($('#typeahead').is(':focus') && $('#typeahead').val()!=='') {
+          $('#add-new-word').click();
+        } else {
+          var utterance = '';
+          $('#panel-'+play + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
+            utterance += $(this).html() + ' ';
+          });
+          if (utterance=='') {
+            $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
+          } else {
+              $('#panel-'+play+' div.modified-panel button.tick').click();
+              $('#next').click();
+          }
+       }
     } else if (e.keyCode === 40) { //down arrow
       if ($('#typeahead').val()=='') {
         $('#next').click();

@@ -53,8 +53,9 @@ class Client(models.Model):
 
     def update(self):
         for project in self.projects.filter(is_active=False):
-            project.export()
-            project.save()
+            if self.completed_projects.filter(name=project.name+'_completed') == []:
+                project.export()
+                project.save()
 
 class Project(models.Model):
     #connections
