@@ -26,9 +26,14 @@ class MainTranscriptionView(View):
                 transcription.save()
             words = sorted(client.words.all(), key=lambda x: len(x.content), reverse=False)
 
+            #remaining transcriptions in project
+            project = job.project
+            remaining_transcriptions = project.transcriptions.filter(is_active=True).count()
+
             return render(request, 'transcription/transcription.html', {'transcriptions':transcriptions,
                                                                         'words':words,
-                                                                        'job_id':job_id,})
+                                                                        'job_id':job_id,
+                                                                        'remaining_transcriptions':remaining_transcriptions,})
         else:
             return HttpResponseRedirect('/login/')
 
