@@ -8,3 +8,5 @@ if __name__ == "__main__":
     from django.core.management import execute_from_command_line
 
     execute_from_command_line(sys.argv)
+
+# from apps.transcription.models import Transcription, Revision;from apps.distribution.models import Action, Job, Project, CompletedProject;from apps.users.models import User

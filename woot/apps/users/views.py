@@ -20,6 +20,11 @@ class StartView(View):
 
             #list of jobs
             jobs = user.jobs.filter(is_active=True)
+            for job in jobs:
+                if job.transcriptions.all() == []:
+                    job.delete()
+
+            jobs = user.jobs.filter(is_active=True)
 
             #total remaining transcriptions
             remaining_transcriptions = 0
