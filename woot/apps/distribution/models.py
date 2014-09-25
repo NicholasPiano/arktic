@@ -90,9 +90,19 @@ class Project(models.Model):
                 for line_number, line in enumerate(lines):
                     #find transcription by specifying line_number and grammar name
                     tokens = line.split('|')
+                    audio_file_name = os.path.basename(tokens[0]).rstrip()
                     grammar = os.path.splitext(os.path.basename(tokens[1]))[0]
-                    print([grammar, line_number])
-                    transcription = self.transcriptions.get(line_number=line_number, grammar=grammar) #should exist if the reverse worked
+
+                    ### NEEDS FIXING
+
+                    transcriptions = self.transcriptions.filter(line_number=line_number, grammar=grammar) #set of transcriptions until grammar thing is fixed
+                    transcription = transcriptions[0]
+                    for t in transcriptions:
+                      if t.audio_file.name == audio_file_name:
+                        transcription = t
+
+                    ###
+
                     latest_revision = transcription.revisions.latest() #must exist
                     tokens[3] = latest_revision.utterance
                     new_line = '|'.join(tokens)
