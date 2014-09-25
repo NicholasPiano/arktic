@@ -80,6 +80,7 @@ class Project(models.Model):
         #create directory with name of project
         os.makedirs(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'))
 
+        print('relfiles...')
         for relfile in self.relfiles.all():
             #open relfile and get contents
             lines = relfile.file.file.readlines()
@@ -88,6 +89,7 @@ class Project(models.Model):
             with open(os.path.join(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'), os.path.splitext(relfile.name)[0]+'.out.csv'), 'w+') as complete_relfile:
                 new_lines = []
                 for line_number, line in enumerate(lines):
+                    print(str(relfile) + ' %d'%line_number)
                     #find transcription by specifying line_number and grammar name
                     tokens = line.split('|')
                     audio_file_name = os.path.basename(tokens[0]).rstrip()
@@ -108,10 +110,11 @@ class Project(models.Model):
                     new_line = '|'.join(tokens)
                     new_lines.append(new_line)
                 for new_line in new_lines:
-                    complete_relfile.write(new_line)
+                    complete_relfile.write(new_line.encode('utf-8'))
                 self.completed_relfiles.create(client=self.client, archive=relfile.archive, relfile=relfile, file=File(complete_relfile), name=relfile.name)
 
         #zip directory
+        print('zip...')
         zip_file = zp.ZipFile(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed.zip'), 'w', zp.ZIP_DEFLATED)
         for f in self.completed_relfiles.all():
             file_path = f.file.file.name
