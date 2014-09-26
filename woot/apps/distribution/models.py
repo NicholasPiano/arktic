@@ -89,23 +89,24 @@ class Project(models.Model):
             with open(os.path.join(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'), os.path.splitext(relfile.name)[0]+'.out.csv'), 'w+') as complete_relfile:
                 new_lines = []
                 for line_number, line in enumerate(lines):
-                    print(str(relfile) + ' %d'%line_number)
                     #find transcription by specifying line_number and grammar name
                     tokens = line.split('|')
-                    audio_file_name = os.path.basename(tokens[0]).rstrip()
-                    grammar = os.path.splitext(os.path.basename(tokens[1]))[0]
+#                     audio_file_name = os.path.basename(tokens[0]).rstrip()
+#                     grammar = os.path.splitext(os.path.basename(tokens[1]))[0]
 
                     ### NEEDS FIXING
 
-                    transcriptions = self.transcriptions.filter(line_number=line_number, grammar=grammar) #set of transcriptions until grammar thing is fixed
-                    transcription = transcriptions[0]
-                    for t in transcriptions:
-                      if t.audio_file.name == audio_file_name:
-                        transcription = t
+#                     transcriptions = self.transcriptions.filter(line_number=line_number, relfile=relfile) #set of transcriptions until grammar thing is fixed
+                    transcription = self.transcriptions.get(line_number=line_number, relfile=relfile) #set of transcriptions until grammar thing is fixed
+#                     for t in transcriptions:
+#                       if t.audio_file.name == audio_file_name:
+#                         transcription = t
+#                         break
 
                     ###
 
                     latest_revision = transcription.revisions.latest() #must exist
+                    print(str(relfile) + ' %d'%line_number + ' ' + transcription.utterance + ' > ' + latest_revision.utterance)
                     tokens[3] = latest_revision.utterance
                     new_line = '|'.join(tokens)
                     new_lines.append(new_line)
