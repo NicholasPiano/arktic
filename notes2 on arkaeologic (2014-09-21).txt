@@ -1,0 +1,67 @@
+
+
+
+##### NOTES ON VERSION 2 OF INTERFACE
+
+
+### PREFACE
+
+I really like the single enter keystroke to tick and move to next utterance. Much better than 2 keystrokes. 
+
+
+### MAJOR PROPOSALS
+
+1] alt/option + enter should: 
+- copy original utterance to modified utterance
+- tick the transcription
+- move to next transcription
+[even better, a single keystroke that can be done comfortably with one hand, so that you can rest e.g. chin on the other hand during long transcription spells. don't have any ideas about exactly which key to use though.]
+
+2] tab should:
+- replay
+- focus the token box
+but not detick the transcription
+
+3] changing the modified utterance by adding/deleting/changing the text should:
+- detick the transcription
+[it's mildly irritating when replaying the transcription causes it to untick].
+
+4] extra tags to add to the auto-complete:
+- [background noise]
+- [speech in noise]
+- [no speech]
+- [skipped]
+- [prompt echo]
+- [skipped]
+
+5] Some indication on the user start page about how many utterances there are to go. e.g. "X utterances currently in transcription pool". 
+
+6] a colour indication about the audio file.
+- e.g. highlight the play button in orange while the file is playing, highlight in green when the audio file has finished.
+-- this makes it easy to know when to move to the next utterance.
+-- use orange rather than red. red is harsher and has a stronger aversive psychological effect. orange can be softer and more pleasant to view for long periods of time. 
+
+
+
+### MINOR OBSERVATIONS
+
+- tab completes a auto-suggestion (if the suggestion is in the box and you're typing over it). didn't realize this before. 
+
+- I use [speech in noise] when there is noise before and after but the utterance is clear and I use [background noise] when the noise continues all the way through the utterance. You may want to check with Dad about this. 
+
+- spacebar could be used for "focus token box". The key seems to have no other default effect when the token box is _not_ focused. 
+
+- I marked mm-hm and uh-huh as [hesitation], even though they are positive and mean approximately "yes". This was rare though (maybe 3 occurences). 
+
+
+
+### THOUGHTS
+
+Moving away from using the arrow keys for often-used controls would speed things up. e.g. using the auto-complete box. Don't know exactly how this might be done, but (whenever you do a vim-ish interface) it would be nice to control the auto-complete box with keys that are closer to the centre of the keyboard. 
+
+The site is sometimes slow/laggy. When it lags, the letters I type don't immediately show up in the token box. I don't mind losing auto-complete function due to slow connection, but it's unpleasant to type blind. Can displaying user-typed text in the token box be decoupled from the auto-complete, so that it's handled client-side with no lag? 
+
+
+
+
+
