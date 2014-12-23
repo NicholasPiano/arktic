@@ -1,4 +1,4 @@
-#distribution.views
+#woot.apps.distribution.views
 
 #django
 from django.shortcuts import render

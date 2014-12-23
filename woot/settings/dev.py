@@ -42,13 +42,13 @@ DATABASE_PWD = os.getenv('DB_PWD')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'arktic_db',
-        'USER': DATABASE_USER,
-        'PASSWORD': DATABASE_PWD,
-        'HOST': 'localhost',
-    }
+  'default': {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'arktic_db',
+    'USER': DATABASE_USER,
+    'PASSWORD': DATABASE_PWD,
+    'HOST': 'localhost',
+  }
 }
 ########## END DATABASE CONFIGURATION
 
@@ -56,9 +56,9 @@ DATABASES = {
 ########## CACHE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#caches
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
+  'default': {
+    'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+  }
 }
 ########## END CACHE CONFIGURATION
 
@@ -66,7 +66,7 @@ CACHES = {
 ########## TOOLBAR CONFIGURATION
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
 INSTALLED_APPS += (
-    'debug_toolbar',
+  'debug_toolbar',
 )
 
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
