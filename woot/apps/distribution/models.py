@@ -12,21 +12,17 @@ from apps.users.models import User
 
 #classes
 class Client(models.Model):
-  #connections
-  #sub: projects, jobs, archives, relfiles, transcriptions, autocomplete words
-
   #properties
   name = models.CharField(max_length=255)
 
   #methods
   def __unicode__(self):
 
-  #custom methods
   def update(self):
     '''
 
     Update is called when a revision is submitted. This will propagate down the chain:
-    Client > Project > Relfile > Transcription
+    Client > Project > Grammar > Transcription
 
     When a relfile is completed, a completed_relfile object will be created from the chosen revisions.
     When a project is completed, a completed_project object will be created. This will be available for
@@ -37,7 +33,6 @@ class Client(models.Model):
 class Project(models.Model):
   #connections
   client = models.ForeignKey(Client, related_name='projects')
-  #sub: jobs, archives, relfiles, transcriptions
 
   #properties
   name = models.CharField(max_length=255)
@@ -47,7 +42,6 @@ class Project(models.Model):
   #methods
   def __unicode__(self):
 
-  #custom methods
   def update(self):
     ''' Updates project when a revision is submitted. '''
 
@@ -70,7 +64,6 @@ class Job(models.Model):
   client = models.ForeignKey(Client, related_name='jobs')
   project = models.ForeignKey(Project, related_name='jobs')
   user = models.ForeignKey(User, related_name='jobs')
-  #sub: transcriptions (null)
 
   #properties
   is_active = models.BooleanField(default=True)
@@ -81,42 +74,5 @@ class Job(models.Model):
 
   #methods
   def __unicode__(self):
-
-  #custom methods
   def get_transcription_set(self):
   def update(self):
-
-class Word(models.Model):
-  #connections
-  client = models.ForeignKey(Client, related_name='words')
-  project = models.ForeignKey(Project, related_name='words')
-  relfile = models.ForeignKey(Relfile, related_name='words')
-
-  #properties
-  char = models.CharField(max_length=255)
-  unique = models.BooleanField(default=False) #marked as unique upon first occurence in a client.
-
-  #methods
-  def __unicode__(self):
-
-
-### ACTIONS
-class Action(models.Model):
-  #connections
-  job = models.ForeignKey(Job, related_name='actions')
-  user = models.ForeignKey(User, related_name='actions')
-
-  #properties
-  date_created = models.DateTimeField(auto_now_add=True)
-
-class NewJobAction
-
-new job
-ended audio
-previous
-next
-replay
-play pause
-add new word
-copy down
-tick
