@@ -4,6 +4,7 @@
 from django.db import models
 
 #local
+from apps.users.models import User
 
 #util
 
@@ -21,8 +22,17 @@ class Client(models.Model):
   def __unicode__(self):
 
   #custom methods
-  def create_autocomplete_words(self):
   def update(self):
+    '''
+
+    Update is called when a revision is submitted. This will propagate down the chain:
+    Client > Project > Relfile > Transcription
+
+    When a relfile is completed, a completed_relfile object will be created from the chosen revisions.
+    When a project is completed, a completed_project object will be created. This will be available for
+    download from the admin in the form of a zip file.
+
+    '''
 
 class Project(models.Model):
   #connections
@@ -39,7 +49,10 @@ class Project(models.Model):
 
   #custom methods
   def update(self):
+    ''' Updates project when a revision is submitted. '''
+
   def export(self):
+    ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
 
 class CompletedProject(models.Model):
   #connections
@@ -73,27 +86,37 @@ class Job(models.Model):
   def get_transcription_set(self):
   def update(self):
 
+class Word(models.Model):
+  #connections
+  client = models.ForeignKey(Client, related_name='words')
+  project = models.ForeignKey(Project, related_name='words')
+  relfile = models.ForeignKey(Relfile, related_name='words')
+
+  #properties
+  char = models.CharField(max_length=255)
+  unique = models.BooleanField(default=False) #marked as unique upon first occurence in a client.
+
+  #methods
+  def __unicode__(self):
+
+
+### ACTIONS
 class Action(models.Model):
   #connections
   job = models.ForeignKey(Job, related_name='actions')
   user = models.ForeignKey(User, related_name='actions')
 
   #properties
-  button_id = models.CharField(max_length=100)
-  transcription_id = models.CharField(max_length=100)
-  transcription_utterance = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
 
-  def __unicode__(self):
+class NewJobAction
 
-  #custom methods
-
-class AutocompleteWord(models.Model):
-  #connections
-  client = models.ForeignKey(Client, related_name='words')
-
-  #properties
-  char = models.CharField(max_length=255)
-
-  #methods
-  def __unicode__(self):
+new job
+ended audio
+previous
+next
+replay
+play pause
+add new word
+copy down
+tick
