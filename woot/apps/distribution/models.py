@@ -17,6 +17,7 @@ class Client(models.Model):
 
   #methods
   def __unicode__(self):
+    return self.name
 
   def update(self):
     '''
@@ -29,6 +30,10 @@ class Client(models.Model):
     download from the admin in the form of a zip file.
 
     '''
+    for project in self.projects.filter(is_active=True, is_approved=True):
+      project.update()
+      if not project.is_active:
+        project.export()
 
 class Project(models.Model):
   #connections
@@ -38,26 +43,21 @@ class Project(models.Model):
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
   is_active = models.BooleanField(default=True)
+  is_approved = models.BooleanField(default=False)
 
   #methods
   def __unicode__(self):
+    return unicode(client) + ' > ' + unicode(self.name)
 
   def update(self):
     ''' Updates project when a revision is submitted. '''
+    for grammar in self.grammars.filter(is_active=True):
+      grammar.update()
+      if not grammar.is_active:
+        grammar.export()
 
   def export(self):
     ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
-
-class CompletedProject(models.Model):
-  #connections
-  client = models.ForeignKey(Client, related_name='completed_projects')
-
-  #properties
-  name = models.CharField(max_length=255)
-  archive_file = models.FileField(upload_to='completed', null=True, max_length=255)
-
-  #methods
-  def __unicode__(self):
 
 class Job(models.Model):
   #connections
@@ -67,12 +67,21 @@ class Job(models.Model):
 
   #properties
   is_active = models.BooleanField(default=True)
+  id_token = models.CharField(max_length=8) #a random string of characters to identify the job
   active_transcriptions = models.IntegerField(editable=False)
-  total_transcription_time = models.DecimalField(max_digits=5, decimal_places=1, default=0.0, editable=False)
+  total_transcription_time = models.DateTimeField(auto_now_add=False)
   date_created = models.DateTimeField(auto_now_add=True)
-  time_taken = models.DecimalField(max_digits=5, decimal_places=1, default=0.0, editable=False)
+  time_taken = models.DateTimeField(auto_now_add=False)
 
   #methods
   def __unicode__(self):
+    return unicode(self.project) + ' > ' + unicode(self.user) + ', job ' + unicode(self.pk) + ':' + unicode(self.id_token)
+
   def get_transcription_set(self):
-  def update(self):
+    project_transcriptions = self.project.transcriptions.all().order_by('utterance')
+    transcription_set = project_transcriptions[-NUMBER_OF_TRANSCRIPTIONS_PER_JOB:]
+
+    for transcription in transcription_set:
+      self.transcriptions.add(transcription)
+
+  def update(self): #not used for export. Just for recording values.

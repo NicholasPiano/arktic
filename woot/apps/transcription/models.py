@@ -18,6 +18,7 @@ class Grammar(models.Model):
   project = models.ForeignKey(Project, related_name='grammars')
 
   #properties
+  is_active = models.BooleanField(default=True)
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
   date_completed = models.DateTimeField(auto_now_add=False)
@@ -28,12 +29,10 @@ class Grammar(models.Model):
 
 class Archive(models.Model):
   #connections
-  client = models.ForeignKey(Client, related_name='archives')
-  project = models.ForeignKey(Project, related_name='archives')
   grammar = models.ForeignKey(Grammar, related_name='archives')
 
   #properties
-  file = ContentTypeRestrictedFileField(upload_to='archive', max_length=255, content_types=['application/zip'])
+  file = ContentTypeRestrictedFileField(upload_to='archives', max_length=255, content_types=['application/zip'])
   date_created = models.DateTimeField(auto_now_add=True)
 
   #methods
@@ -42,12 +41,9 @@ class Archive(models.Model):
 
 class RelFile(models.Model):
   #connections
-  client = models.ForeignKey(Client, related_name='relfiles')
-  project = models.ForeignKey(Project, related_name='relfiles')
   grammar = models.ForeignKey(Grammar, related_name='relfiles')
 
   #properties
-  is_active = models.BooleanField(default=True)
   rel_file = models.FileField(upload_to='relfiles', max_length=255)
   name = models.CharField(max_length=255)
   language = models.CharField(max_length=3)
@@ -55,17 +51,14 @@ class RelFile(models.Model):
 
   #methods
   def __unicode__(self):
-  def update(self):
   def extract(self):
 
 class CompletedRelFile(models.Model):
   #connections
-  client = models.ForeignKey(Client, related_name='completed_relfiles')
-  project = models.ForeignKey(Project, related_name='completed_relfiles')
   grammar = models.ForeignKey(Grammar, related_name='completed_relfiles')
 
   #properties
-  file = models.FileField(upload_to='completed_relfiles', max_length=255)
+  file = models.FileField(upload_to='completed', max_length=255)
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
 
@@ -111,7 +104,6 @@ class Revision(models.Model):
 
   #methods
   def __unicode__(self):
-  def to_output_string(self):
   def action_sequence(self):
 
   #sorting
@@ -164,4 +156,3 @@ class Action(models.Model): #lawsuit
   #methods
   def __unicode__(self):
     pass
-

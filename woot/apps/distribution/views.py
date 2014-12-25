@@ -1,10 +1,14 @@
 #woot.apps.distribution.views
 
 #django
-from django.shortcuts import render
 
 #local
 
 #vars
 
 #classes
+### Project list
+class ProjectView():
+
+### Job list
+class JobView():
