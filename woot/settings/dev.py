@@ -41,13 +41,20 @@ DATABASE_USER = os.getenv('DB_USER')
 DATABASE_PWD = os.getenv('DB_PWD')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
+# DATABASES = {
+#   'default': {
+#     'ENGINE': 'django.db.backends.mysql',
+#     'NAME': 'arktic_db',
+#     'USER': DATABASE_USER,
+#     'PASSWORD': DATABASE_PWD,
+#     'HOST': 'localhost',
+#   }
+# }
+
 DATABASES = {
   'default': {
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'arktic_db',
-    'USER': DATABASE_USER,
-    'PASSWORD': DATABASE_PWD,
-    'HOST': 'localhost',
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': os.path.join(DJANGO_ROOT, 'db', 'db.sqlite3'),
   }
 }
 ########## END DATABASE CONFIGURATION

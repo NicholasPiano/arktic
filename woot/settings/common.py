@@ -14,6 +14,8 @@ NUMBER_OF_TRANSCRIPTIONS_PER_JOB = 20
 JOB_ID_CHARS = string.ascii_uppercase + string.digits
 JOB_ID_LENGTH = 8
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 ########## AUTH
 AUTH_USER_MODEL = 'users.User'
 
