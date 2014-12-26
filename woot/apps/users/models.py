@@ -43,20 +43,20 @@ class UserManager(BaseUserManager):
     return user
 
 class User(AbstractBaseUser, PermissionsMixin):
-  email = models.EmailField(
-    verbose_name='email address',
-    max_length=255,
-    unique=True,
-  )
+  #properties
+  email = models.EmailField(verbose_name='email address',max_length=255,unique=True)
   date_of_birth = models.DateField()
   is_active = models.BooleanField(default=True)
   is_admin = models.BooleanField(default=False)
-
   objects = UserManager()
+
+  #-settings
+  autocomplete_setting = models.CharField(max_length=4, choices=('full','tags','off'), default='full')
 
   USERNAME_FIELD = 'email'
   REQUIRED_FIELDS = ['date_of_birth']
 
+  #methods
   def get_full_name(self):
     # The user is identified by their email address
     return self.email

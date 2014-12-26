@@ -20,7 +20,7 @@ class Client(models.Model):
   name = models.CharField(max_length=255)
 
   #methods
-  def __unicode__(self):
+  def __str__(self):
     return self.name
 
   def update(self):
@@ -50,8 +50,8 @@ class Project(models.Model):
   is_approved = models.BooleanField(default=False)
 
   #methods
-  def __unicode__(self):
-    return unicode(client) + ' > ' + unicode(self.name)
+  def __str__(self):
+    return str(client) + ' > ' + str(self.name)
 
   def update(self):
     ''' Updates project when a revision is submitted. '''
@@ -74,22 +74,39 @@ class Job(models.Model):
   is_active = models.BooleanField(default=True)
   id_token = models.CharField(max_length=8) #a random string of characters to identify the job
   active_transcriptions = models.IntegerField(editable=False)
-  total_transcription_time = models.DateTimeField(auto_now_add=False)
   date_created = models.DateTimeField(auto_now_add=True)
+  total_transcription_time = models.DateTimeField(auto_now_add=False)
   time_taken = models.DateTimeField(auto_now_add=False)
 
   #methods
-  def __unicode__(self):
-    return unicode(self.project) + ' > ' + unicode(self.user) + ', job ' + unicode(self.pk) + ':' + unicode(self.id_token)
+  def __str__(self):
+    return str(self.project) + ' > ' + str(self.user) + ', job ' + str(self.pk) + ':' + str(self.id_token)
 
   def get_transcription_set(self):
     project_transcriptions = self.project.transcriptions.filter(is_active=True).order_by('utterance')
     transcription_set = project_transcriptions[-NUMBER_OF_TRANSCRIPTIONS_PER_JOB:] if len(project_transcriptions)>NUMBER_OF_TRANSCRIPTIONS_PER_JOB else project_transcriptions
+
+    ''' total_transcription_time variable '''
 
     for transcription in transcription_set:
       transcription.date_last_requested = dt.datetime.now()
       transcription.save()
       self.transcriptions.add(transcription)
 
+    #set total_transcription_time
+
+    self.save()
+
   def update(self): #not used for export. Just for recording values.
-    pass
+    ''' active_transcriptions, time_taken '''
+
+    self.active_transcriptions = self.transcriptions.filter(is_active=True).count()
+
+    time_taken = 0
+    for transcription in self.transcriptions.filter(is_active=False):
+      #get total time for current user
+      for revision in transcription.revisions.filter(user=user):
+        time_taken += revision.time_to_complete
+    self.time_taken = time_taken
+
+    self.save()

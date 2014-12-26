@@ -25,7 +25,7 @@ class Grammar(models.Model):
   date_completed = models.DateTimeField(auto_now_add=False)
 
   #methods
-  def __unicode__(self):
+  def __str__(self):
     pass
   def update(self):
     pass
@@ -39,7 +39,7 @@ class Archive(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
 
   #methods
-  def __unicode__(self):
+  def __str__(self):
     pass
   def extract(self):
     pass
@@ -55,7 +55,7 @@ class RelFile(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
 
   #methods
-  def __unicode__(self):
+  def __str__(self):
     pass
   def extract(self):
     pass
@@ -70,7 +70,7 @@ class CompletedRelFile(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
 
   #methods
-  def __unicode__(self):
+  def __str__(self):
     pass
 
 class Transcription(models.Model):
@@ -93,7 +93,7 @@ class Transcription(models.Model):
   date_last_requested = models.DateTimeField(auto_now_add=False)
 
   #methods
-  def __unicode__(self):
+  def __str__(self):
     pass
   def latest_revision_words(self):
     pass
@@ -115,7 +115,7 @@ class Revision(models.Model):
   number_of_plays = models.IntegerField(default=0)
 
   #methods
-  def __unicode__(self):
+  def __str__(self):
     pass
   def action_sequence(self):
     pass
@@ -128,16 +128,17 @@ class Word(models.Model):
   #connections
   client = models.ForeignKey(Client, related_name='words')
   project = models.ForeignKey(Project, related_name='words')
-  relfile = models.ForeignKey(RelFile, related_name='words')
+  grammar = models.ForeignKey(Grammar, related_name='words')
   transcription = models.ForeignKey(Transcription, related_name='words')
 
   #properties
   char = models.CharField(max_length=255)
   unique = models.BooleanField(default=False) #marked as unique upon first occurence in a client.
+  tag = models.BooleanField(default=False)
 
   #methods
-  def __unicode__(self):
-    pass
+  def __str__(self):
+    return self.char
 
 class RevisionWord(Word):
   #connections
@@ -146,15 +147,15 @@ class RevisionWord(Word):
 class Action(models.Model): #lawsuit
   #types
   action_type_choices = (
-    ('nj','new job'),
-    ('ea','ended audio'),
-    ('p','previous'),
-    ('n','next'),
-    ('r','replay'),
-    ('pp','play pause'),
-    ('a','add new word'),
-    ('c','copy down'),
-    ('t','tick'),
+    'new job',
+    'ended audio',
+    'previous',
+    'next',
+    'replay',
+    'play pause',
+    'add new word',
+    'copy down',
+    'tick',
   )
 
   #connections
@@ -169,5 +170,5 @@ class Action(models.Model): #lawsuit
   char = models.CharField(max_length=255, choices=action_type_choices, default='')
 
   #methods
-  def __unicode__(self):
+  def __str__(self):
     pass

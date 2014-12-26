@@ -6,10 +6,13 @@
 from datetime import timedelta
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
+import string
 
 #mysql: https://github.com/PyMySQL/mysqlclient-python
 
 NUMBER_OF_TRANSCRIPTIONS_PER_JOB = 20
+JOB_ID_CHARS = string.ascii_uppercase + string.digits
+JOB_ID_LENGTH = 8
 
 ########## AUTH
 AUTH_USER_MODEL = 'users.User'
@@ -200,7 +203,8 @@ DJANGO_APPS = (
 )
 
 THIRD_PARTY_APPS = (
-
+  # Asynchronous task scheduling
+  'djcelery',
 )
 
 LOCAL_APPS = (

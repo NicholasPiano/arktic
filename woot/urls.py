@@ -7,7 +7,6 @@ from django.conf.urls import patterns, include, url
 #local
 from apps.distribution.views import ProjectView, JobView
 from apps.pages.views import LoginView, StartView
-from apps.transcription.views import TranscriptionView
 
 #third party
 
@@ -26,5 +25,5 @@ urlpatterns = patterns('',
   url(r'^start/$', StartView.as_view()),
 
   #transcription
-  url(r'^transcription/(?P<job_id_token>[a-z0-9]{8})$', TranscriptionView.as_view()),
+  url(r'^transcription/', include('apps.transcription.urls')),
 )
