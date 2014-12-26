@@ -147,15 +147,15 @@ class RevisionWord(Word):
 class Action(models.Model): #lawsuit
   #types
   action_type_choices = (
-    'new job',
-    'ended audio',
-    'previous',
-    'next',
-    'replay',
-    'play pause',
-    'add new word',
-    'copy down',
-    'tick',
+    ('nj','new job'),
+    ('ea','ended audio'),
+    ('p','previous'),
+    ('n','next'),
+    ('r','replay'),
+    ('pp','play pause'),
+    ('a','add new word'),
+    ('c','copy down'),
+    ('t','tick'),
   )
 
   #connections

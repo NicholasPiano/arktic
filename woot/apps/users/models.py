@@ -51,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
   objects = UserManager()
 
   #-settings
-  autocomplete_setting = models.CharField(max_length=4, choices=('full','tags','off'), default='full')
+  autocomplete_setting = models.CharField(max_length=4, choices=(('f','full'),('t','tags'),('o','off')), default='full')
 
   USERNAME_FIELD = 'email'
   REQUIRED_FIELDS = ['date_of_birth']
