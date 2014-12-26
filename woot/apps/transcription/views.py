@@ -1,13 +1,11 @@
 #woot.apps.transcription.views
 
 #django
+from django.views.generic import View
 
 #local
 
 #class views
-class MainTranscriptionView(View):
+class TranscriptionView(View):
   def get(self, request, job_id):
-
-#method views
-def start_redirect(request):
-  return HttpResponseRedirect('/start/')
+    pass

@@ -15,14 +15,14 @@ from apps.transcription.views import TranscriptionView
 admin.autodiscover()
 
 # See: https://docs.djangoproject.com/en/dev/topics/http/urls/
-urlpatterns = patterns(
+urlpatterns = patterns('',
   #distribution
   url(r'^projects/$', ProjectView.as_view()),
   url(r'^jobs/$', JobView.as_view()),
 
   #pages
   url(r'^login/$', LoginView.as_view()),
-  url(r'^logout/$', ),
+  url(r'^logout/$', 'django.contrib.auth.views.logout'),
   url(r'^start/$', StartView.as_view()),
 
   #transcription

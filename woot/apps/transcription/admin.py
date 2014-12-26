@@ -4,6 +4,7 @@
 from django.contrib import admin
 
 #local
+from apps.transcription.models import Transcription, Revision, Archive, RelFile
 
 #vars
 

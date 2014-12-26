@@ -7,6 +7,10 @@ from django.db import models
 from apps.users.models import User
 
 #util
+import os
+import zipfile as zp
+import shutil as sh
+import datetime as dt
 
 #vars
 
@@ -58,6 +62,7 @@ class Project(models.Model):
 
   def export(self):
     ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
+    pass
 
 class Job(models.Model):
   #connections
@@ -78,10 +83,13 @@ class Job(models.Model):
     return unicode(self.project) + ' > ' + unicode(self.user) + ', job ' + unicode(self.pk) + ':' + unicode(self.id_token)
 
   def get_transcription_set(self):
-    project_transcriptions = self.project.transcriptions.all().order_by('utterance')
-    transcription_set = project_transcriptions[-NUMBER_OF_TRANSCRIPTIONS_PER_JOB:]
+    project_transcriptions = self.project.transcriptions.filter(is_active=True).order_by('utterance')
+    transcription_set = project_transcriptions[-NUMBER_OF_TRANSCRIPTIONS_PER_JOB:] if len(project_transcriptions)>NUMBER_OF_TRANSCRIPTIONS_PER_JOB else project_transcriptions
 
     for transcription in transcription_set:
+      transcription.date_last_requested = dt.datetime.now()
+      transcription.save()
       self.transcriptions.add(transcription)
 
   def update(self): #not used for export. Just for recording values.
+    pass

@@ -7,6 +7,8 @@ from datetime import timedelta
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
+#mysql: https://github.com/PyMySQL/mysqlclient-python
+
 NUMBER_OF_TRANSCRIPTIONS_PER_JOB = 20
 
 ########## AUTH
@@ -159,6 +161,9 @@ TEMPLATE_DIRS = (
 MIDDLEWARE_CLASSES = (
   # Use GZip compression to reduce bandwidth.
   'django.middleware.gzip.GZipMiddleware',
+
+  # Django debug toolbar
+  'debug_toolbar.middleware.DebugToolbarMiddleware',
 
   # Default Django middleware.
   'django.middleware.common.CommonMiddleware',

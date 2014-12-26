@@ -1,6 +1,7 @@
 #woot.apps.distribution.views
 
 #django
+from django.views.generic import View
 
 #local
 
@@ -8,7 +9,9 @@
 
 #classes
 ### Project list
-class ProjectView():
+class ProjectView(View):
+  pass
 
 ### Job list
-class JobView():
+class JobView(View):
+  pass

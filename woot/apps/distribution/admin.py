@@ -4,7 +4,7 @@
 from django.contrib import admin
 
 #local
-from apps.distribution.models import Client, Project, Job, Action, CompletedProject
+from apps.distribution.models import Client, Project, Job
 from apps.transcription.models import Transcription, Archive
 
 #vars
@@ -38,13 +38,9 @@ class ProjectAdmin(admin.ModelAdmin):
   inlines = [ArchiveInline, JobInline]
 
 admin.site.register(Project, ProjectAdmin)
-admin.site.register(CompletedProject)
 
 #JOB
 class JobAdmin(admin.ModelAdmin):
   inlines = [TranscriptionInline,]
 
 admin.site.register(Job, JobAdmin)
-
-#ACTION
-admin.site.register(Action)

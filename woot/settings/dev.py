@@ -5,7 +5,7 @@ from os.path import join, normpath
 import os
 
 #local
-from common import *
+from woot.settings.common import *
 
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug

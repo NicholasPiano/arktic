@@ -5,6 +5,7 @@ from django.db import models
 
 #local
 from apps.distribution.models import Client, Project, Job
+from apps.users.models import User
 
 #util
 
@@ -25,19 +26,23 @@ class Grammar(models.Model):
 
   #methods
   def __unicode__(self):
+    pass
   def update(self):
+    pass
 
 class Archive(models.Model):
   #connections
   grammar = models.ForeignKey(Grammar, related_name='archives')
 
   #properties
-  file = ContentTypeRestrictedFileField(upload_to='archives', max_length=255, content_types=['application/zip'])
+  file = models.FileField(upload_to='archives')
   date_created = models.DateTimeField(auto_now_add=True)
 
   #methods
   def __unicode__(self):
+    pass
   def extract(self):
+    pass
 
 class RelFile(models.Model):
   #connections
@@ -51,7 +56,9 @@ class RelFile(models.Model):
 
   #methods
   def __unicode__(self):
+    pass
   def extract(self):
+    pass
 
 class CompletedRelFile(models.Model):
   #connections
@@ -64,6 +71,7 @@ class CompletedRelFile(models.Model):
 
   #methods
   def __unicode__(self):
+    pass
 
 class Transcription(models.Model):
   #connections
@@ -73,7 +81,7 @@ class Transcription(models.Model):
   job = models.ForeignKey(Job, null=True, related_name='transcriptions')
 
   #properties
-  audio_file = FileField(upload_to='audio', max_length=255)
+  audio_file = models.FileField(upload_to='audio')
   audio_time = models.DateTimeField(auto_now_add=False)
   confidence = models.CharField(max_length=255)
   utterance = models.CharField(max_length=255)
@@ -82,13 +90,17 @@ class Transcription(models.Model):
   requests = models.IntegerField(default=0) #number of times the transcription has been requested.
   date_created = models.DateTimeField(auto_now_add=True)
   is_active = models.BooleanField(default=True)
+  date_last_requested = models.DateTimeField(auto_now_add=False)
 
   #methods
   def __unicode__(self):
+    pass
   def latest_revision_words(self):
+    pass
   def update(self):
+    pass
   def latest_revision_done_by_current_user(self):
-  def date_last_requested(self):
+    pass
 
 class Revision(models.Model):
   #connections
@@ -104,7 +116,9 @@ class Revision(models.Model):
 
   #methods
   def __unicode__(self):
+    pass
   def action_sequence(self):
+    pass
 
   #sorting
   class Meta:
@@ -114,7 +128,7 @@ class Word(models.Model):
   #connections
   client = models.ForeignKey(Client, related_name='words')
   project = models.ForeignKey(Project, related_name='words')
-  relfile = models.ForeignKey(Relfile, related_name='words')
+  relfile = models.ForeignKey(RelFile, related_name='words')
   transcription = models.ForeignKey(Transcription, related_name='words')
 
   #properties
@@ -123,6 +137,7 @@ class Word(models.Model):
 
   #methods
   def __unicode__(self):
+    pass
 
 class RevisionWord(Word):
   #connections
@@ -135,7 +150,7 @@ class Action(models.Model): #lawsuit
     ('ea','ended audio'),
     ('p','previous'),
     ('n','next'),
-    ('r','replay')
+    ('r','replay'),
     ('pp','play pause'),
     ('a','add new word'),
     ('c','copy down'),
