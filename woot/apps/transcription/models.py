@@ -4,7 +4,7 @@
 from django.db import models
 
 #local
-from apps.distribution.models import Client, Project, Job
+from apps.distribution.models import Client, Project, Job, Grammar
 from apps.users.models import User
 
 #util
@@ -12,67 +12,6 @@ from apps.users.models import User
 #vars
 
 #classes
-class Grammar(models.Model):
-  ''' Stores all information about a single grammar: relfile, archive, transcriptions '''
-  #connections
-  client = models.ForeignKey(Client, related_name='grammars')
-  project = models.ForeignKey(Project, related_name='grammars')
-
-  #properties
-  is_active = models.BooleanField(default=True)
-  name = models.CharField(max_length=255)
-  date_created = models.DateTimeField(auto_now_add=True)
-  date_completed = models.DateTimeField(auto_now_add=False)
-
-  #methods
-  def __str__(self):
-    pass
-  def update(self):
-    pass
-
-class Archive(models.Model):
-  #connections
-  grammar = models.ForeignKey(Grammar, related_name='archives')
-
-  #properties
-  file = models.FileField(upload_to='archives')
-  date_created = models.DateTimeField(auto_now_add=True)
-
-  #methods
-  def __str__(self):
-    pass
-  def extract(self):
-    pass
-
-class RelFile(models.Model):
-  #connections
-  grammar = models.ForeignKey(Grammar, related_name='relfiles')
-
-  #properties
-  rel_file = models.FileField(upload_to='relfiles', max_length=255)
-  name = models.CharField(max_length=255)
-  language = models.CharField(max_length=3)
-  date_created = models.DateTimeField(auto_now_add=True)
-
-  #methods
-  def __str__(self):
-    pass
-  def extract(self):
-    pass
-
-class CompletedRelFile(models.Model):
-  #connections
-  grammar = models.ForeignKey(Grammar, related_name='completed_relfiles')
-
-  #properties
-  file = models.FileField(upload_to='completed', max_length=255)
-  name = models.CharField(max_length=255)
-  date_created = models.DateTimeField(auto_now_add=True)
-
-  #methods
-  def __str__(self):
-    pass
-
 class Transcription(models.Model):
   #connections
   client = models.ForeignKey(Client, related_name='transcriptions')
@@ -81,6 +20,7 @@ class Transcription(models.Model):
   job = models.ForeignKey(Job, null=True, related_name='transcriptions')
 
   #properties
+  id_token = models.CharField(max_length=8)
   audio_file = models.FileField(upload_to='audio')
   audio_time = models.DateTimeField(auto_now_add=False)
   confidence = models.CharField(max_length=255)
@@ -108,6 +48,7 @@ class Revision(models.Model):
   user = models.ForeignKey(User, related_name='revisions')
 
   #properties
+  id_token = models.CharField(max_length=8)
   date_created = models.DateTimeField(auto_now_add=True)
 
   ''' need to be determined by action_sequence() '''
@@ -132,6 +73,7 @@ class Word(models.Model):
   transcription = models.ForeignKey(Transcription, related_name='words')
 
   #properties
+  id_token = models.CharField(max_length=8)
   char = models.CharField(max_length=255)
   unique = models.BooleanField(default=False) #marked as unique upon first occurence in a client.
   tag = models.BooleanField(default=False)
@@ -166,6 +108,7 @@ class Action(models.Model): #lawsuit
   revision = models.ForeignKey(Revision, related_name='actions')
 
   #properties
+  id_token = models.CharField(max_length=8)
   date_created = models.DateTimeField(auto_now_add=True)
   char = models.CharField(max_length=255, choices=action_type_choices, default='')
 

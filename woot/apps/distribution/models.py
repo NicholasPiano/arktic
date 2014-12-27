@@ -44,10 +44,13 @@ class Project(models.Model):
   client = models.ForeignKey(Client, related_name='projects')
 
   #properties
+  id_token = models.CharField(max_length=8)
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
-  is_active = models.BooleanField(default=True)
+  is_active = models.BooleanField(default=False)
+  is_new = models.BooleanField(default=True)
   is_approved = models.BooleanField(default=False)
+  completed_project_file = models.FileField(upload_to='completed_projects')
 
   #methods
   def __str__(self):
@@ -59,6 +62,8 @@ class Project(models.Model):
       grammar.update()
       if not grammar.is_active:
         grammar.export()
+
+    #update status: approved, new, active
 
   def export(self):
     ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
@@ -110,3 +115,33 @@ class Job(models.Model):
     self.time_taken = time_taken
 
     self.save()
+
+class Grammar(models.Model):
+  ''' Stores all information about a single grammar: relfile, archive, transcriptions '''
+  #types
+  language_choices = (
+    ('en','english'),
+    ('es','spanish'),
+  )
+
+  #connections
+  client = models.ForeignKey(Client, related_name='grammars')
+  project = models.ForeignKey(Project, related_name='grammars')
+
+  #properties
+  is_active = models.BooleanField(default=True)
+  id_token = models.CharField(max_length=8)
+  name = models.CharField(max_length=255)
+  date_created = models.DateTimeField(auto_now_add=True)
+  date_completed = models.DateTimeField(auto_now_add=False)
+  language = models.CharField(max_length=255, choices=language_choices, default='english')
+  rel_file = models.FileField(upload_to='relfiles')
+  complete_rel_file = models.FileField(upload_to='completed')
+
+  #methods
+  def __str__(self):
+    pass
+  def update(self):
+    pass
+  def extract(self, rel_file_path):
+    pass

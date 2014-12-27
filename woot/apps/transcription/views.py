@@ -3,7 +3,8 @@
 #django
 from django.views.generic import View
 from django.conf import settings
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse, HttpResponseRedirect
 
 #local
 from apps.users.models import User
@@ -19,7 +20,7 @@ class TranscriptionView(View):
     if user.is_authenticated():
       user = User.objects.get(email=user)
 
-      job = get_object_or_404(user.jobs, id_token=job_id_token)
+      job = get_object_or_404(user.jobs, id_token=job_id_token) #does this do 'return HTTP... blah'?
 
       #transcriptions
       transcriptions = job.transcriptions.all()

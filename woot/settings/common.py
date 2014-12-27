@@ -8,16 +8,25 @@ from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 import string
 
-#mysql: https://github.com/PyMySQL/mysqlclient-python
+#third party
+from djcelery import setup_loader
 
+#mysql: https://github.com/PyMySQL/mysqlclient-python
+#rabbitmq: https://www.rabbitmq.com/man/rabbitmqctl.1.man.html
+#celery: https://zapier.com/blog/async-celery-example-why-and-how/
+
+
+########## JOBS
 NUMBER_OF_TRANSCRIPTIONS_PER_JOB = 20
 JOB_ID_CHARS = string.ascii_uppercase + string.digits
 JOB_ID_LENGTH = 8
 
+########## TESTS
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 ########## AUTH
 AUTH_USER_MODEL = 'users.User'
+
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
@@ -207,6 +216,9 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
   # Asynchronous task scheduling
   'djcelery',
+
+  # Static file management:
+  'compressor',
 )
 
 LOCAL_APPS = (
@@ -264,6 +276,45 @@ LOGGING = {
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
 WSGI_APPLICATION = 'wsgi.application'
 ########## END WSGI CONFIGURATION
+
+
+########## COMPRESSION CONFIGURATION
+# See: http://django_compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_ENABLED
+COMPRESS_ENABLED = True
+
+# See: http://django-compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_CSS_HASHING_METHOD
+COMPRESS_CSS_HASHING_METHOD = 'content'
+
+# See: http://django_compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_CSS_FILTERS
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.template.TemplateFilter',
+]
+
+# See: http://django_compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_JS_FILTERS
+COMPRESS_JS_FILTERS = [
+    'compressor.filters.template.TemplateFilter',
+]
+########## END COMPRESSION CONFIGURATION
+
+
+########## CELERY CONFIGURATION
+BROKER_URL = 'amqp://guest:guest@localhost//'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# See: http://celery.readthedocs.org/en/latest/configuration.html#celery-task-result-expires
+CELERY_TASK_RESULT_EXPIRES = timedelta(minutes=30)
+
+# See: http://docs.celeryproject.org/en/master/configuration.html#std:setting-CELERY_CHORD_PROPAGATES
+CELERY_CHORD_PROPAGATES = True
+
+# See: http://celery.github.com/celery/django/
+setup_loader()
+########## END CELERY CONFIGURATION
 
 
 ########## FILE UPLOAD CONFIGURATION
