@@ -298,7 +298,7 @@ COMPRESS_JS_FILTERS = [
 
 
 ########## CELERY CONFIGURATION
-BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'
 
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)

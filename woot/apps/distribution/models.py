@@ -133,7 +133,6 @@ class Grammar(models.Model):
   #properties
   is_active = models.BooleanField(default=False)
   id_token = models.CharField(max_length=8, null=True)
-  grammar_type = models.CharField(max_length=255)
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
   date_completed = models.DateTimeField(auto_now_add=False, null=True)
@@ -143,7 +142,7 @@ class Grammar(models.Model):
 
   #methods
   def __str__(self):
-    pass
+    return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.name)
   def update(self):
     pass
   def extract(self, rel_file_path):
