@@ -3,3 +3,4 @@ media/
 zip-file-testing/
 *.db
 data/
+*.sqlite3
