@@ -82,8 +82,8 @@ class Job(models.Model):
   project_path = models.CharField(max_length=255)
   active_transcriptions = models.IntegerField(editable=False)
   date_created = models.DateTimeField(auto_now_add=True)
-  total_transcription_time = models.DateTimeField(auto_now_add=False)
-  time_taken = models.DateTimeField(auto_now_add=False)
+  total_transcription_time = models.DateTimeField(auto_now_add=False, null=True)
+  time_taken = models.DateTimeField(auto_now_add=False, null=True)
 
   #methods
   def __str__(self):
@@ -132,13 +132,13 @@ class Grammar(models.Model):
 
   #properties
   is_active = models.BooleanField(default=False)
-  id_token = models.CharField(max_length=8)
+  id_token = models.CharField(max_length=8, null=True)
   grammar_type = models.CharField(max_length=255)
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
-  date_completed = models.DateTimeField(auto_now_add=False)
+  date_completed = models.DateTimeField(auto_now_add=False, null=True)
   language = models.CharField(max_length=255, choices=language_choices, default='english')
-  rel_file = models.FileField(upload_to='relfiles')
+  rel_file_path = models.CharField(max_length=255, null=True)
   complete_rel_file = models.FileField(upload_to='completed')
 
   #methods

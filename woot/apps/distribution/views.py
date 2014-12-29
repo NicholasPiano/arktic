@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 #local
 from apps.distribution.models import Client, Project, Grammar
+from apps.transcription.models import Transcription
 from libs.utils import generate_id_token
 
 #util
@@ -33,7 +34,7 @@ class ProjectView(View):
           client.save()
 
         for project_name in os.listdir(client.client_path):
-          project, created = client.projects.get_or_create(name=name)
+          project, created = client.projects.get_or_create(name=project_name)
 
           if created:
             project.id_token = generate_id_token(Project)
@@ -53,20 +54,13 @@ class ProjectView(View):
           for i, complete_grammar_path in enumerate(csv_file_list):
             complete_grammar_name = os.path.basename(complete_grammar_path)
             root, ext = os.path.splitext(complete_grammar_name)
-            grammar_name = ''
-            grammar_type = ''
-            if '#' in root:
-              grammar_type, grammar_name = tuple(root.split('#'))
-            else:
-              grammar_name = root
-
-            grammar, created = project.grammars.get_or_create(grammar_type=grammar_type, name=grammar_name)
+            grammar, created = project.grammars.get_or_create(client=client, name=root)
 
             if created:
               grammar.id_token = generate_id_token(Grammar)
               grammar.client = client
               grammar.grammar_path = complete_grammar_name
-              with open(complete_grammar_name) as open_relfile:
+              with open(complete_grammar_path) as open_relfile:
                 lines = open_relfile.readlines()
                 for j, line in enumerate(lines):
                   tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
@@ -81,17 +75,17 @@ class ProjectView(View):
                       confidence_value = 0.0
 
                   if transcription_audio_file_name in wav_file_dictionary:
-                    print([('grammar %d/%d '%(i,len(csv_file_list))) + ('transcription %d/%d'%(j,len(lines)))])
-                    with open(wav_file_dictionary[transcription_audio_file_name]) as open_audio_file:
-                      grammar.transcription.create(client=grammar.client,
-                                                   project=grammar.project,
-                                                   audio_file=File(open_audio_file),
-                                                   line_number=line_number,
-                                                   grammar=grammar,
-                                                   confidence=confidence,
-                                                   utterance=utterance,
-                                                   value=value,
-                                                   confidence_value=confidence_value)
+                    print(('grammar %d/%d '%(i,len(csv_file_list))) + ('transcription %d/%d'%(j,len(lines))))
+                    with open(wav_file_dictionary[transcription_audio_file_name], 'rb') as open_audio_file:
+                      grammar.transcriptions.create(client=grammar.client,
+                                                    project=grammar.project,
+                                                    id_token=generate_id_token(Transcription),
+                                                    audio_file=File(open_audio_file),
+                                                    grammar=grammar,
+                                                    confidence=confidence,
+                                                    utterance=utterance,
+                                                    value=value,
+                                                    confidence_value=confidence_value)
 
       clients = Client.objects.all()
       return render(request, 'distribution/projects.html', {'clients':clients})

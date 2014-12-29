@@ -8,6 +8,7 @@ from apps.distribution.models import Client, Project, Job, Grammar
 from apps.users.models import User
 
 #util
+from datetime import datetime as dt
 
 #vars
 
@@ -22,7 +23,7 @@ class Transcription(models.Model):
   #properties
   id_token = models.CharField(max_length=8)
   audio_file = models.FileField(upload_to='audio')
-  audio_time = models.DateTimeField(auto_now_add=False)
+  audio_time = models.DateTimeField(auto_now_add=False, null=True)
   confidence = models.CharField(max_length=255)
   utterance = models.CharField(max_length=255)
   value = models.CharField(max_length=255)
@@ -30,11 +31,11 @@ class Transcription(models.Model):
   requests = models.IntegerField(default=0) #number of times the transcription has been requested.
   date_created = models.DateTimeField(auto_now_add=True)
   is_active = models.BooleanField(default=True)
-  date_last_requested = models.DateTimeField(auto_now_add=False)
+  date_last_requested = models.DateTimeField(auto_now_add=False, null=True)
 
   #methods
   def __str__(self):
-    pass
+    return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.utterance)
   def latest_revision_words(self):
     pass
   def update(self):
