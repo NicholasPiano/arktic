@@ -2,12 +2,18 @@
 
 #django
 from django.views.generic import View
+from django.core.files import File
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, HttpResponseRedirect
 
 #local
-from apps.distribution.models import Client, Project
+from apps.distribution.models import Client, Project, Grammar
+from libs.utils import generate_id_token
+
+#util
+import os
+import re
 
 #vars
 
@@ -18,7 +24,74 @@ class ProjectView(View):
     if request.user.is_authenticated:
 
       #look through data directory and get new projects and grammars
-      scan_data()
+      data_dir = os.path.join(settings.DJANGO_ROOT, 'data')
+      for name in os.listdir(data_dir):
+        client, created = Client.objects.get_or_create(name=name)
+
+        if created: #scan directory for grammars
+          client.client_path = os.path.join(data_dir, name)
+          client.save()
+
+        for project_name in os.listdir(client.client_path):
+          project, created = client.projects.get_or_create(name=name)
+
+          if created:
+            project.id_token = generate_id_token(Project)
+            project.project_path = os.path.join(client.client_path, project_name)
+            project.save()
+
+          #generate list of .csv files and list of .wav files
+          csv_file_list = []
+          wav_file_dictionary = {}
+          for sup, subs, file_list in os.walk(project.project_path):
+            for file_name in file_list:
+              if '.csv' in file_name:
+                csv_file_list.append(os.path.join(sup, file_name))
+              elif '.wav' in file_name:
+                wav_file_dictionary[file_name] = os.path.join(sup, file_name)
+
+          for i, complete_grammar_path in enumerate(csv_file_list):
+            complete_grammar_name = os.path.basename(complete_grammar_path)
+            root, ext = os.path.splitext(complete_grammar_name)
+            grammar_name = ''
+            grammar_type = ''
+            if '#' in root:
+              grammar_type, grammar_name = tuple(root.split('#'))
+            else:
+              grammar_name = root
+
+            grammar, created = project.grammars.get_or_create(grammar_type=grammar_type, name=grammar_name)
+
+            if created:
+              grammar.id_token = generate_id_token(Grammar)
+              grammar.client = client
+              grammar.grammar_path = complete_grammar_name
+              with open(complete_grammar_name) as open_relfile:
+                lines = open_relfile.readlines()
+                for j, line in enumerate(lines):
+                  tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
+                  transcription_audio_file_name = os.path.basename(tokens[0]).rstrip()
+                  confidence = tokens[2]
+                  utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
+                  value = tokens[4]
+                  confidence_value = tokens[5].rstrip() #chomp newline
+                  if confidence_value is not '':
+                      confidence_value = float(float(confidence_value)/1000.0) #show as decimal
+                  else:
+                      confidence_value = 0.0
+
+                  if transcription_audio_file_name in wav_file_dictionary:
+                    print([('grammar %d/%d '%(i,len(csv_file_list))) + ('transcription %d/%d'%(j,len(lines)))])
+                    with open(wav_file_dictionary[transcription_audio_file_name]) as open_audio_file:
+                      grammar.transcription.create(client=grammar.client,
+                                                   project=grammar.project,
+                                                   audio_file=File(open_audio_file),
+                                                   line_number=line_number,
+                                                   grammar=grammar,
+                                                   confidence=confidence,
+                                                   utterance=utterance,
+                                                   value=value,
+                                                   confidence_value=confidence_value)
 
       clients = Client.objects.all()
       return render(request, 'distribution/projects.html', {'clients':clients})

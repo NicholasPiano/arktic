@@ -24,7 +24,7 @@
         </ul>
     </div>
 
-<!-- interface -->
+    <!-- interface -->
     <div id="interface" class="panel panel-default">
         <div id="indicators" class="panel">
             {% for transcription in transcriptions %}
@@ -106,89 +106,4 @@
 {% block post_main_script %}
 <script src="{% static 'transcription/js/typeahead.js' %}"></script>
 <script src="{% static 'transcription/js/transcription.js' %}"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-var substringMatcher = function(strs) {
-  return function findMatches(q, cb) {
-    var matches, substringRegex;
-
-    // an array that will be populated with substring matches
-    matches = [];
-
-    // regex used to determine if a string contains the substring `q`
-    substrRegex = new RegExp(q, 'i');
-
-    // iterate through the pool of strings and for any string that
-    // contains the substring `q`, add it to the `matches` array
-    $.each(strs, function(i, str) {
-      if (substrRegex.test(str)) {
-        // the typeahead jQuery plugin expects suggestions to a
-        // JavaScript object, refer to typeahead docs for more info
-        matches.push({ value: str });
-      }
-    });
-
-    cb(matches);
-  };
-};
-
-// var states = ["[noise]","[breath noise]","[fragment]","[side speech]","[hesitation]","[unintelligible]","[spanish]","[prompt echo]","[bad audio]","{% for word in words %}{{word.content}}","{% endfor %}"];
-var states = ["[noise]",
-              "[breath noise]",
-              "[fragment]",
-              "[side speech]",
-              "[hesitation]",
-              "[unintelligible]",
-              "[spanish]",
-              "[prompt echo]",
-              "[background noise]",
-              "[speech in noise]",
-              "[no speech]",
-              "[skipped]",
-              "[bad audio]",
-              "help me with something else",
-              "help with something else",
-              "I don't have one",
-              "I don't have it",
-              "don't have one",
-              "don't have it",
-              "representative",
-              "file a new claim",
-              "file a claim",
-              "payments and billing",
-              "make a payment",
-              "billing",
-              "pay my bill",
-              "[tones]",
-              "i don't know it",
-              "customer service",
-              "payment",
-              "customer service rep",
-              "agent",
-              "operator",
-              "claims",
-              "claim",
-              "accident",
-              "roadside assistance",
-              "[mispronounciation]",
-              "[pause]",
-              "[non-native]",
-              "proof of insurance",
-              "insurance",
-              "liability",
-              "get a quote",
-              "customer service please"];
-
-$('#typeahead').typeahead({
-  hint: true,
-  highlight: true,
-  minLength: 1
-},
-{
-  name: 'states',
-  displayKey: 'value',
-  source: substringMatcher(states)
-});
-});
-</script>
 {% endblock %}

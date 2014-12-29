@@ -18,6 +18,7 @@ import datetime as dt
 class Client(models.Model):
   #properties
   name = models.CharField(max_length=255)
+  client_path = models.CharField(max_length=255)
 
   #methods
   def __str__(self):
@@ -78,6 +79,7 @@ class Job(models.Model):
   #properties
   is_active = models.BooleanField(default=True)
   id_token = models.CharField(max_length=8) #a random string of characters to identify the job
+  project_path = models.CharField(max_length=255)
   active_transcriptions = models.IntegerField(editable=False)
   date_created = models.DateTimeField(auto_now_add=True)
   total_transcription_time = models.DateTimeField(auto_now_add=False)
@@ -129,8 +131,9 @@ class Grammar(models.Model):
   project = models.ForeignKey(Project, related_name='grammars')
 
   #properties
-  is_active = models.BooleanField(default=True)
+  is_active = models.BooleanField(default=False)
   id_token = models.CharField(max_length=8)
+  grammar_type = models.CharField(max_length=255)
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
   date_completed = models.DateTimeField(auto_now_add=False)

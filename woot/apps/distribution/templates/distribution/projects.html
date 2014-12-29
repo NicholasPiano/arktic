@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'transcription/css/transcription.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="wrapper" class="container">
+    {% for client in clients %}
+    <p>{{ client.name }}</p>
+    {% endfor %}
+</div> <!-- !wrapper -->
+{% endblock %}
+
+<!-- js -->
+{% block post_main_script %}
+<script src="{% static 'transcription/js/transcription.js' %}"></script>
+{% endblock %}
