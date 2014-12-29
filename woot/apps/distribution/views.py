@@ -61,32 +61,7 @@ class ProjectView(View):
               grammar.id_token = generate_id_token(Grammar)
               grammar.client = client
               grammar.grammar_path = complete_grammar_name
-              with open(complete_grammar_path) as open_relfile:
-                lines = open_relfile.readlines()
-                for j, line in enumerate(lines):
-                  tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
-                  transcription_audio_file_name = os.path.basename(tokens[0]).rstrip()
-                  confidence = tokens[2]
-                  utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
-                  value = tokens[4]
-                  confidence_value = tokens[5].rstrip() #chomp newline
-                  if confidence_value is not '':
-                      confidence_value = float(float(confidence_value)/1000.0) #show as decimal
-                  else:
-                      confidence_value = 0.0
-
-                  if transcription_audio_file_name in wav_file_dictionary:
-                    print([dt.now(),('grammar %d/%d '%(i,len(csv_file_list))) + ('transcription %d/%d'%(j,len(lines)))])
-                    with open(wav_file_dictionary[transcription_audio_file_name], 'rb') as open_audio_file:
-                      grammar.transcriptions.create(client=grammar.client,
-                                                    project=grammar.project,
-                                                    id_token=generate_id_token(Transcription),
-                                                    audio_file=File(open_audio_file),
-                                                    grammar=grammar,
-                                                    confidence=confidence,
-                                                    utterance=utterance,
-                                                    value=value,
-                                                    confidence_value=confidence_value)
+              grammar.save()
 
       clients = Client.objects.all()
       return render(request, 'distribution/projects.html', {'clients':clients})
