@@ -15,6 +15,7 @@ from libs.utils import generate_id_token
 #util
 import os
 import re
+from datetime import datetime as dt
 
 #vars
 
@@ -75,7 +76,7 @@ class ProjectView(View):
                       confidence_value = 0.0
 
                   if transcription_audio_file_name in wav_file_dictionary:
-                    print(('grammar %d/%d '%(i,len(csv_file_list))) + ('transcription %d/%d'%(j,len(lines))))
+                    print([dt.now(),('grammar %d/%d '%(i,len(csv_file_list))) + ('transcription %d/%d'%(j,len(lines)))])
                     with open(wav_file_dictionary[transcription_audio_file_name], 'rb') as open_audio_file:
                       grammar.transcriptions.create(client=grammar.client,
                                                     project=grammar.project,
