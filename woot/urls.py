@@ -17,7 +17,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
   #distribution
   url(r'^projects/', ProjectView.as_view()),
-#   url(r'^scan/'),
+  url(r'^scan/(?P<task_id>.+)$', 'apps.distribution.views.scan_data_callback'),
 
   #pages
 #   url(r'^login/$', LoginView.as_view()),
