@@ -1,3 +1,4 @@
+var scan_url="/scan/12d29463-bc62-4a52-9253-b109b6007ce2";
 var set_delay = 1000;
 var callout = function () {
       $.ajax({

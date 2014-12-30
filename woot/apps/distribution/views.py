@@ -28,10 +28,9 @@ class ProjectView(View):
   def get(self, request):
     if request.user.is_authenticated:
       #look through data directory and get new projects and grammars
-      scan_data_task = tasks.scan_data.delay()
+      scan_data_task = scan_data.delay()
 
-      clients = Client.objects.all()
-      return render(request, 'distribution/projects.html', {'clients':clients, 'scan_data_task':scan_data_task})
+      return render(request, 'distribution/projects.html', {'scan_data_task':scan_data_task})
     else:
       return HttpResponseRedirect('/start/')
 
@@ -39,10 +38,12 @@ class ProjectView(View):
 def scan_data_callback(request, task_id): #checks back periodically for completed task
   if request.user.is_authenticated:
     results = scan_data.AsyncResult(task_id)
-    status = 'loading'
+    clients = Client.objects.all()
+
     if results.ready():
-      status = 'success'
-    return render(request, 'distribution/projects_scan_data_fragment.html', {'status':status})
+      return render(request, 'distribution/projects_scan_data_fragment.html', {'status':'success', 'clients':clients})
+    else:
+      return render(request, 'distribution/projects_scan_data_fragment.html', {'status':'loading', 'clients':clients})
 
 def process_grammar_ajax(request, grammar_id_token):
   if request.user.is_authenticated:

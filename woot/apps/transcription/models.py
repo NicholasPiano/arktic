@@ -126,7 +126,7 @@ class Transcription(models.Model):
     return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.utterance)
 
   def latest_revision_words(self):
-
+    pass
 
   def update(self):
     #if deactivation condition is satisfied, deactivate transcription

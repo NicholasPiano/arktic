@@ -1,0 +1,15 @@
+{% ifequal status "success" %}
+{% for client in clients %}
+<div href="" class="list-group-item" status="success">{{ client.name }}<span class="right-label">{{ client.pk }}</span>
+<!--     <div id="project-list-{{client.name}}" class="list-group">
+    {% for project in client.projects %}
+        <div href="" class="list-group-item">{{ project.name }}<span class="right-label">{{ project.grammars.count }}</span>
+        </div>
+    {% endfor %}
+    </div> -->
+</div>
+
+{% endfor %}
+{% else %}
+<a href="" class="list-group-item" status="loading">Loading...<span class="right-label">pk</span></a>
+{% endifequal %}

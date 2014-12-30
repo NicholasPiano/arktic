@@ -1,7 +1,7 @@
-var set_delay = 1000;
+var set_delay = 2000;
 var callout = function () {
       $.ajax({
-        url:scan_url
+        url:"/scan/"
       })
       .done(function (response) {
         $("#client-list").html(response)
