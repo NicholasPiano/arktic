@@ -43,6 +43,10 @@ class Transcription(models.Model):
     pass
   def latest_revision_done_by_current_user(self):
     pass
+  def process(self):
+    #1. process audio file
+    #2. add open audio file to transcription
+    pass
 
 class Revision(models.Model):
   #connections

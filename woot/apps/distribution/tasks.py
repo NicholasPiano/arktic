@@ -20,6 +20,10 @@ def scan_data():
   Walks through data directory and finds new grammars, creating them and adding them to the right clients and projects.
   '''
 
+  #1. get all filenames+paths in project dir
+  #2. get all filenames from all csv files in project dir -> dictionary
+  #3.
+
   data_dir = os.path.join(settings.DJANGO_ROOT, 'data')
   for name in os.listdir(data_dir):
     client, created = Client.objects.get_or_create(name=name)
@@ -37,6 +41,9 @@ def scan_data():
         project.save()
 
       #generate list of .csv files and list of .wav files
+      #test:
+      #1. query speed once items are in the database
+      #2. query .filter() vs. .get_or_create()
       for sup, subs, file_list in os.walk(project.project_path):
         for file_name in file_list:
           print(project.wav_files.count())

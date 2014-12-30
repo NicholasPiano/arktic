@@ -27,6 +27,9 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 ########## AUTH
 AUTH_USER_MODEL = 'users.User'
 
+########## AUDIO
+NUMBER_OF_AUDIO_FILE_BINS = 100
+
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
