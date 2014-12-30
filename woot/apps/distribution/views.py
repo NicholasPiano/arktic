@@ -21,8 +21,8 @@ import re
 class ProjectView(View):
   def get(self, request):
     if request.user.is_authenticated:
-      scan_data_task = scan_data.delay()
       #look through data directory and get new projects and grammars
+      scan_data_task = scan_data.delay()
 
 #               with open(complete_grammar_path) as open_relfile:
 #                 lines = open_relfile.readlines()

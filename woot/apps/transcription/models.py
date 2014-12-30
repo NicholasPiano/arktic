@@ -22,6 +22,7 @@ class Transcription(models.Model):
 
   #properties
   id_token = models.CharField(max_length=8)
+  audio_file_data_path = models.CharField(max_length=255) #temporary
   audio_file = models.FileField(upload_to='audio')
   audio_time = models.DateTimeField(auto_now_add=False, null=True)
   confidence = models.CharField(max_length=255)
@@ -116,3 +117,26 @@ class Action(models.Model): #lawsuit
   #methods
   def __str__(self):
     pass
+
+### File paths
+class CSVFile(models.Model):
+  #connections
+  client = models.ForeignKey(Client, related_name='csv_files')
+  project = models.ForeignKey(Project, related_name='csv_files')
+  grammar = models.OneToOneField(Grammar, related_name='csv_file', null=True)
+
+  #properties
+  name = models.CharField(max_length=255)
+  path = models.CharField(max_length=255)
+  file_name = models.CharField(max_length=255)
+
+class WavFile(models.Model):
+  #connections
+  client = models.ForeignKey(Client, related_name='wav_files')
+  project = models.ForeignKey(Project, related_name='wav_files')
+  grammar = models.ForeignKey(Grammar, related_name='wav_files', null=True)
+  transcription = models.OneToOneField(Transcription, related_name='wav_file', null=True)
+
+  #properties
+  path = models.CharField(max_length=255)
+  file_name = models.CharField(max_length=255)

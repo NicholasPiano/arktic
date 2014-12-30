@@ -5,7 +5,7 @@ from django.conf import settings
 
 #local
 from apps.distribution.models import Client, Project, Grammar
-from apps.transcription.models import Transcription
+from apps.transcription.models import Transcription, CSVFile, WavFile
 from libs.utils import generate_id_token
 
 #util
@@ -21,42 +21,35 @@ def scan_data():
   '''
 
   data_dir = os.path.join(settings.DJANGO_ROOT, 'data')
-  with open(os.path.join(data_dir, 'test.txt'), 'w') as f:
-    f.write('test')
+  for name in os.listdir(data_dir):
+    client, created = Client.objects.get_or_create(name=name)
 
-#   for name in os.listdir(data_dir):
-#     client, created = Client.objects.get_or_create(name=name)
+    if created: #scan directory for grammars
+      client.client_path = os.path.join(data_dir, name)
+      client.save()
 
-#     if created: #scan directory for grammars
-#       client.client_path = os.path.join(data_dir, name)
-#       client.save()
+    for project_name in os.listdir(client.client_path):
+      project, created = client.projects.get_or_create(name=project_name)
 
-#     for project_name in os.listdir(client.client_path):
-#       project, created = client.projects.get_or_create(name=project_name)
+      if created:
+        project.id_token = generate_id_token(Project)
+        project.project_path = os.path.join(client.client_path, project_name)
+        project.save()
 
-#       if created:
-#         project.id_token = generate_id_token(Project)
-#         project.project_path = os.path.join(client.client_path, project_name)
-#         project.save()
+      #generate list of .csv files and list of .wav files
+      for sup, subs, file_list in os.walk(project.project_path):
+        for file_name in file_list:
+          print(project.wav_files.count())
+          if '.csv' in file_name:
+            root, ext = os.path.splitext(file_name)
+            project.csv_files.get_or_create(client=client, name=root, file_name=file_name, path=sup)
+          elif '.wav' in file_name:
+            project.wav_files.get_or_create(client=client, file_name=file_name, path=sup)
 
-#       #generate list of .csv files and list of .wav files
-#       csv_file_list = []
-#       wav_file_dictionary = {}
-#       for sup, subs, file_list in os.walk(project.project_path):
-#         for file_name in file_list:
-#           if '.csv' in file_name:
-#             csv_file_list.append(os.path.join(sup, file_name))
-#           elif '.wav' in file_name:
-#             wav_file_dictionary[file_name] = os.path.join(sup, file_name)
+      for csv_file in project.csv_files.all():
+        grammar, created = project.grammars.get_or_create(client=client, name=csv_file.name)
 
-#       for i, complete_grammar_path in enumerate(csv_file_list):
-#         print(i)
-#         complete_grammar_name = os.path.basename(complete_grammar_path)
-#         root, ext = os.path.splitext(complete_grammar_name)
-#         grammar, created = project.grammars.get_or_create(client=client, name=root)
-
-#         if created:
-#           grammar.id_token = generate_id_token(Grammar)
-#           grammar.client = client
-#           grammar.grammar_path = complete_grammar_path
-#           grammar.save()
+        if created:
+          grammar.csv_file = csv_file
+          grammar.id_token = generate_id_token(Grammar)
+          grammar.save()

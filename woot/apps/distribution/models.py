@@ -51,6 +51,7 @@ class Project(models.Model):
   is_active = models.BooleanField(default=False)
   is_new = models.BooleanField(default=True)
   is_approved = models.BooleanField(default=False)
+  project_path = models.CharField(max_length=255)
   completed_project_file = models.FileField(upload_to='completed_projects')
 
   #methods
@@ -69,6 +70,16 @@ class Project(models.Model):
   def export(self):
     ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
     pass
+
+  def process(self):
+    '''
+    grammar.process for each grammar
+    '''
+    for grammar in self.grammars.all():
+      if not grammar.is_active:
+        grammar.process()
+        grammar.is_active = True
+        grammar.save()
 
 class Job(models.Model):
   #connections
@@ -137,7 +148,6 @@ class Grammar(models.Model):
   date_created = models.DateTimeField(auto_now_add=True)
   date_completed = models.DateTimeField(auto_now_add=False, null=True)
   language = models.CharField(max_length=255, choices=language_choices, default='english')
-  rel_file_path = models.CharField(max_length=255, null=True)
   complete_rel_file = models.FileField(upload_to='completed')
 
   #methods
@@ -145,5 +155,34 @@ class Grammar(models.Model):
     return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.name)
   def update(self):
     pass
-  def extract(self, rel_file_path):
-    pass
+  def process(self):
+    '''
+    Open relfile and create transcription objects.
+    '''
+    with open(os.path.join(self.csv_file.path, self.csv_file.file_name)) as open_relfile:
+      lines = open_relfile.readlines()
+      for line in lines:
+        tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
+        transcription_audio_file_name = os.path.basename(tokens[0]).rstrip()
+        confidence = tokens[2]
+        utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
+        value = tokens[4]
+        confidence_value = tokens[5].rstrip() #chomp newline
+        if confidence_value is not '':
+          confidence_value = float(float(confidence_value)/1000.0) #show as decimal
+        else:
+          confidence_value = 0.0
+
+        if self.project.wav_files.filter(file_name=transcription_audio_file_name)!=[]:
+          wav_file = self.project.wav_files.get(file_name=transcription_audio_file_name)
+
+          transcription, created = self.transcriptions.get_or_create(client=self.client, project=self.project, wav_file__file_name=wav_file.file_name)
+
+          if created:
+            transcription.wav_file = wav_file
+            transcription.id_token = generate_id_token(Transcription)
+            transcription.confidence = confidence
+            transcription.utterance = utterance
+            transcription.value = value
+            transcription.confidence_value = confidence_value
+            transcription.save()
