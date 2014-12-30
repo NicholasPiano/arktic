@@ -71,3 +71,10 @@ def scan_data():
 
           grammar.save()
           csv_file.save()
+
+@task()
+def process_grammar(grammar_id_token):
+  grammar = Grammar.objects.get(id_token=grammar_id_token)
+  grammar.process()
+  for transcription in grammar.transcriptions.all():
+    transcription.process()

@@ -50,8 +50,7 @@ class Project(models.Model):
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
   is_active = models.BooleanField(default=False)
-  is_new = models.BooleanField(default=True)
-  is_approved = models.BooleanField(default=False)
+  is_processed = models.BooleanField(default=False)
   project_path = models.CharField(max_length=255)
   completed_project_file = models.FileField(upload_to='completed_projects')
 
@@ -63,10 +62,18 @@ class Project(models.Model):
     ''' Updates project when a revision is submitted. '''
     for grammar in self.grammars.filter(is_active=True):
       grammar.update()
-      if not grammar.is_active:
+      if not grammar.is_active and grammar.is_processed:
         grammar.export()
 
-    #update status: approved, new, active
+    #update status: active, processed
+    self.is_active = True
+    self.is_processed = True
+    for grammar in self.grammars.all(): #will be false if one of the grammars returns false
+      if self.is_active:
+        self.is_active = grammar.is_active
+      if self.is_processed:
+        self.is_processed = grammar.is_processed
+    self.save()
 
   def export(self):
     ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
@@ -81,6 +88,7 @@ class Project(models.Model):
         grammar.process()
         grammar.is_active = True
         grammar.save()
+    self.update()
 
 class Job(models.Model):
   #connections
