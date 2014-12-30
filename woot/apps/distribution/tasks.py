@@ -4,7 +4,8 @@
 from django.conf import settings
 
 #local
-from apps.distribution.models import Client, Project, Grammar
+from apps.distribution.models import Client, Project
+from apps.transcription.models import Grammar
 from apps.transcription.models import Transcription, CSVFile, WavFile
 from libs.utils import generate_id_token
 
@@ -13,6 +14,8 @@ import os
 
 #third party
 from celery import task
+
+#from apps.distribution.tasks import scan_data; scan_data();
 
 @task()
 def scan_data():
@@ -41,17 +44,16 @@ def scan_data():
         project.save()
 
       #generate list of .csv files and list of .wav files
-      #test:
-      #1. query speed once items are in the database
-      #2. query .filter() vs. .get_or_create()
+      csv_file_list = []
+      wav_file_dictionary = {}
       for sup, subs, file_list in os.walk(project.project_path):
         for file_name in file_list:
-          print(project.wav_files.count())
           if '.csv' in file_name:
+            csv_file_list.append(file_name)
             root, ext = os.path.splitext(file_name)
             project.csv_files.get_or_create(client=client, name=root, file_name=file_name, path=sup)
           elif '.wav' in file_name:
-            project.wav_files.get_or_create(client=client, file_name=file_name, path=sup)
+            wav_file_dictionary[file_name] = os.path.join(sup, file_name)
 
       for csv_file in project.csv_files.all():
         grammar, created = project.grammars.get_or_create(client=client, name=csv_file.name)
@@ -59,4 +61,13 @@ def scan_data():
         if created:
           grammar.csv_file = csv_file
           grammar.id_token = generate_id_token(Grammar)
+
+          with open(os.path.join(csv_file.path, csv_file.file_name)) as open_rel_file:
+            lines = open_rel_file.readlines()
+            for line in lines:
+              tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
+              transcription_audio_file_name = os.path.basename(tokens[0])
+              grammar.wav_files.get_or_create(client=client, project=project, path=wav_file_dictionary[transcription_audio_file_name], file_name=transcription_audio_file_name)
+
           grammar.save()
+          csv_file.save()

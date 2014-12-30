@@ -5,6 +5,7 @@ from django.db import models
 
 #local
 from apps.users.models import User
+from libs.utils import generate_id_token
 
 #util
 import os
@@ -128,61 +129,3 @@ class Job(models.Model):
     self.time_taken = time_taken
 
     self.save()
-
-class Grammar(models.Model):
-  ''' Stores all information about a single grammar: relfile, archive, transcriptions '''
-  #types
-  language_choices = (
-    ('en','english'),
-    ('es','spanish'),
-  )
-
-  #connections
-  client = models.ForeignKey(Client, related_name='grammars')
-  project = models.ForeignKey(Project, related_name='grammars')
-
-  #properties
-  is_active = models.BooleanField(default=False)
-  id_token = models.CharField(max_length=8, null=True)
-  name = models.CharField(max_length=255)
-  date_created = models.DateTimeField(auto_now_add=True)
-  date_completed = models.DateTimeField(auto_now_add=False, null=True)
-  language = models.CharField(max_length=255, choices=language_choices, default='english')
-  complete_rel_file = models.FileField(upload_to='completed')
-
-  #methods
-  def __str__(self):
-    return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.name)
-  def update(self):
-    pass
-  def process(self):
-    '''
-    Open relfile and create transcription objects.
-    '''
-    with open(os.path.join(self.csv_file.path, self.csv_file.file_name)) as open_relfile:
-      lines = open_relfile.readlines()
-      for line in lines:
-        tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
-        transcription_audio_file_name = os.path.basename(tokens[0]).rstrip()
-        confidence = tokens[2]
-        utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
-        value = tokens[4]
-        confidence_value = tokens[5].rstrip() #chomp newline
-        if confidence_value is not '':
-          confidence_value = float(float(confidence_value)/1000.0) #show as decimal
-        else:
-          confidence_value = 0.0
-
-        if self.project.wav_files.filter(file_name=transcription_audio_file_name)!=[]:
-          wav_file = self.project.wav_files.get(file_name=transcription_audio_file_name)
-
-          transcription, created = self.transcriptions.get_or_create(client=self.client, project=self.project, wav_file__file_name=wav_file.file_name)
-
-          if created:
-            transcription.wav_file = wav_file
-            transcription.id_token = generate_id_token(Transcription)
-            transcription.confidence = confidence
-            transcription.utterance = utterance
-            transcription.value = value
-            transcription.confidence_value = confidence_value
-            transcription.save()

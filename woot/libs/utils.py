@@ -1,3 +1,5 @@
+#libs.util
+
 #django
 from django.conf import settings
 
@@ -9,7 +11,7 @@ import random
 import wave
 import audioop
 import os
-import subprocess
+from subprocess import call
 
 #vars
 chars = string.ascii_uppercase + string.digits
@@ -60,8 +62,8 @@ sampleWidth = 2 # number of bytes in a frame.
 
 def process_audio(input_path):
   # convert a-law wav file to microsoft pcm wav file
-  cmd = 'ffmpeg -i %s -f wav %s' % (input_path, input_path)
-  returnCode, output = executeShellProcess(cmd)
+  cmd = ['ffmpeg','-y','-i',input_path,'-f','wav',input_path]
+  call(cmd)
 
   # get properties of the pcm wav file
   seconds, rmsValues = getWAVFileProperties(input_path)
@@ -94,14 +96,3 @@ def getWAVFileProperties(filePath):
   rmsValues.append(r)
 
   return seconds, rmsValues
-
-def executeShellProcess(command):
-  import subprocess
-  returnCode = 0
-  try:
-    output = subprocess.check_output(command,
-      stderr = subprocess.STDOUT, shell=True)
-  except subprocess.CalledProcessError as error:
-    output = error.output
-    returnCode = error.returncode
-  return returnCode, output
