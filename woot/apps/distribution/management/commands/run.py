@@ -3,7 +3,11 @@ from django.core.management.base import BaseCommand, CommandError
 
 #local
 from apps.transcription.models import Grammar, Transcription, Word
+from apps.distribution.models import Project
 from apps.distribution.tasks import scan_data
+
+#util
+import json
 
 #command
 class Command(BaseCommand):
@@ -11,10 +15,19 @@ class Command(BaseCommand):
   help = ''
 
   def handle(self, *args, **options):
+#     self.stdout.write('scanning data directories...')
 #     scan_data()
-    for g in Grammar.objects.all():
+
+#     self.stdout.write('processing grammars...')
+#     for i, g in enumerate(Grammar.objects.all()):
+#       print([i+1, Grammar.objects.count()])
 #       g.process()
-      for t in g.transcriptions.all():
-        t.process()
-#     for w in Word.objects.all():
-#       print(w)
+
+#     self.stdout.write('processing transcriptions...')
+#     for i, t in enumerate(Transcription.objects.all()):
+#       t.process()
+
+#     #get unique words and utterances
+#     for i, t in enumerate(Transcription.objects.all()):
+#       print(['words', i+1, Transcription.objects.count()])
+#       t.process_words()

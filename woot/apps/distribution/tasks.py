@@ -35,7 +35,7 @@ def scan_data():
       client.client_path = os.path.join(data_dir, name)
       client.save()
 
-    for project_name in os.listdir(client.client_path):
+    for project_name in [dir_i for dir_i in os.listdir(client.client_path) if os.path.isdir(os.path.join(client.client_path, dir_i))]:
       project, created = client.projects.get_or_create(name=project_name)
 
       if created:

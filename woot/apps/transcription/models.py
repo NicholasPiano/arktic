@@ -1,8 +1,9 @@
-#woot.apps.transcription.models
+#apps.transcription.models
 
 #django
 from django.db import models
 from django.core.files import File
+from django.db.models import Q
 
 #local
 from apps.distribution.models import Client, Project, Job
@@ -151,6 +152,10 @@ class Transcription(models.Model):
     (seconds, rms_values) = process_audio(self.wav_file.path)
 
     self.audio_time = seconds
+
+    max_rms = max(rms_values)
+    rms_values = [float(value)/float(max_rms) for value in rms_values]
+
     self.audio_rms = json.dumps(rms_values)
 
     #2. add open audio file to transcription
@@ -158,21 +163,27 @@ class Transcription(models.Model):
       self.audio_file = File(open_audio_file)
       self.save()
 
-    #3. add words to transcription
-    for utterance_word in self.utterance.split(' '):
-      word = self.words.create(client=self.client, project=self.project, grammar=self.grammar, char=utterance_word)
-
-      word.id_token = generate_id_token(Word)
-      if '[' in utterance_word or ']' in utterance_word: #tag
-        word.tag = True
-      if len(self.client.words.filter(char=word.char))<2:
-        word.unique = True
-
-      word.save()
-
     self.is_active = True
     self.is_processed = True
     self.save()
+
+  def utterance_words(self):
+    return self.words.exclude(Q(char__contains=' '))
+
+  def unpack_rms(self):
+    return [(int(rms*31+1), 32-int(rms*31+1)) for rms in json.loads(self.audio_rms)]
+
+  def process_words(self):
+    words = self.utterance.split()
+    for word in words + [self.utterance]:
+      unique = False
+      tag = False
+      if self.client.words.filter(project=self.project, char=word).count()==0:
+        unique=True
+      if '[' in word or ']' in word and ' ' not in word:
+        tag = True
+
+      self.words.create(client=self.client, project=self.project, grammar=self.grammar, char=word, unique=unique, tag=tag)
 
 class Revision(models.Model):
   #connections

@@ -1,21 +1,9 @@
-//--CALLBACKS
-function action_register_callback (data) { //data is serialized json object
-
-}
-
-function update_transcription_callback (data) {
-
-}
-
 $(document).ready(function() {
 
   //--SETUP AND BINDINGS
   //set up play variable for play-pause button
   var play = $('li.audio:first audio').attr('id');
   $('#play-pause').attr('play', play);
-
-  //set up utterance buttons
-//   $('#panel-'+play).toggle();
 
   //bind audio player load
   $('audio').on('canplay canplaythrough', function(){
@@ -26,7 +14,6 @@ $(document).ready(function() {
 
   //bind audio player end
   $('audio').on('ended', function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'audio_ended', 'transcription_id':$('#play-pause').attr('play')});
     //toggle the play-pause button glyphicons if the play variable is the same
     if ($('#play-pause').attr('play') == $(this).attr('id')) {
       $('#play-pause').children('span.glyphicon').toggle();
@@ -37,17 +24,19 @@ $(document).ready(function() {
   //--BUTTONS
   //-id main control buttons
   $('#previous').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'previous', 'transcription_id':$('#play-pause').attr('play')});
     //get current play
     var currentPlay = $('#play-pause').attr('play');
     //pause current player and set currentTime=0
     var currentPlayer = document.getElementById(currentPlay);
     if (!currentPlayer.paused) {
+      $('#now-'+currentPlay).stop();
       currentPlayer.pause();
       currentPlayer.currentTime=0;
     } else {
       $('#play-pause').children('span.glyphicon').toggle();
+      currentPlayer.currentTime=0;
     }
+    $('#now-'+currentPlay).css('left','0px');
 
     //get next id
     var prevPlay = $('#li-'+currentPlay).prev().length ? $('#li-'+currentPlay).prev().children('audio').attr('id') : $('#li-'+currentPlay).first().children('audio').attr('id');
@@ -74,7 +63,6 @@ $(document).ready(function() {
   });
 
   $('#replay').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'replay', 'transcription_id':$('#play-pause').attr('play')});
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
     if (player.paused) {
@@ -85,7 +73,6 @@ $(document).ready(function() {
   });
 
   $('#play-pause').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'play_pause', 'transcription_id':$('#play-pause').attr('play')});
     //toggle glyphicons
     $(this).children('span.glyphicon').toggle();
     $(this).removeClass('btn-success').addClass('btn-warning');
@@ -95,16 +82,20 @@ $(document).ready(function() {
 
     if (player.paused) {
       player.play();
+      var duration = parseFloat($('#wave-'+play).attr('length'))*1000;
+      $('#now-'+play).animate({left: "200px"}, duration-player.currentTime*1000, "linear", function() {$('#now-'+play).css('left','0px');});
     } else {
       player.pause();
+      $('#now-'+play).stop();
     }
   });
 
   $('#next').click(function(){
-//     Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'next', 'transcription_id':$('#play-pause').attr('play')});
     //get current play
     var currentPlay = $('#play-pause').attr('play');
     $('#panel-'+currentPlay+' div.modified-panel div.tick button.tick').click();
+    $('#now-'+currentPlay).stop();
+    $('#now-'+currentPlay).css('left','0px');
     //pause current player and set currentTime=0
     var currentPlayer = document.getElementById(currentPlay);
     if (!currentPlayer.paused) {
@@ -112,6 +103,7 @@ $(document).ready(function() {
       currentPlayer.currentTime=0;
     } else {
       $('#play-pause').children('span.glyphicon').toggle();
+      currentPlayer.currentTime=0;
     }
 
     //get next id
@@ -136,12 +128,7 @@ $(document).ready(function() {
     $('#indicator-ok-'+nextPlay).addClass('active-indicator');
   });
 
-  $('#waveform').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'waveform', 'transcription_id':$('#play-pause').attr('play')});
-  });
-
   $('#add-new-word').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'add_new_word', 'transcription_id':$('#play-pause').attr('play')});
     //make a new button and add it to the current modified list with copied text from input
     var play = $('#play-pause').attr('play');
     if (play!=='') {
@@ -162,7 +149,6 @@ $(document).ready(function() {
 
   //-class buttons (general for each transcription object)
   $('button.copy-down').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'copy_down', 'transcription_id':$('#play-pause').attr('play')});
     var play = $('#play-pause').attr('play');
     if ($('#panel-'+play+' div.modified-panel div.modified').children().size() == 2) { //only ... should be there
       var utterance = $('#panel-'+play+' div.original-panel div.original button.original-utterance').html();
@@ -182,13 +168,11 @@ $(document).ready(function() {
   });
 
   $('button.add-modified').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'add_modified', 'transcription_id':$('#play-pause').attr('play')});
       $('#typeahead').focus();
       $('#typeahead').typeahead('val', '');
   });
 
   $('div.modified').on('click', 'button.modified', function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'modified', 'transcription_id':$('#play-pause').attr('play')});
     //add active class and remove from all others
     $(this).siblings('button.modified').removeClass('active');
     $(this).addClass('active');
@@ -197,7 +181,6 @@ $(document).ready(function() {
   });
 
   $('button.tick').click(function(){
-    Dajaxice.apps.transcription.action_register(action_register_callback, {'job_id':$('#job').attr('job_id'), 'button_id':'tick', 'transcription_id':$('#play-pause').attr('play')});
     //send transcription update
     var play = $('#play-pause').attr('play');
     var utterance = '';
@@ -205,7 +188,6 @@ $(document).ready(function() {
       utterance += $(this).html() + ' ';
     });
     if (utterance!=='') {
-      Dajaxice.apps.transcription.update_transcription(update_transcription_callback, {'job_id':$('#job').attr('job_id'), 'transcription_id':play, 'transcription_utterance':utterance,});
       //toggle green
       $(this).addClass('btn-success').removeClass('btn-default');
       $('#indicator-ok-'+play).addClass('btn-success').removeClass('btn-default');

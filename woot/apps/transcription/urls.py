@@ -14,7 +14,7 @@ admin.autodiscover()
 
 # See: https://docs.djangoproject.com/en/dev/topics/http/urls/
 urlpatterns = patterns('',
-#   url(r'^$', start_redirect),
-#   url(r'^(?P<job_id_token>[a-z0-9]{8})$', TranscriptionView.as_view()),
-#   url(r'^new/$', create_new_job),
+  url(r'^$', start_redirect),
+  url(r'^(?P<job_id_token>[A-Z0-9]{8})$', TranscriptionView.as_view()),
+  url(r'^new/$', create_new_job),
 )

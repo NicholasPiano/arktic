@@ -9,9 +9,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 #local
 from apps.users.models import User
 from apps.distribution.models import Project, Job
+from libs.utils import generate_id_token
 
 #util
 import random
+import json
 
 #class views
 class TranscriptionView(View):
@@ -33,6 +35,7 @@ class TranscriptionView(View):
           words = sorted(project.words.filter(unique=True), key=lambda word: len(word.char), reverse=False)
         else: #tags
           words = project.words.filter(unique=True, tag=True)
+      words = json.dumps([word.char for word in words])
 
       #render
       return render(request, 'transcription/transcription.html', {'transcriptions':transcriptions,'words':words})
@@ -40,9 +43,6 @@ class TranscriptionView(View):
       return HttpResponseRedirect('/start/')
 
 #methods
-def id_generator(size=settings.JOB_ID_LENGTH, chars=settings.JOB_ID_CHARS):
-  return ''.join(random.choice(chars) for _ in range(size))
-
 def create_new_job(request):
   if request.method == 'GET':
     user = request.user
@@ -54,11 +54,7 @@ def create_new_job(request):
       user = User.objects.get(email=user)
 
       #create job
-      id_token = id_generator()
-      id_tokens = [job.id_token for job in Job.objects.all()]
-      while id_token in id_tokens: #check that id_token does not already exist
-        id_token = id_generator()
-
+      id_token = generate_id_token(Job)
       job = user.jobs.create(client=project.client, project=project, id_token=id_token, active_transcriptions=settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
       job.get_transcription_set()
 
