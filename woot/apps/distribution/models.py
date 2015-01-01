@@ -52,7 +52,6 @@ class Project(models.Model):
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
   is_active = models.BooleanField(default=False)
-  is_processed = models.BooleanField(default=False)
   project_path = models.CharField(max_length=255)
   completed_project_file = models.FileField(upload_to='completed_projects')
 
@@ -62,19 +61,11 @@ class Project(models.Model):
 
   def update(self):
     ''' Updates project when a revision is submitted. '''
-    for grammar in self.grammars.filter(is_active=True):
-      grammar.update()
-      if not grammar.is_active and grammar.is_processed:
-        grammar.export()
+    for job in self.jobs.filter(is_active=True):
+      job.update()
 
     #update status: active, processed
-    self.is_active = True
-    self.is_processed = True
-    for grammar in self.grammars.all(): #will be false if one of the grammars returns false
-      if self.is_active:
-        self.is_active = grammar.is_active
-      if self.is_processed:
-        self.is_processed = grammar.is_processed
+    self.is_active = self.jobs.filter(is_active=True).count()!=0
     self.save()
 
   def export(self):
@@ -104,20 +95,21 @@ class Job(models.Model):
   active_transcriptions = models.IntegerField(editable=False)
   date_created = models.DateTimeField(auto_now_add=True)
   total_transcription_time = models.DecimalField(max_digits=8, decimal_places=6, null=True)
-  time_taken = models.DateTimeField(auto_now_add=False, null=True)
+  time_taken = models.DecimalField(max_digits=8, decimal_places=6, null=True)
 
   #methods
   def __str__(self):
     return str(self.project) + ' > ' + str(self.user) + ', job ' + str(self.pk) + ':' + str(self.id_token)
 
   def get_transcription_set(self):
-    project_transcriptions = self.project.transcriptions.filter(is_active=True).order_by('utterance')
+    project_transcriptions = self.project.transcriptions.filter(is_active=True, is_available=True).order_by('utterance')
     transcription_set = project_transcriptions.reverse()[:settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB] if len(project_transcriptions)>settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else project_transcriptions
 
     ''' total_transcription_time variable '''
 
     for transcription in transcription_set:
       transcription.date_last_requested = timezone.now()
+      transcription.is_available = False
       transcription.save()
       self.transcriptions.add(transcription)
 
@@ -129,13 +121,18 @@ class Job(models.Model):
   def update(self): #not used for export. Just for recording values.
     ''' active_transcriptions, time_taken '''
 
+    for transcription in self.transcriptions.all():
+      transcription.update()
+
     self.active_transcriptions = self.transcriptions.filter(is_active=True).count()
+    if self.active_transcriptions==0:
+      self.is_active = False
 
     time_taken = 0
     for transcription in self.transcriptions.filter(is_active=False):
       #get total time for current user
-      for revision in transcription.revisions.filter(user=user):
-        time_taken += revision.time_to_complete
+      for revision in transcription.revisions.filter(user=self.user):
+        time_taken += revision.time_to_complete if revision.time_to_complete else 0
     self.time_taken = time_taken
 
     self.save()

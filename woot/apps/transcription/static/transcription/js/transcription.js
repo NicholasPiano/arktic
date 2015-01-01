@@ -1,23 +1,3 @@
-var action_register = function (current_id, action_name, current_audio_time) {
-  $.ajax({
-    url: "/transcription/action/" + $('#job').attr('job_id') + "/" + current_id + "/" + action_name + "/" + current_audio_time + "/",
-    context: document.body
-  }).done(function(revision_id) {
-    if (action_name=='tick') { //revision complete
-      var utterance = '';
-      $('#panel-'+current_id + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
-        utterance += $(this).html() + '-';
-      });
-      if (utterance!='') {
-        $.ajax({
-          url: "/transcription/revision/" + revision_id + "/" + utterance,
-          context: document.body
-        });
-      }
-    }
-  });
-}
-
 $(document).ready(function() {
 
   //--SETUP AND BINDINGS

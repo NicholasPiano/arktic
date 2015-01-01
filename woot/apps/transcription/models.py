@@ -4,6 +4,7 @@
 from django.db import models
 from django.core.files import File
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 #local
 from apps.distribution.models import Client, Project, Job
@@ -31,7 +32,6 @@ class Grammar(models.Model):
   project = models.ForeignKey(Project, related_name='grammars')
 
   #properties
-  is_active = models.BooleanField(default=False)
   is_processed = models.BooleanField(default=False)
   id_token = models.CharField(max_length=8, null=True)
   name = models.CharField(max_length=255)
@@ -44,21 +44,14 @@ class Grammar(models.Model):
   def __str__(self):
     return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.name)
 
-  def update(self):
-    self.is_active = True
-    for transcription in self.transcriptions.all():
-      transcription.update()
-      if self.is_active:
-        self.is_active = transcription.is_active
-    self.save()
-
   def process(self):
     '''
     Open relfile and create transcription objects.
     '''
     with open(os.path.join(self.csv_file.path, self.csv_file.file_name)) as open_relfile:
       lines = open_relfile.readlines()
-      for line in lines:
+      for i, line in enumerate(lines):
+        print([self.name, 'line %d'%(i+1)])
         tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
         transcription_audio_file_name = os.path.basename(tokens[0])
         confidence = tokens[2]
@@ -118,34 +111,38 @@ class Transcription(models.Model):
   confidence_value = models.DecimalField(max_digits=3, decimal_places=2, null=True)
   requests = models.IntegerField(default=0) #number of times the transcription has been requested.
   date_created = models.DateTimeField(auto_now_add=True)
-  is_active = models.BooleanField(default=True)
-  is_processed = models.BooleanField(default=False)
+  is_active = models.BooleanField(default=False)
+  is_available = models.BooleanField(default=False)
   date_last_requested = models.DateTimeField(auto_now_add=False, null=True)
+  latest_revision_done_by_current_user = models.BooleanField(default=False)
 
   #methods
   def __str__(self):
     return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.utterance)
 
   def latest_revision_words(self):
-    pass
+    try:
+      latest_revision = self.revisions.latest()
+      return latest_revision.words.all()
+    except ObjectDoesNotExist:
+      return []
 
   def update(self):
     #if deactivation condition is satisfied, deactivate transcription
-    if self.deactivation_condition():
-      self.is_active = False
+    self.is_active = not self.deactivation_condition()
     self.save()
 
   def deactivation_condition(self):
     ''' Has at least one revision '''
     return (len(self.revisions.all())>0)
 
-  def latest_revision_done_by_current_user(self, user):
-    #1. get latest revision
-    latest_revision = self.latest_revision()
-    return latest_revision.user==user
-
-  def latest_revision(self):
-    return self.revisions.order_by('date_created')[0]
+  def set_latest_revision_done_by_current_user(self, user):
+    try:
+      latest_revision = self.revisions.latest()
+      self.latest_revision_done_by_current_user = (latest_revision.user.email==user.email and len(latest_revision.utterance_words())!=0)
+      self.save()
+    except ObjectDoesNotExist:
+      pass
 
   def process(self):
     #1. process audio file -> IRREVERSIBLE
@@ -164,18 +161,16 @@ class Transcription(models.Model):
       self.save()
 
     self.is_active = True
+    self.is_available = True
     self.is_processed = True
     self.save()
-
-  def utterance_words(self):
-    return self.words.exclude(Q(char__contains=' '))
 
   def unpack_rms(self):
     return [(int(rms*31+1), 32-int(rms*31+1)) for rms in json.loads(self.audio_rms)]
 
   def process_words(self):
     words = self.utterance.split()
-    for word in words + [self.utterance]:
+    for word in words:
       unique = False
       tag = False
       if self.client.words.filter(project=self.project, char=word).count()==0:
@@ -202,9 +197,22 @@ class Revision(models.Model):
 
   #methods
   def __str__(self):
-    return 'transcription %d:%s modified to %s > by %s'%(self.transcription.pk, self.transcription.utterance, self.utterance, self.user)
+    return '%s:"%s" modified to "%s" > by %s'%(self.id_token, self.transcription.utterance, self.utterance, self.user)
+
   def action_sequence(self):
     pass
+
+  def process_words(self):
+    words = self.utterance.split()
+    for word in words:
+      unique = False
+      tag = False
+      if self.transcription.client.words.filter(project=self.transcription.project, char=word).count()==0:
+        unique=True
+      if '[' in word or ']' in word and ' ' not in word:
+        tag = True
+
+      self.words.create(client=self.transcription.client, project=self.transcription.project, grammar=self.transcription.grammar, transcription=self.transcription, char=word, unique=unique, tag=tag)
 
   #sorting
   class Meta:
@@ -215,7 +223,6 @@ class Word(models.Model):
   client = models.ForeignKey(Client, related_name='words')
   project = models.ForeignKey(Project, related_name='words')
   grammar = models.ForeignKey(Grammar, related_name='words')
-  transcription = models.ForeignKey(Transcription, related_name='words')
 
   #properties
   id_token = models.CharField(max_length=8)
@@ -227,7 +234,11 @@ class Word(models.Model):
   def __str__(self):
     return self.char
 
-class RevisionWord(Word):
+class TranscriptionWord(Word):
+  #connections
+  transcription = models.ForeignKey(Transcription, related_name='words')
+
+class RevisionWord(TranscriptionWord):
   #connections
   revision = models.ForeignKey(Revision, related_name='words')
 

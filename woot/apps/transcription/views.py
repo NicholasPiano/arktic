@@ -27,6 +27,9 @@ class TranscriptionView(View):
 
       #transcriptions
       transcriptions = job.transcriptions.all()
+      for transcription in transcriptions:
+        transcription.set_latest_revision_done_by_current_user(user)
+        transcription.update()
 
       #words
       words = []
@@ -55,8 +58,7 @@ def create_new_job(request):
       user = User.objects.get(email=user)
 
       #create job
-      id_token = generate_id_token(Job)
-      job = user.jobs.create(client=project.client, project=project, id_token=id_token, active_transcriptions=settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
+      job = user.jobs.create(client=project.client, project=project, id_token=generate_id_token(Job), active_transcriptions=settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
       job.get_transcription_set()
 
       return HttpResponseRedirect('/transcription/' + str(job.id_token))
@@ -66,15 +68,21 @@ def create_new_job(request):
 def start_redirect(request):
   return HttpResponseRedirect('/start/')
 
-def action_register(request, job_id, transcription_id, action_name, audio_time):
+def action_register(request):
   if request.user.is_authenticated:
+    #get POST vars
+    job_id = request.POST['job_id']
+    transcription_id = request.POST['transcription_id']
+    action_name = request.POST['action_name']
+    audio_time = request.POST['audio_time']
+
     #get user object
     user = User.objects.get(email=request.user)
 
     #get transcription, client, job
-    transcription = Transcription.objects.get(pk=transcription_id)
-    client = transcription.client
     job = Job.objects.get(id_token=job_id)
+    transcription = Transcription.objects.get(id_token=transcription_id)
+    client = transcription.client
 
     #get or create revision (unique to job and user)
     revision, created = transcription.revisions.get_or_create(user=user, job=job)
@@ -88,23 +96,24 @@ def action_register(request, job_id, transcription_id, action_name, audio_time):
 
     return HttpResponse(revision.id_token)
 
-def update_revision(request, revision_id, utterance): #utterance-has-dashes-instead-of-spaces
+def update_revision(request):
   if request.user.is_authenticated:
-    user = User.objects.get(email=request.user)
-    revision = user.revisions.get(id_token=revision_id)
+    #get POST vars
+    revision_id = request.POST['revision_id']
+    utterance = request.POST['utterance']
+    audio_time = request.POST['audio_time']
+
+    #get user and update revision utterance
+    revision = Revision.objects.get(id_token=revision_id)
 
     #split utterance
-    revision.utterance = ' '.join(utterance.split('-'))
+    revision.utterance = utterance
+    revision.audio_time = float(audio_time)
     revision.save()
+    revision.process_words()
+    revision.transcription.project.update()
 
     return HttpResponse('')
-
-#1. strip dash from url or test with spaces
-#2. add quotes to revision.__str__
-#3. latest_revision_words (latest revision not working)
-#4. latest_revision_done_by_current_user (nor working)
-#5. revision words
-
 
 '''
 
