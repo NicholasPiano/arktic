@@ -1,3 +1,23 @@
+var action_register = function (current_id, action_name, current_audio_time) {
+  $.ajax({
+    url: "/transcription/action/" + $('#job').attr('job_id') + "/" + current_id + "/" + action_name + "/" + current_audio_time + "/",
+    context: document.body
+  }).done(function(revision_id) {
+    if (action_name=='tick') { //revision complete
+      var utterance = '';
+      $('#panel-'+current_id + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
+        utterance += $(this).html() + '-';
+      });
+      if (utterance!='') {
+        $.ajax({
+          url: "/transcription/revision/" + revision_id + "/" + utterance,
+          context: document.body
+        });
+      }
+    }
+  });
+}
+
 $(document).ready(function() {
 
   //--SETUP AND BINDINGS
@@ -14,6 +34,8 @@ $(document).ready(function() {
 
   //bind audio player end
   $('audio').on('ended', function(){
+    var play = $(this).attr('id');
+    action_register(play, 'ended audio', 0);
     //toggle the play-pause button glyphicons if the play variable is the same
     if ($('#play-pause').attr('play') == $(this).attr('id')) {
       $('#play-pause').children('span.glyphicon').toggle();
@@ -28,6 +50,7 @@ $(document).ready(function() {
     var currentPlay = $('#play-pause').attr('play');
     //pause current player and set currentTime=0
     var currentPlayer = document.getElementById(currentPlay);
+    action_register(currentPlay, 'previous', currentPlay.currentTime);
     if (!currentPlayer.paused) {
       $('#now-'+currentPlay).stop();
       currentPlayer.pause();
@@ -65,6 +88,7 @@ $(document).ready(function() {
   $('#replay').click(function(){
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
+    action_register(play, 'replay', player.currentTime);
     if (player.paused) {
       $('#play-pause').click();
     } else {
@@ -79,6 +103,7 @@ $(document).ready(function() {
     //play audio player
     var play = $(this).attr('play');
     var player = document.getElementById(play);
+    action_register(play, 'play', player.currentTime);
 
     if (player.paused) {
       player.play();
@@ -98,6 +123,7 @@ $(document).ready(function() {
     $('#now-'+currentPlay).css('left','0px');
     //pause current player and set currentTime=0
     var currentPlayer = document.getElementById(currentPlay);
+    action_register(currentPlay, 'next', currentPlayer.currentTime);
     if (!currentPlayer.paused) {
       currentPlayer.pause();
       currentPlayer.currentTime=0;
@@ -131,6 +157,8 @@ $(document).ready(function() {
   $('#add-new-word').click(function(){
     //make a new button and add it to the current modified list with copied text from input
     var play = $('#play-pause').attr('play');
+    var player = document.getElementById(play);
+    action_register(play, 'add new word', player.currentTime);
     if (play!=='') {
       var text = $('#typeahead').val();
       if (text!='undefined' && text!=='') {
@@ -150,6 +178,8 @@ $(document).ready(function() {
   //-class buttons (general for each transcription object)
   $('button.copy-down').click(function(){
     var play = $('#play-pause').attr('play');
+    var player = document.getElementById(play);
+    action_register(play, 'copy down', player.currentTime);
     if ($('#panel-'+play+' div.modified-panel div.modified').children().size() == 2) { //only ... should be there
       var utterance = $('#panel-'+play+' div.original-panel div.original button.original-utterance').html();
       if (typeof utterance === "undefined") {
@@ -183,6 +213,8 @@ $(document).ready(function() {
   $('button.tick').click(function(){
     //send transcription update
     var play = $('#play-pause').attr('play');
+    var player = document.getElementById(play);
+    action_register(play, 'tick', player.currentTime);
     var utterance = '';
     $('#panel-'+play + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
       utterance += $(this).html() + ' ';

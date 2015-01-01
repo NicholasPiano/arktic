@@ -189,6 +189,7 @@ class Revision(models.Model):
   #connections
   transcription = models.ForeignKey(Transcription, related_name='revisions')
   user = models.ForeignKey(User, related_name='revisions')
+  job = models.ForeignKey(Job, related_name='revisions')
 
   #properties
   id_token = models.CharField(max_length=8)
@@ -259,7 +260,7 @@ class Action(models.Model): #lawsuit
 
   #methods
   def __str__(self):
-    return 'job %d > %s > %s'%(self.job.pk, self.user, self.char)
+    return '%s > %s > %s'%(self.job.id_token, self.user, self.char)
 
 ### File paths
 class CSVFile(models.Model):

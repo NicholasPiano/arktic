@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 #local
 from apps.users.models import User
 from apps.distribution.models import Project, Job
+from apps.transcription.models import Transcription, Revision, Action
 from libs.utils import generate_id_token
 
 #util
@@ -38,7 +39,7 @@ class TranscriptionView(View):
       words = json.dumps([word.char for word in words])
 
       #render
-      return render(request, 'transcription/transcription.html', {'transcriptions':transcriptions,'words':words})
+      return render(request, 'transcription/transcription.html', {'transcriptions':transcriptions,'words':words,'job_id':job.id_token,})
     else:
       return HttpResponseRedirect('/start/')
 
@@ -64,6 +65,46 @@ def create_new_job(request):
 
 def start_redirect(request):
   return HttpResponseRedirect('/start/')
+
+def action_register(request, job_id, transcription_id, action_name, audio_time):
+  if request.user.is_authenticated:
+    #get user object
+    user = User.objects.get(email=request.user)
+
+    #get transcription, client, job
+    transcription = Transcription.objects.get(pk=transcription_id)
+    client = transcription.client
+    job = Job.objects.get(id_token=job_id)
+
+    #get or create revision (unique to job and user)
+    revision, created = transcription.revisions.get_or_create(user=user, job=job)
+
+    if created:
+      revision.id_token = generate_id_token(Revision)
+      revision.save()
+
+    #make action object
+    revision.actions.create(client=client, job=job, user=user, transcription=transcription, id_token=generate_id_token(Action), char=action_name, audio_time=float(audio_time))
+
+    return HttpResponse(revision.id_token)
+
+def update_revision(request, revision_id, utterance): #utterance-has-dashes-instead-of-spaces
+  if request.user.is_authenticated:
+    user = User.objects.get(email=request.user)
+    revision = user.revisions.get(id_token=revision_id)
+
+    #split utterance
+    revision.utterance = ' '.join(utterance.split('-'))
+    revision.save()
+
+    return HttpResponse('')
+
+#1. strip dash from url or test with spaces
+#2. add quotes to revision.__str__
+#3. latest_revision_words (latest revision not working)
+#4. latest_revision_done_by_current_user (nor working)
+#5. revision words
+
 
 '''
 
