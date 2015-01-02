@@ -16,6 +16,6 @@ class Command(BaseCommand):
 
   def handle(self, *args, **options):
     self.stdout.write('processing grammars...')
-    for i, g in enumerate(Grammar.objects.all()):
+    for i, g in enumerate(Grammar.objects.filter(is_active=False)):
       print([i+1, Grammar.objects.count()])
       g.process()
