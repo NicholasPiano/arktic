@@ -92,8 +92,6 @@ class Grammar(models.Model):
           transcription.value = value
           transcription.confidence_value = confidence_value
           transcription.save()
-          wav_file.save()
-          transcription.process()
 
     self.is_active = True
     self.save()

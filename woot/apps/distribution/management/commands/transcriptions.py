@@ -16,6 +16,6 @@ class Command(BaseCommand):
 
   def handle(self, *args, **options):
     self.stdout.write('processing transcriptions...')
-    for i, t in enumerate(Transcription.objects.all()):
+    for i, t in enumerate(Transcription.objects.filter(is_active=False)):
       print(['audio', i+1, Transcription.objects.count()])
       t.process()
