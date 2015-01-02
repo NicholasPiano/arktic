@@ -5,3 +5,4 @@ zip-file-testing/
 data/
 *.sqlite3
 audio/
+CACHE/
