@@ -70,30 +70,30 @@ class Grammar(models.Model):
         else:
           confidence_value = 0.0
 
-        if self.wav_files.filter(file_name=transcription_audio_file_name)!=[]:
+#         if self.wav_files.filter(file_name=transcription_audio_file_name)!=[]:
 
-          #if .filter returns multiple files, take the first and delete the rest
-          if len(self.wav_files.filter(file_name=transcription_audio_file_name))>1:
-            for wav_file_i in self.wav_files.filter(file_name=transcription_audio_file_name):
-              print(wav_file_i)
-            wav_file = self.wav_files.filter(file_name=transcription_audio_file_name)[0]
-            self.wav_files.filter(file_name=transcription_audio_file_name)[1:].delete()
+#           #if .filter returns multiple files, take the first and delete the rest
+#           if len(self.wav_files.filter(file_name=transcription_audio_file_name))>1:
+#             for wav_file_i in self.wav_files.filter(file_name=transcription_audio_file_name):
+#               print(wav_file_i)
+#             wav_file = self.wav_files.filter(file_name=transcription_audio_file_name)[0]
+#             self.wav_files.filter(file_name=transcription_audio_file_name)[1:].delete()
 
-          else:
-            wav_file = self.wav_files.get(file_name=transcription_audio_file_name)
+#           else:
+        wav_file = self.wav_files.get(file_name=transcription_audio_file_name)
 
-          transcription, created = self.transcriptions.get_or_create(client=self.client, project=self.project, wav_file__file_name=wav_file.file_name)
+        transcription, created = self.transcriptions.get_or_create(client=self.client, project=self.project, wav_file__file_name=wav_file.file_name)
 
-          if created:
-            transcription.wav_file = wav_file
-            transcription.id_token = generate_id_token(Transcription)
-            transcription.confidence = confidence
-            transcription.utterance = utterance
-            transcription.value = value
-            transcription.confidence_value = confidence_value
-            transcription.save()
-            wav_file.save()
-            transcription.process()
+        if created:
+          transcription.wav_file = wav_file
+          transcription.id_token = generate_id_token(Transcription)
+          transcription.confidence = confidence
+          transcription.utterance = utterance
+          transcription.value = value
+          transcription.confidence_value = confidence_value
+          transcription.save()
+          wav_file.save()
+          transcription.process()
 
     self.is_active = True
     self.save()
