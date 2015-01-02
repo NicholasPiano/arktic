@@ -69,6 +69,15 @@ html {
   top:-2px;
 }
 
+#add-new-word {
+  border-radius:0;
+  left:-1px;
+}
+
+#common {
+  left:-1px;
+}
+
 button.waveform {
   height:34px;
   width:202px;

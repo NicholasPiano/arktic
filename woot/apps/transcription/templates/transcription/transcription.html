@@ -79,6 +79,7 @@
                     <button type="button" class="btn ninja">Modified utterance</button>
                 </div>
                 <div class="btn-group modified">
+                    {% if transcription.latest_revision_words %}
                     <button type="button" class="btn btn-default modified begin-modified">...</button>
                     {% for word in transcription.latest_revision_words %}
                         {% if forloop.last %}
@@ -87,6 +88,9 @@
                             <button type="button" class="btn btn-default modified">{{word}}</button>
                         {% endif %}
                     {% endfor %}
+                    {% else %}
+                    <button type="button" class="btn btn-default modified begin-modified active">...</button>
+                    {% endif %}
                     <button type="button" class="btn btn-default add-modified"><span class="glyphicon glyphicon-plus"></span></button>
                 </div>
                 {% if transcription.latest_revision_done_by_current_user %}
@@ -103,6 +107,9 @@
             <span class="input-group-btn">
                 <button id="add-new-word" class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span> Add new word</button>
             </span>
+            <span class="input-group-btn">
+                <button id="common" type="button" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> I see this a lot</button>
+            </span>
         </div>
     </div>
 </div> <!-- !wrapper -->
@@ -111,6 +118,10 @@
 <!-- js -->
 {% block post_main_script %}
 {% compress js %}
+<script type="text/javascript">
+var words = {{words|safe}};
+</script>
+<script src="{% static 'transcription/js/transcription.js' %}"></script>
 <script src="{% static 'transcription/js/typeahead.js' %}"></script>
 <script type="text/javascript">
 var action_register = function (current_id, action_name, current_audio_time) {
@@ -126,6 +137,9 @@ var action_register = function (current_id, action_name, current_audio_time) {
       }
     }
   });
+}
+var add_word = function (current_id, word) {
+  $.post("/transcription/add/", {transcription_id:current_id,word:word,csrfmiddlewaretoken:'{{ csrf_token }}'});
 }
 </script>
 <script type="text/javascript">
@@ -150,7 +164,6 @@ $(document).ready(function() {
       };
     };
     // var states = ["[noise]","[breath noise]","[fragment]","[side speech]","[hesitation]","[unintelligible]","[spanish]","[prompt echo]","[bad audio]","{% for word in words %}{{word.content}}","{% endfor %}"];
-    var states = {{words|safe}};
     $('#typeahead').typeahead({
       hint: true,
       highlight: true,
@@ -159,10 +172,9 @@ $(document).ready(function() {
     {
       name: 'states',
       displayKey: 'value',
-      source: substringMatcher(states)
+      source: substringMatcher(words)
     });
 });
 </script>
-<script src="{% static 'transcription/js/transcription.js' %}"></script>
 {% endcompress %}
 {% endblock %}

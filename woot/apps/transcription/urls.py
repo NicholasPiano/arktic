@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.conf.urls import patterns, include, url
 
 #local
-from apps.transcription.views import start_redirect, TranscriptionView, create_new_job, action_register, update_revision
+from apps.transcription.views import start_redirect, TranscriptionView, create_new_job, action_register, update_revision, add_word
 
 #third party
 
@@ -19,4 +19,5 @@ urlpatterns = patterns('',
   url(r'^new/$', create_new_job),
   url(r'^action/$', action_register),
   url(r'^revision/$', update_revision),
+  url(r'^add/$', add_word),
 )

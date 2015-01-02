@@ -139,13 +139,13 @@ class Transcription(models.Model):
     self.save()
 
   def deactivation_condition(self):
-    ''' Has at least one revision '''
-    return (len(self.revisions.all())>0)
+    ''' Has at least one revision with an utterance'''
+    return (len(self.revisions.exclude(utterance=''))>0)
 
   def set_latest_revision_done_by_current_user(self, user):
     try:
       latest_revision = self.revisions.latest()
-      self.latest_revision_done_by_current_user = (latest_revision.user.email==user.email and len(latest_revision.utterance_words())!=0)
+      self.latest_revision_done_by_current_user = (latest_revision.user.email==user.email and len(latest_revision.words.all())!=0)
       self.save()
     except ObjectDoesNotExist:
       pass
@@ -209,6 +209,7 @@ class Revision(models.Model):
 
   def process_words(self):
     words = self.utterance.split()
+    self.words.all().delete()
     for word in words:
       unique = False
       tag = False
@@ -250,10 +251,7 @@ class RevisionWord(TranscriptionWord):
 class Action(models.Model): #lawsuit
   #types
   action_type_choices = (
-    ('nj','new job'),
     ('ea','ended audio'),
-    ('p','previous'),
-    ('n','next'),
     ('r','replay'),
     ('pp','play pause'),
     ('a','add new word'),

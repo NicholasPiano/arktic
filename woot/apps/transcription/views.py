@@ -115,6 +115,20 @@ def update_revision(request):
 
     return HttpResponse('')
 
+def add_word(request):
+  if request.user.is_authenticated:
+    #get POST vars
+    transcription_id = request.POST['transcription_id']
+    word = request.POST['word']
+
+    #vars
+    transcription = Transcription.objects.get(id_token=transcription_id)
+    client = transcription.client
+    if client.words.filter(project=transcription.project, char=word).count()==0:
+      client.words.create(project=transcription.project, grammar=transcription.grammar, char=word, unique=True, tag=False)
+
+    return HttpResponse('')
+
 '''
 
 http://stackoverflow.com/a/2257449/2127199

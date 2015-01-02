@@ -30,7 +30,6 @@ $(document).ready(function() {
     var currentPlay = $('#play-pause').attr('play');
     //pause current player and set currentTime=0
     var currentPlayer = document.getElementById(currentPlay);
-    action_register(currentPlay, 'previous', currentPlay.currentTime);
     if (!currentPlayer.paused) {
       $('#now-'+currentPlay).stop();
       currentPlayer.pause();
@@ -103,7 +102,6 @@ $(document).ready(function() {
     $('#now-'+currentPlay).css('left','0px');
     //pause current player and set currentTime=0
     var currentPlayer = document.getElementById(currentPlay);
-    action_register(currentPlay, 'next', currentPlayer.currentTime);
     if (!currentPlayer.paused) {
       currentPlayer.pause();
       currentPlayer.currentTime=0;
@@ -152,6 +150,20 @@ $(document).ready(function() {
       //make tick button not green
       $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
       $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
+    }
+  });
+
+  $('#common').click(function(){
+    var play = $('#play-pause').attr('play');
+    if (play!=='') {
+      var text = $('#typeahead').val();
+      if (text!='undefined' && text!=='') {
+        $('#typeahead').blur();
+        $('#typeahead').focus();
+        $('#typeahead').typeahead('val', '');
+        add_word(play, text);
+        words.push(text);
+      }
     }
   });
 
@@ -245,7 +257,7 @@ $(document).ready(function() {
   //prevent default actions for arrow keys and space
   window.addEventListener("keydown", function(e) {
     // space and arrow keys
-    if([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+    if([38, 40].indexOf(e.keyCode) > -1) {
         e.preventDefault();
     }
   }, false);
@@ -269,6 +281,11 @@ $(document).ready(function() {
           $('#panel-'+play+' div.modified-panel button.tick').click();
           $('#next').click();
         }
+    } else if (e.ctrlKey && e.keyCode===13) { //ctrl + enter
+      //I see this a lot
+      if ($('#typeahead').is(':focus') && $('#typeahead').val()!=='') {
+        $('#common').click();
+      }
     } else if (e.keyCode === 13) { //enter
         //controlling word copying
         if ($('#typeahead').is(':focus') && $('#typeahead').val()!=='') {
@@ -296,7 +313,7 @@ $(document).ready(function() {
         $('#previous').click();
       }
     } else if (e.keyCode === 37) { //left arrow
-      if ($('#typeahead').val()=='') {
+      if ($('#typeahead').val()==='') {
         //get active button in group
         var active = $('#panel-'+play+' div.modified-panel div.modified button.modified.active');
         //make button to the left active, if it exists
@@ -311,7 +328,7 @@ $(document).ready(function() {
         $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
         $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
     } else if (e.keyCode === 39) { //right arrow
-      if ($('#typeahead').val()=='') {
+      if ($('#typeahead').val()==='') {
         //get active button in group
         var active = $('#panel-'+play+' div.modified-panel div.modified button.modified.active');
         //make button to the right active, if it isn't add-modified
