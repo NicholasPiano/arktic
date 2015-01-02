@@ -150,8 +150,6 @@ class Transcription(models.Model):
       pass
 
   def process(self):
-    wav_file = self.grammar.wav_files.get(file_name=self.file_name)
-
     #1. process audio file -> IRREVERSIBLE
     (seconds, rms_values) = process_audio(self.wav_file.path)
 
