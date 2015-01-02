@@ -40,8 +40,6 @@ class Client(models.Model):
     '''
     for project in self.projects.filter(is_active=True, is_approved=True):
       project.update()
-      if not project.is_active:
-        project.export()
 
 class Project(models.Model):
   #connections
@@ -64,24 +62,16 @@ class Project(models.Model):
     for job in self.jobs.filter(is_active=True):
       job.update()
 
+    for grammar in self.grammars.filter(is_active=True):
+      grammar.update()
+
     #update status: active, processed
-    self.is_active = self.jobs.filter(is_active=True).count()!=0
+    self.is_active = (self.jobs.filter(is_active=True).count()!=0 and self.grammars.filter(is_active=True).count()!=0)
     self.save()
 
   def export(self):
     ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
     pass
-
-  def process(self):
-    '''
-    grammar.process for each grammar
-    '''
-    for grammar in self.grammars.all():
-      if not grammar.is_active:
-        grammar.process()
-        grammar.is_active = True
-        grammar.save()
-    self.update()
 
 class Job(models.Model):
   #connections
@@ -103,7 +93,7 @@ class Job(models.Model):
 
   def get_transcription_set(self):
     project_transcriptions = self.project.transcriptions.filter(is_active=True, is_available=True).order_by('utterance')
-    transcription_set = project_transcriptions.reverse()[:settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB] if len(project_transcriptions)>settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else project_transcriptions
+    transcription_set = project_transcriptions[:settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB] if len(project_transcriptions)>settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else project_transcriptions
 
     ''' total_transcription_time variable '''
 

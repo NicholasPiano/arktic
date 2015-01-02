@@ -32,7 +32,7 @@ class Grammar(models.Model):
   project = models.ForeignKey(Project, related_name='grammars')
 
   #properties
-  is_processed = models.BooleanField(default=False)
+  is_active = models.BooleanField(default=False)
   id_token = models.CharField(max_length=8, null=True)
   name = models.CharField(max_length=255)
   date_created = models.DateTimeField(auto_now_add=True)
@@ -43,6 +43,13 @@ class Grammar(models.Model):
   #methods
   def __str__(self):
     return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.name)
+
+  def update(self):
+    for transcription in self.transcriptions.all():
+      transcription.update()
+
+    self.is_active = self.transcriptions.filter(is_active=True).count()!=0
+    self.save()
 
   def process(self):
     '''
@@ -88,7 +95,6 @@ class Grammar(models.Model):
             wav_file.save()
             transcription.process()
 
-    self.is_processed = True
     self.is_active = True
     self.save()
 
@@ -162,7 +168,6 @@ class Transcription(models.Model):
 
     self.is_active = True
     self.is_available = True
-    self.is_processed = True
     self.save()
 
   def unpack_rms(self):
