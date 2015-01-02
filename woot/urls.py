@@ -21,6 +21,7 @@ urlpatterns = patterns('',
   #pages
   url(r'^login/$', LoginView.as_view()),
   url(r'^logout/$', 'django.contrib.auth.views.logout'),
+  url(r'^$', StartView.as_view()),
   url(r'^start/$', StartView.as_view()),
 
   #transcription
