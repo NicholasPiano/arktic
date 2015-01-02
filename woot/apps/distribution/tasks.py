@@ -55,7 +55,7 @@ def scan_data():
           elif '.wav' in file_name:
             wav_file_dictionary[file_name] = os.path.join(sup, file_name)
 
-      for csv_file in project.csv_files.all():
+      for i, csv_file in enumerate(project.csv_files.all()):
         grammar, created = project.grammars.get_or_create(client=client, name=csv_file.name)
 
         if created:
@@ -64,10 +64,11 @@ def scan_data():
 
           with open(os.path.join(csv_file.path, csv_file.file_name)) as open_rel_file:
             lines = open_rel_file.readlines()
-            for line in lines:
+            for j, line in enumerate(lines):
               tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
               transcription_audio_file_name = os.path.basename(tokens[0])
               grammar.wav_files.get_or_create(client=client, project=project, path=wav_file_dictionary[transcription_audio_file_name], file_name=transcription_audio_file_name)
+              print(['(%d/%d)'%(1,1),'(%d/%d)'%(1,1),'(%d/%d)'%(i+1, project.csv_files.count()),'(%d/%d)'%(j+1, len(lines))])
 
           grammar.save()
           csv_file.save()
