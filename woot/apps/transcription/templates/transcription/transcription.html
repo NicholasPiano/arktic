@@ -114,7 +114,62 @@
     </div>
 
     <!-- slide out panel -->
-    <div id='slide-out-panel' >
+    <div id="slide-out-panel" class="panel panel-info">
+        <div class="panel-heading">Tags</div>
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                    <th>Tags used inline</th>
+                    <th>Description</th>
+                </thead>
+                <tbody>
+                    <tr><td>~</td><td>A word is cut off at the start.</td></tr>
+                    <tr><td>(( ))</td><td>enclosing best guess.</td></tr>
+                    <tr><td>[breath noise]</td><td>noticeable sound of inhaling or exhaling.</td></tr>
+                    <tr><td>[dtmf]</td><td>the sound(s) of telephone touch tones being keyed in.</td></tr>
+                    <tr><td>[fragment]</td><td>word fragment - guess complete word if possible.</td></tr>
+                    <tr><td>[hangup]</td><td>any audible hangup noise.</td></tr>
+                    <tr><td>[hesitation]</td><td>"um", "er", "uh", "uh-huh", "mm-hm", etc.</td></tr>
+                    <tr><td>[mispronunciation]</td><td>the previous word was not pronounced in a conventional manner.</td></tr>
+                    <tr><td>[noise]</td><td>a sudden, short, reasonably loud noise</td></tr>
+                    <tr><td>[pause]</td><td>a significantly long pause of one or more seconds during speech</td></tr>
+                    <tr><td>[side speech]</td><td>coughs, sneezes, noises, any speech by the caller not directed at the system</td></tr>
+                    <tr><td>[unintelligible]</td><td>the transcriber cannot understand some or all of the speech</td></tr>
+                </tbody>
+            </table>
+            <table class="table">
+                <thead>
+                    <th>Tags for whole transcription</th>
+                    <th>Description</th>
+                </thead>
+                <tbody>
+                    <tr><td>[background noise]</td><td>noticeable background noise during most or all of the audio item.</td></tr>
+                    <tr><td>[bad audio]</td><td>bad audio quality during most or all of the audio item.</td></tr>
+                    <tr><td>[english]</td><td>caller response in English (to a Spanish system).</td></tr>
+                    <tr><td>[no speech]</td><td>the audio item does not contain anything recognisable as speech.</td></tr>
+                    <tr><td>[non native]</td><td>caller has a strong non-native speech dialect or accent.</td></tr>
+                    <tr><td>[spanish]</td><td>caller response in Spanish (to an English system).</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-heading">Shortcuts</div>
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                    <th>Shortcut</th>
+                    <th>Description</th>
+                </thead>
+                <tbody>
+                    <tr><td></td><td>noticeable background noise during most or all of the audio item.</td></tr>
+                    <tr><td></td><td>bad audio quality during most or all of the audio item.</td></tr>
+                    <tr><td></td><td>caller response in English (to a Spanish system).</td></tr>
+                    <tr><td></td><td>the audio item does not contain anything recognisable as speech.</td></tr>
+                    <tr><td></td><td>caller has a strong non-native speech dialect or accent.</td></tr>
+                    <tr><td></td><td>caller response in Spanish (to an English system).</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div> <!-- !wrapper -->
 {% endblock %}
 
