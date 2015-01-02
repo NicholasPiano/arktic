@@ -84,6 +84,7 @@ class Job(models.Model):
   id_token = models.CharField(max_length=8) #a random string of characters to identify the job
   active_transcriptions = models.IntegerField(editable=False)
   date_created = models.DateTimeField(auto_now_add=True)
+  date_completed = models.DateTimeField(auto_now_add=False, null=True)
   total_transcription_time = models.DecimalField(max_digits=8, decimal_places=6, null=True)
   time_taken = models.DecimalField(max_digits=8, decimal_places=6, null=True)
 
@@ -117,6 +118,7 @@ class Job(models.Model):
     self.active_transcriptions = self.transcriptions.filter(is_active=True).count()
     if self.active_transcriptions==0:
       self.is_active = False
+      self.date_completed = timezone.now()
 
     time_taken = 0
     for transcription in self.transcriptions.filter(is_active=False):
