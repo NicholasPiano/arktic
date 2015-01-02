@@ -1,252 +1,308 @@
-#transcription.models
+#apps.transcription.models
 
 #django
 from django.db import models
 from django.core.files import File
-from django.db.models.fields.files import FileField
+from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 #local
-from apps.transcription.fields import ContentTypeRestrictedFileField
-from django.core.exceptions import ObjectDoesNotExist
-from settings.common import MEDIA_ROOT
 from apps.distribution.models import Client, Project, Job
 from apps.users.models import User
+from libs.utils import generate_id_token, process_audio
 
 #util
 import os
-import re
+from datetime import datetime as dt
 import json
-import zipfile as zp
-import shutil as sh
-import collections as cl
-import string as st
 
 #vars
-ARCHIVE_ROOT = os.path.join(MEDIA_ROOT, 'archive')
-COMPLETED_RELFILES_ROOT = os.path.join(MEDIA_ROOT, 'completed_relfiles')
-
-spanish = 'es'
-english = 'en'
-language_choices = (
-    (spanish, 'Spanish'),
-    (english, 'English'),
-)
 
 #classes
-class Archive(models.Model):
-    #connections
-    project = models.ForeignKey(Project, related_name='archives')
-    #sub: relfiles, transcriptions
+class Grammar(models.Model):
+  ''' Stores all information about a single grammar: relfile, archive, transcriptions '''
+  #types
+  language_choices = (
+    ('en','english'),
+    ('es','spanish'),
+  )
 
-    #properties
-    file = ContentTypeRestrictedFileField(upload_to='archive', max_length=255, content_types=['application/zip'])
-    date_created = models.DateTimeField(auto_now_add=True)
+  #connections
+  client = models.ForeignKey(Client, related_name='grammars')
+  project = models.ForeignKey(Project, related_name='grammars')
 
-    def __unicode__(self):
-        return str(self.project) + ' > ' + str(self.file) + ' > ' + str(self.date_created)
+  #properties
+  is_active = models.BooleanField(default=False)
+  id_token = models.CharField(max_length=8, null=True)
+  name = models.CharField(max_length=255)
+  date_created = models.DateTimeField(auto_now_add=True)
+  date_completed = models.DateTimeField(auto_now_add=False, null=True)
+  language = models.CharField(max_length=255, choices=language_choices, default='english')
+  complete_rel_file = models.FileField(upload_to='completed')
 
-    #override methods
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            super(Archive, self).save(*args, **kwargs)
-            self.extract() #necessary here because this is done through the admin. When I write an upload view, this will not be necessary.
+  #methods
+  def __str__(self):
+    return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.name)
+
+  def update(self):
+    for transcription in self.transcriptions.all():
+      transcription.update()
+
+    self.is_active = self.transcriptions.filter(is_active=True).count()!=0
+    self.save()
+
+  def process(self):
+    '''
+    Open relfile and create transcription objects.
+    '''
+    with open(os.path.join(self.csv_file.path, self.csv_file.file_name)) as open_relfile:
+      lines = open_relfile.readlines()
+      for i, line in enumerate(lines):
+        print([self.name, 'line %d'%(i+1)])
+        tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
+        transcription_audio_file_name = os.path.basename(tokens[0])
+        confidence = tokens[2]
+        utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
+        value = tokens[4]
+        confidence_value = tokens[5].rstrip() #chomp newline
+        if confidence_value is not '':
+          confidence_value = float(float(confidence_value)/1000.0) #show as decimal
         else:
-            super(Archive, self).save(*args, **kwargs) #first time
+          confidence_value = 0.0
 
-    #custom methods
-    def extract(self):
-        #open zip file and distribute into relfiles, transcriptions and autocomplete words
-        zip_file_list = []
+        if self.wav_files.filter(file_name=transcription_audio_file_name)!=[]:
 
-        zip_file = zp.ZipFile(self.file.file)
-        for file_name in zip_file.namelist():
-            zip_file_list.append(file_name)
+          #if .filter returns multiple files, take the first and delete the rest
+          if len(self.wav_files.filter(file_name=transcription_audio_file_name))>1:
+            for wav_file_i in self.wav_files.filter(file_name=transcription_audio_file_name):
+              print(wav_file_i)
+            wav_file = self.wav_files.filter(file_name=transcription_audio_file_name)[0]
+            self.wav_files.filter(file_name=transcription_audio_file_name)[1:].delete()
 
-        outer_zip_path, zip_ext = os.path.splitext(zip_file.filename)
-        inner_zip_path = os.path.join(ARCHIVE_ROOT, outer_zip_path)
-        zip_file.extractall(path=inner_zip_path)
+          else:
+            wav_file = self.wav_files.get(file_name=transcription_audio_file_name)
 
-        #sort into relfile an audio files
-        #make dictionary of files
-        file_dictionary = {}
-        for file_name in zip_file_list:
-            file_dictionary.update({os.path.basename(file_name):os.path.join(inner_zip_path, file_name)})
+          transcription, created = self.transcriptions.get_or_create(client=self.client, project=self.project, wav_file__file_name=wav_file.file_name)
 
-#         print(json.dumps(file_dictionary, indent=4))
+          if created:
+            transcription.wav_file = wav_file
+            transcription.id_token = generate_id_token(Transcription)
+            transcription.confidence = confidence
+            transcription.utterance = utterance
+            transcription.value = value
+            transcription.confidence_value = confidence_value
+            transcription.save()
+            wav_file.save()
+            transcription.process()
 
-        number_of_relfiles = 0
-
-        for file_name in zip_file_list:
-            if re.search(r'\w+\/$', file_name) is None and re.search(r'Unsorted', file_name) is None and re.search(r'\.csv', file_name) is not None and re.search(r'\._', file_name) is None:
-                number_of_relfiles += 1
-#                 print('relfile ' + str(number_of_relfiles))
-                with open(os.path.join(inner_zip_path, file_name)) as open_relfile:
-                    file_subpath, relfile_file_name = os.path.split(file_name)
-                    relfile = self.relfiles.create(client=self.project.client, project=self.project, name=relfile_file_name, file=File(open_relfile))
-#                     print(str(number_of_relfiles) + ' extracting...')
-                    relfile.extract(inner_zip_path=inner_zip_path, file_dictionary=file_dictionary, index=number_of_relfiles)
-#                     print(str(number_of_relfiles) + ' done.')
-                    relfile.save()
-
-        sh.rmtree(os.path.join(inner_zip_path, outer_zip_path))
-
-class RelFile(models.Model):
-    #connections
-    client = models.ForeignKey(Client, related_name='relfiles')
-    project = models.ForeignKey(Project, related_name='relfiles')
-    archive = models.ForeignKey(Archive, related_name='relfiles')
-    #sub: transcriptions, autocomplete words
-
-    #properties
-    is_active = models.BooleanField(default=True)
-    file = models.FileField(upload_to='relfiles', max_length=255)
-    name = models.CharField(max_length=255)
-    language = models.CharField(max_length=3, choices=language_choices, default=english)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    def __unicode__(self):
-        return self.name
-
-    #custom methods
-    def update(self):
-        if self.transcriptions.filter(is_active=True).count()==0:
-            if self.is_active:
-                self.is_active = False
-
-    def extract(self, inner_zip_path=None, file_dictionary=None, index=None):
-        #open file
-        lines = self.file.file.readlines()
-        total_number_of_lines = len(lines)
-        for line_number, line in enumerate(lines):
-#             print('relfile ' + str(index) + ' processing transcription ' + str(line_number) + ' of ' + str(total_number_of_lines))
-            tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
-            transcription_audio_file_name = os.path.basename(tokens[0])
-            transcription_audio_file_name = transcription_audio_file_name.rstrip()
-            grammar = os.path.splitext(os.path.basename(tokens[1]))[0] if tokens[1] else ''
-            confidence = tokens[2]
-            utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
-            value = tokens[4]
-            confidence_value = tokens[5].rstrip() #chomp newline
-            if confidence_value is not '':
-                confidence_value = float(float(confidence_value)/1000.0) #show as decimal
-            else:
-                confidence_value = 0.0
-
-            #open file and create transcription
-            if transcription_audio_file_name in file_dictionary:
-                with open(file_dictionary[transcription_audio_file_name]) as transcription_audio_file:
-                    self.transcriptions.create(client=self.client,
-                                               project=self.project,
-                                               archive=self.archive,
-                                               audio_file=File(transcription_audio_file),
-                                               line_number=line_number,
-                                               grammar=grammar,
-                                               confidence=confidence,
-                                               utterance=utterance,
-                                               value=value,
-                                               confidence_value=confidence_value)
-
-        self.client.create_autocomplete_words() #run once for every relfile.
-
-
-class CompletedRelFile(models.Model):
-    #connections
-    client = models.ForeignKey(Client, related_name='completed_relfiles')
-    project = models.ForeignKey(Project, related_name='completed_relfiles')
-    archive = models.ForeignKey(Archive, related_name='completed_relfiles')
-    relfile = models.ForeignKey(RelFile, related_name='completed_relfiles')
-    #sub: transcriptions (null)
-
-    #properties
-    file = models.FileField(upload_to='completed_relfiles', max_length=255)
-    name = models.CharField(max_length=255)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    def __unicode__(self):
-        return self.name + '_completed'
-
-    #custom methods
+    self.is_active = True
+    self.save()
 
 class Transcription(models.Model):
-    #connections
-    client = models.ForeignKey(Client, related_name='transcriptions')
-    project = models.ForeignKey(Project, related_name='transcriptions')
-    archive = models.ForeignKey(Archive, related_name='transcriptions')
-    job = models.ForeignKey(Job, null=True, related_name='transcriptions')
-    relfile = models.ForeignKey(RelFile, related_name='transcriptions')
-    #sub: transcription words, revisions
+  #connections
+  client = models.ForeignKey(Client, related_name='transcriptions')
+  project = models.ForeignKey(Project, related_name='transcriptions')
+  grammar = models.ForeignKey(Grammar, related_name='transcriptions')
+  job = models.ForeignKey(Job, null=True, related_name='transcriptions')
 
-    #properties
-    audio_file = FileField(upload_to='audio', max_length=255) #use audiofield when done
-    line_number = models.IntegerField()
-    time = models.DecimalField(max_digits=3, decimal_places=2, default=0.5)
-    grammar = models.CharField(max_length=255)
-    confidence = models.CharField(max_length=255)
-    utterance = models.CharField(max_length=255)
-    value = models.CharField(max_length=255)
-    confidence_value = models.DecimalField(max_digits=3, decimal_places=2)
-    requests = models.IntegerField(default=0) #number of times the transcription has been requested.
-    add_date = models.DateTimeField(auto_now_add=True)
-    date_last_requested = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
-    latest_revision_done_by_current_user = models.BooleanField(default=False)
+  #properties
+  id_token = models.CharField(max_length=8)
+  audio_file_data_path = models.CharField(max_length=255) #temporary
+  audio_file = models.FileField(upload_to='audio')
+  audio_time = models.DecimalField(max_digits=8, decimal_places=6, null=True)
+  audio_rms = models.CharField(max_length=255)
+  confidence = models.CharField(max_length=255)
+  utterance = models.CharField(max_length=255)
+  value = models.CharField(max_length=255)
+  confidence_value = models.DecimalField(max_digits=3, decimal_places=2, null=True)
+  requests = models.IntegerField(default=0) #number of times the transcription has been requested.
+  date_created = models.DateTimeField(auto_now_add=True)
+  is_active = models.BooleanField(default=False)
+  is_available = models.BooleanField(default=False)
+  date_last_requested = models.DateTimeField(auto_now_add=False, null=True)
+  latest_revision_done_by_current_user = models.BooleanField(default=False)
 
-    def __unicode__(self):
-        return str(str(self.project) + ' > ').encode('utf-8') + self.utterance
+  #methods
+  def __str__(self):
+    return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.utterance)
 
-    #custom methods
-    def latest_revision_words(self, user):
-        #delete current words
-        for word in self.words.all():
-            word.delete()
-        #add new one
-        try:
-            latest_revision = self.revisions.latest()
-            for word in latest_revision.words.all():
-                self.words.create(content=word.content)
-            #latest revision user
-            self.latest_revision_done_by_current_user = user.pk == latest_revision.user.pk
-        except ObjectDoesNotExist:
-            pass
+  def latest_revision_words(self):
+    try:
+      latest_revision = self.revisions.latest()
+      return latest_revision.words.all()
+    except ObjectDoesNotExist:
+      return []
 
-    def update(self):
-        if self.revisions.all().count() > 0: #this should be adjusted in settings.
-            if self.is_active:
-                self.is_active = False
+  def update(self):
+    #if deactivation condition is satisfied, deactivate transcription
+    self.is_active = not self.deactivation_condition()
+    self.save()
 
-class TranscriptionWord(models.Model):
-    #connections
-    transcription = models.ForeignKey(Transcription, related_name='words')
+  def deactivation_condition(self):
+    ''' Has at least one revision with an utterance'''
+    return (len(self.revisions.exclude(utterance=''))>0)
 
-    #properties
-    content = models.CharField(max_length=255)
+  def set_latest_revision_done_by_current_user(self, user):
+    try:
+      latest_revision = self.revisions.latest()
+      self.latest_revision_done_by_current_user = (latest_revision.user.email==user.email and len(latest_revision.words.all())!=0)
+      self.save()
+    except ObjectDoesNotExist:
+      pass
 
-    def __unicode__(self):
-        return self.content
+  def process(self):
+    #1. process audio file -> IRREVERSIBLE
+    (seconds, rms_values) = process_audio(self.wav_file.path)
+
+    self.audio_time = seconds
+
+    max_rms = max(rms_values)
+    rms_values = [float(value)/float(max_rms) for value in rms_values]
+
+    self.audio_rms = json.dumps(rms_values)
+
+    #2. add open audio file to transcription
+    with open(self.wav_file.path, 'rb') as open_audio_file:
+      self.audio_file = File(open_audio_file)
+      self.save()
+
+    self.is_active = True
+    self.is_available = True
+    self.save()
+
+  def unpack_rms(self):
+    return [(int(rms*31+1), 32-int(rms*31+1)) for rms in json.loads(self.audio_rms)]
+
+  def process_words(self):
+    words = self.utterance.split()
+    for word in words:
+      unique = False
+      tag = False
+      if self.client.words.filter(project=self.project, char=word).count()==0:
+        unique=True
+      if '[' in word or ']' in word and ' ' not in word:
+        tag = True
+
+      self.words.create(client=self.client, project=self.project, grammar=self.grammar, char=word, unique=unique, tag=tag)
 
 class Revision(models.Model):
-    #connections
-    transcription = models.ForeignKey(Transcription, related_name='revisions')
-    user = models.ForeignKey(User, related_name='revisions')
-    #sub: revision words
+  #connections
+  transcription = models.ForeignKey(Transcription, related_name='revisions')
+  user = models.ForeignKey(User, related_name='revisions')
+  job = models.ForeignKey(Job, related_name='revisions')
 
-    #properties
-    utterance = models.CharField(max_length=255)
-    date_created = models.DateTimeField(auto_now_add=True)
+  #properties
+  id_token = models.CharField(max_length=8)
+  date_created = models.DateTimeField(auto_now_add=True)
+  utterance = models.CharField(max_length=255)
 
-    def __unicode__(self):
-        return 'blank' + ' to "' + str(self.utterance) +  '" by ' + str(self.user) if self.transcription.utterance=='' else str(self.transcription) + ' to "' + str(self.utterance) +  '" by ' + str(self.user)
+  ''' need to be determined by action_sequence() '''
+  time_to_complete = models.DecimalField(max_digits=8, decimal_places=6, null=True)
+  number_of_plays = models.IntegerField(default=0)
 
-    class Meta:
-        get_latest_by = 'date_created'
+  #methods
+  def __str__(self):
+    return '%s: "%s" modified to "%s" > by %s'%(self.id_token, self.transcription.utterance, self.utterance, self.user)
 
+  def action_sequence(self):
+    pass
 
-class RevisionWord(models.Model):
-    #connections
-    revision = models.ForeignKey(Revision, related_name='words')
+  def process_words(self):
+    words = self.utterance.split()
+    self.words.all().delete()
+    for word in words:
+      unique = False
+      tag = False
+      if self.transcription.client.words.filter(project=self.transcription.project, char=word).count()==0:
+        unique=True
+      if '[' in word or ']' in word and ' ' not in word:
+        tag = True
 
-    #properties
-    content = models.CharField(max_length=255)
+      self.words.create(client=self.transcription.client, project=self.transcription.project, grammar=self.transcription.grammar, transcription=self.transcription, char=word, unique=unique, tag=tag)
 
-    def __unicode__(self):
-        return self.content
+  #sorting
+  class Meta:
+    get_latest_by = 'date_created'
+
+class Word(models.Model):
+  #connections
+  client = models.ForeignKey(Client, related_name='words')
+  project = models.ForeignKey(Project, related_name='words')
+  grammar = models.ForeignKey(Grammar, related_name='words')
+
+  #properties
+  id_token = models.CharField(max_length=8)
+  char = models.CharField(max_length=255)
+  unique = models.BooleanField(default=False) #marked as unique upon first occurence in a client.
+  tag = models.BooleanField(default=False)
+
+  #methods
+  def __str__(self):
+    return self.char
+
+class TranscriptionWord(Word):
+  #connections
+  transcription = models.ForeignKey(Transcription, related_name='words')
+
+class RevisionWord(TranscriptionWord):
+  #connections
+  revision = models.ForeignKey(Revision, related_name='words')
+
+class Action(models.Model): #lawsuit
+  #types
+  action_type_choices = (
+    ('ea','ended audio'),
+    ('r','replay'),
+    ('pp','play pause'),
+    ('a','add new word'),
+    ('c','copy down'),
+    ('t','tick'),
+  )
+
+  #connections
+  client = models.ForeignKey(Client, related_name='actions')
+  user = models.ForeignKey(User, related_name='actions')
+  job = models.ForeignKey(Job, related_name='actions')
+  transcription = models.ForeignKey(Transcription, related_name='actions')
+  revision = models.ForeignKey(Revision, related_name='actions')
+
+  #properties
+  id_token = models.CharField(max_length=8)
+  date_created = models.DateTimeField(auto_now_add=True)
+  char = models.CharField(max_length=255, choices=action_type_choices, default='')
+  audio_time = models.DecimalField(max_digits=8, decimal_places=6, null=True) #time at which the audio was skipped: next
+
+  #methods
+  def __str__(self):
+    return '%s > %s > %s'%(self.job.id_token, self.user, self.char)
+
+### File paths
+class CSVFile(models.Model):
+  #connections
+  client = models.ForeignKey(Client, related_name='csv_files')
+  project = models.ForeignKey(Project, related_name='csv_files')
+  grammar = models.OneToOneField(Grammar, related_name='csv_file', null=True)
+
+  #properties
+  name = models.CharField(max_length=255)
+  path = models.CharField(max_length=255)
+  file_name = models.CharField(max_length=255)
+
+  #methods
+  def __str__(self):
+    return '%s > %s > %s > %d:%s'%(self.client.name, self.project.name, self.grammar.name, self.pk, self.file_name)
+
+class WavFile(models.Model):
+  #connections
+  client = models.ForeignKey(Client, related_name='wav_files')
+  project = models.ForeignKey(Project, related_name='wav_files')
+  grammar = models.ForeignKey(Grammar, related_name='wav_files')
+  transcription = models.OneToOneField(Transcription, related_name='wav_file', null=True)
+
+  #properties
+  path = models.CharField(max_length=255)
+  file_name = models.CharField(max_length=255)
+
+  #methods
+  def __str__(self):
+    return '%s > %s > %s > %d:%s'%(self.client.name, self.project.name, self.grammar.name, self.pk, self.file_name)

@@ -1,0 +1,141 @@
+
+### 2014-09-17 
+
+### NOTES ON ARKAEOLOGIC TRANSCRIPTION SITE AFTER COMPLETING ITS MAIDEN TRANSCRIPTION VOYAGE
+
+
+
+
+### PREFACE
+
+
+Very nice site. Pleasant to use. 
+
+Focus on the keyboard as the controller (rather than the mouse) is good.
+
+Buttons highlighting in pleasant colours (green) has a good psychological effect. Makes you feel like you're constantly progressing / getting stuff done. This is probably more effective than having a money counter by the side of the screen.
+
+Small size of jobs is good. Helps you feel that you're working quickly. 
+
+
+
+### NOTES ON THIS PARTICULAR BATCH
+
+I used [side_speech] several times (holdover from TranscriptionMonkey habits). don't think this will matter. 
+
+During the first 60 jobs, I forgot to use the tag [spanish]. There weren't too many spanish utterances, but ask Dad if this matters. 
+
+I've used [prompt echo] to indicate answer machine messages, automated calls (that are not Allstate), and Allstate phone prompts. 
+
+
+
+### MISC
+
+
+'utts' = 'utterances'
+
+tick a transcription = the green highlight button that marks the transcription as complete and saves it.
+
+token box = the box where you input a new token, with 'enter a new word' greyed out in it.
+
+
+Note: Dad said a long time ago that "payments" and "payment" go into the same linguistic bucket. Therefore, when transcribing, it is not necessary to correct e.g.
+"payment and billings" to 
+"payments and billing". 
+-> There are a variety of small issues like this, which I have notes on somewhere, that a transcriber should know, because they speed up transcription (via not correcting many tokens) _considerably_. 
+
+
+
+### MAJOR PROPOSALS (ONES THAT WILL MOST AFFECT WORK THROUGHPUT)
+
+- When I change a modified transcription, it should detick. <<<
+
+- a keyboard shortcut for 'next job' <<<
+
+- a keyboard shortcut for 'focus on token box' when original utterance is _not_ blank. Actually, just for "focus on token box", at any time. <<<
+
+- sometimes there's a sequence of hundreds of identical utterances such as 'claims' or 'yes' or 'no' and the system's guess is correct. It would be nice to have a single key that copies the original utterance, marks the transcription as done, and moves to the next transcription. If you suddenly realize that one was different, it would be nice to have another key to go to the previous transcription, de-tick it, and focus on the token box. It would be acceptable to use a modifier key for this. e.g. hold cntrl with the left index finger, and use j & k with the right index finger. <<<
+
+- a list of tags on the screen somewhere so you don't have to remember them all. >>>
+
+- it would be nice, immediately after a transcription has been ticked, to be able to press enter again and move to the next utterance. <<<
+
+
+
+### BUGS
+
+- problem with repeat button that replays the utterance. doesn't always work. reloading the web page seems to cause the repeat button to work.
+
+- pressing delete key when token box is _not_ focused causes the browser to load the previous page. not exactly a bug, but makes transcribing uncomfortably accident-prone and therefore less pleasant, and will probably be confusing for users. 
+
+
+
+### MINOR PROPOSALS
+
+
+- a way to know how many utts are left to do. i.e. should I change my schedule over the next two days to deal with a sudden influx.
+
+- shortcuts for tags (it's annoying to have to type [ or ] in order to use autocomplete)
+
+- if there is a list of tags displayed somewhere, then maybe some way to expand a tag temporarily (by hovering with the mouse?) to see its definition and some examples.
+
+- autocomplete doesn't work properly for the tags. it works only if 
+a) you use both brackets e.g. [ch] will bring up [side speech] or 
+b) you start from the end of the tag e.g. le] will bring up [unintelligible]
+
+- can't untick a transcription.
+
+- change repeat shortcut to something other than the Shift key (so that ~ = cut-off and (()) = best guess can be used). this is not high priority though. 
+
+- can't correct a token. when typing a token, cannot use right and left arrow keys to move within the token, as these are dedicated to moving between tokens. This may just have to be a feature, not a bug. 
+
+- mouse tooltips for each button that display that button's keyboard shortcut.
+
+- maybe a list of keyboard shortcuts somewhere on the screen.
+
+- autocomplete box doesn't scroll as you go down. Admittedly, if it did, this would be only really useful for a list of many long tokens e.g. number sequences.
+
+- autocomplete displays a suggestion _inside_ the token box, while you're typing. It makes it hard to see exactly where the cursor is, and if you press enter, the suggestion won't be included in the token (unless you've typed all the way through it, defeating the point). This feature is also unpleasant when the token has many words e.g. a phone number. 
+
+- should we filter jobs by language? not everyone speaks spanish. 
+
+- it's irritating sometimes to realise that you have to correct the original transcription, when you have copied it down (by pressing enter) but the token box is _not_ highlighted (this appears to vary). you then have to click on the token box with the mouse. minor peeve. 
+
+- new tags: [no speech], [speech in noise], [tones], [background noise], [bad audio], [spanish], [english], [non-native], [dtmf], [mispronunciation], [prompt echo]. 
+
+- when a ticked transcription is selected, and it is in the middle of a row of ticked transcriptions, it is hard to tell which transcription is selected. The green button depresses slightly, but that's it. 
+
+- the formatting doesn't deal well with long utterances. the modified utterance box moves down and is hidden beneath the token box. 
+
+- new tag: [skipped]. this indicates that there is no value to be gained from transcribing a complicated utterance (Dad's system won't use it anyway - too complex). In TranscriptionMonkey, this was handled via adding an asterisk to the end of the original utterance. 
+-> didn't know if your system would handle asterisks well. Dad's scripts will expect an asterisk, so maybe you'll want to global_replace [skipped] with [original utterance] + *.
+anyway, I only skipped a couple of utterances. 
+
+- a clipboard for user-chosen phrases e.g. "help me with something else" or "payments and billing" that occur many times. User can change these at any time and they are specific to a particular user. keyboard shortcuts for each slot in the clipboard.
+
+- clicking New Job when there are no more utterances creates a blank job that cannot be deleted.
+
+
+
+### VERSION 2 PROPOSALS
+
+
+- buttons for pause, 5 secs forward, 5 secs back, play next 5 secs? This would perhaps work better with a vim-like toggle_token_box system. 
+
+- a mechanism for a transcriber to throw an utterance back into the transcription pool (and it won't come back to that particular transcriber). e.g. the transcriber doesn't speak spanish and some spanish utterances came to them by accident. 
+
+- a mechanism for making corrections + notes on a transcription from a junior transcriber, when viewing a random sample of their work on a verification page. Then perhaps make the junior transcriber review them. Then make a reminder for, when reviewing that transcriber in the future, to keep an eye out to see if they're improving on that issue. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

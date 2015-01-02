@@ -1,15 +1,13 @@
-#from apps.transcription.models import Transcription, RelFile; T = Transcription.objects.all(); R = RelFile.objects.all(); from apps.users.models import User; u = User.objects.get(); from apps.distribution.models import Client, Project; client = Client.objects.get(); p = Project.objects.get();
-
-#distribution.models
+#woot.apps.distribution.models
 
 #django
 from django.db import models
-from django.db.models.fields.files import FileField
-from django.core.files import File
+from django.conf import settings
+from django.utils import timezone
 
 #local
 from apps.users.models import User
-from settings.common import MEDIA_ROOT, NUMBER_OF_TRANSCRIPTIONS_PER_JOB
+from libs.utils import generate_id_token
 
 #util
 import os
@@ -18,177 +16,115 @@ import shutil as sh
 import datetime as dt
 
 #vars
-COMPLETED_PROJECT_ROOT = os.path.join(MEDIA_ROOT, 'completed')
 
 #classes
 class Client(models.Model):
-    #connections
-    #sub: projects, jobs, archives, relfiles, transcriptions, autocomplete words
+  #properties
+  name = models.CharField(max_length=255)
+  client_path = models.CharField(max_length=255)
 
-    #properties
-    name = models.CharField(max_length=255)
+  #methods
+  def __str__(self):
+    return self.name
 
-    def __unicode__(self):
-        return self.name
+  def update(self):
+    '''
 
-    #custom methods
-    def create_autocomplete_words(self):
-        #get list of current words
-        current_word_list = []
-        for word in self.words.all():
-            if word.content not in current_word_list:
-                current_word_list.append(word.content)
-        #get all unique words and phrases from transcriptions
-        new_word_list = []
-        for transcription in self.transcriptions.all():
-            if transcription.utterance not in current_word_list and transcription.utterance not in new_word_list:
-                new_word_list.append(transcription.utterance)
-                for word in transcription.utterance.split():
-                    if word not in current_word_list and word not in new_word_list:
-                        new_word_list.append(word)
+    Update is called when a revision is submitted. This will propagate down the chain:
+    Client > Project > Grammar > Transcription
 
-        #add one AutocompleteWord for each one.
-        for word in new_word_list:
-            self.words.create(content=word)
+    When a relfile is completed, a completed_relfile object will be created from the chosen revisions.
+    When a project is completed, a completed_project object will be created. This will be available for
+    download from the admin in the form of a zip file.
 
-    def update(self):
-        for project in self.projects.filter(is_active=False):
-            if self.completed_projects.filter(name=project.name+'_completed') == []:
-                project.export()
-                project.save()
+    '''
+    for project in self.projects.filter(is_active=True, is_approved=True):
+      project.update()
 
 class Project(models.Model):
-    #connections
-    client = models.ForeignKey(Client, related_name='projects')
-    #sub: jobs, archives, relfiles, transcriptions
+  #connections
+  client = models.ForeignKey(Client, related_name='projects')
 
-    #properties
-    name = models.CharField(max_length=255)
-    date_created = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
+  #properties
+  id_token = models.CharField(max_length=8)
+  name = models.CharField(max_length=255)
+  date_created = models.DateTimeField(auto_now_add=True)
+  is_active = models.BooleanField(default=False)
+  project_path = models.CharField(max_length=255)
+  completed_project_file = models.FileField(upload_to='completed_projects')
 
-    def __unicode__(self):
-        return str(self.client) + ' ' + self.name
+  #methods
+  def __str__(self):
+    return str(self.client) + ' > ' + str(self.name)
 
-    #custom methods
-    def update(self):
-        if self.transcriptions.filter(is_active=True).count()==0:
-            if self.is_active:
-                self.is_active = False
+  def update(self):
+    ''' Updates project when a revision is submitted. '''
+    for job in self.jobs.filter(is_active=True):
+      job.update()
 
-    def export(self):
-        #create directory with name of project
-        os.makedirs(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'))
+    for grammar in self.grammars.filter(is_active=True):
+      grammar.update()
 
-        for relfile in self.relfiles.all():
-            #open relfile and get contents
-            lines = relfile.file.file.readlines()
-            #open new file in completed directory
-            #new filename with '.out.csv'
-            with open(os.path.join(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'), os.path.splitext(relfile.name)[0]+'.out.csv'), 'w+') as complete_relfile:
-                new_lines = []
-                for line_number, line in enumerate(lines):
-                    #find transcription by specifying line_number and grammar name
-                    tokens = line.split('|')
-                    grammar = os.path.splitext(os.path.basename(tokens[1]))[0]
-                    print([grammar, line_number])
-                    transcription = self.transcriptions.get(line_number=line_number, grammar=grammar) #should exist if the reverse worked
-                    latest_revision = transcription.revisions.latest() #must exist
-                    tokens[3] = latest_revision.utterance
-                    new_line = '|'.join(tokens)
-                    new_lines.append(new_line)
-                for new_line in new_lines:
-                    complete_relfile.write(new_line)
-                self.completed_relfiles.create(client=self.client, archive=relfile.archive, relfile=relfile, file=File(complete_relfile), name=relfile.name)
+    #update status: active, processed
+    self.is_active = (self.jobs.filter(is_active=True).count()!=0 and self.grammars.filter(is_active=True).count()!=0)
+    self.save()
 
-        #zip directory
-        zip_file = zp.ZipFile(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed.zip'), 'w', zp.ZIP_DEFLATED)
-        for f in self.completed_relfiles.all():
-            file_path = f.file.file.name
-            zip_file.write(file_path, os.path.relpath(file_path, COMPLETED_PROJECT_ROOT))
-
-        completed_project = self.client.completed_projects.create(name=self.name)
-
-        completed_project.file.name = os.path.join('completed', self.name + '_completed.zip')
-        completed_project.save()
-
-        zip_file.close()
-
-        #remove tree
-        sh.rmtree(os.path.join(COMPLETED_PROJECT_ROOT, self.name + '_completed'))
-
-class CompletedProject(models.Model):
-    #connections
-    client = models.ForeignKey(Client, related_name='completed_projects')
-
-    #properties
-    name = models.CharField(max_length=255)
-    file = models.FileField(upload_to='completed', null=True, max_length=255)
-
-    def __unicode__(self):
-        return self.name + '_completed'
+  def export(self):
+    ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
+    pass
 
 class Job(models.Model):
-    #connections
-    client = models.ForeignKey(Client, related_name='jobs')
-    project = models.ForeignKey(Project, related_name='jobs')
-    user = models.ForeignKey(User, related_name='jobs')
-    #sub: transcriptions (null)
+  #connections
+  client = models.ForeignKey(Client, related_name='jobs')
+  project = models.ForeignKey(Project, related_name='jobs')
+  user = models.ForeignKey(User, related_name='jobs')
 
-    #properties
-    is_active = models.BooleanField(default=True)
-    active_transcriptions = models.IntegerField(editable=False)
-    total_transcription_time = models.DecimalField(max_digits=5, decimal_places=1, default=0.0, editable=False)
-    date_created = models.DateTimeField(auto_now_add=True)
-    time_taken = models.DecimalField(max_digits=5, decimal_places=1, default=0.0, editable=False)
+  #properties
+  is_active = models.BooleanField(default=True)
+  id_token = models.CharField(max_length=8) #a random string of characters to identify the job
+  active_transcriptions = models.IntegerField(editable=False)
+  date_created = models.DateTimeField(auto_now_add=True)
+  date_completed = models.DateTimeField(auto_now_add=False, null=True)
+  total_transcription_time = models.DecimalField(max_digits=8, decimal_places=6, null=True)
+  time_taken = models.DecimalField(max_digits=8, decimal_places=6, null=True)
 
-    def __unicode__(self):
-        return str(self.project) + ' > #' + str(self.pk) + ': ' + str(self.user)
+  #methods
+  def __str__(self):
+    return str(self.project) + ' > ' + str(self.user) + ', job ' + str(self.pk) + ':' + str(self.id_token)
 
-    #custom methods
-    def get_transcription_set(self):
-        transcriptions = self.project.transcriptions.filter(requests=0)
-        sorted_transcription_set = sorted(transcriptions, key=lambda x: x.utterance, reverse=False)
+  def get_transcription_set(self):
+    project_transcriptions = self.project.transcriptions.filter(is_active=True, is_available=True).order_by('utterance')
+    transcription_set = project_transcriptions[:settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB] if len(project_transcriptions)>settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else project_transcriptions
 
-        transcription_set = sorted_transcription_set #however many remain
-        if len(sorted_transcription_set) >= self.active_transcriptions:
-            transcription_set = sorted_transcription_set[:self.active_transcriptions] #first 50 transcriptions
+    ''' total_transcription_time variable '''
 
-        for transcription in transcription_set:
-            transcription.requests += 1
-            #make date last requested equal to now
-            transcription.date_last_requested = dt.datetime.now()
-            transcription.save()
-            self.transcriptions.add(transcription)
+    for transcription in transcription_set:
+      transcription.date_last_requested = timezone.now()
+      transcription.is_available = False
+      transcription.save()
+      self.transcriptions.add(transcription)
 
-    def update(self):
-        self.active_transcriptions = self.transcriptions.filter(is_active=True).count()
-        if self.active_transcriptions==0:
-            if self.is_active:
-                self.is_active = False
+    #set total_transcription_time
+    self.total_transcription_time = sum([t.audio_time for t in self.transcriptions.all()])
 
-class Action(models.Model):
-    #connections
-    job = models.ForeignKey(Job, related_name='actions')
-    user = models.ForeignKey(User, related_name='actions')
+    self.save()
 
-    #properties
-    button_id = models.CharField(max_length=100)
-    transcription_id = models.CharField(max_length=100)
-    transcription_utterance = models.CharField(max_length=255)
-    date_created = models.DateTimeField(auto_now_add=True)
+  def update(self): #not used for export. Just for recording values.
+    ''' active_transcriptions, time_taken '''
 
-    def __unicode__(self):
-        return 'job: ' + str(self.job) + ' > "' + self.button_id + '" doing ' + self.transcription_id + ' ' + str(self.date_created)
+    for transcription in self.transcriptions.all():
+      transcription.update()
 
-    #custom methods
+    self.active_transcriptions = self.transcriptions.filter(is_active=True).count()
+    if self.active_transcriptions==0:
+      self.is_active = False
+      self.date_completed = timezone.now()
 
-class AutocompleteWord(models.Model):
-    #connections
-    client = models.ForeignKey(Client, related_name='words')
+    time_taken = 0
+    for transcription in self.transcriptions.filter(is_active=False):
+      #get total time for current user
+      for revision in transcription.revisions.filter(user=self.user):
+        time_taken += revision.time_to_complete if revision.time_to_complete else 0
+    self.time_taken = time_taken
 
-    #properties
-    content = models.CharField(max_length=255)
-
-    def __unicode__(self):
-        return self.content
+    self.save()

@@ -1,45 +1,40 @@
-#base.urls
+#woot.urls
 
 #django
 from django.contrib import admin
 from django.conf.urls import patterns, include, url
-
-#local
-from apps.pages.views import LoginView
-from apps.users.views import StartView
 from settings.common import MEDIA_ROOT
 
+#local
+from apps.pages.views import LoginView, StartView
+
 #third party
-from dajaxice.core import dajaxice_autodiscover, dajaxice_config
-dajaxice_autodiscover()
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/admin/#hooking-adminsite-instances-into-your-urlconf
 admin.autodiscover()
 
 # See: https://docs.djangoproject.com/en/dev/topics/http/urls/
 urlpatterns = patterns('',
-    # Serving media
-    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': MEDIA_ROOT, 'show_indexes': True }),
+  # Serving media
+  url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': MEDIA_ROOT, 'show_indexes': True }),
 
-    # Admin panel and documentation:
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+  #pages
+  url(r'^login/$', LoginView.as_view()),
+  url(r'^logout/$', 'django.contrib.auth.views.logout'),
+  url(r'^$', StartView.as_view()),
+  url(r'^start/$', StartView.as_view()),
 
-    # Login
-    url(r'^$', LoginView.as_view()),
-    url(r'^login/$', LoginView.as_view()),
-    url(r'^logout/$', 'django.contrib.auth.views.logout',{'next_page': '/login/'}),
+  #transcription
+  url(r'^transcription/', include('apps.transcription.urls')),
+  url(r'^new/', 'apps.transcription.views.create_new_job'),
 
-    # Users
-    url(r'^start/$', StartView.as_view()),
-    url(r'^new/$', 'apps.users.views.create_new_job', name='new'),
-
-    # Transcription
-    url(r'^transcription/', include('apps.transcription.urls', namespace='transcription')), #note: open ended for job number
-
-    # Progress bar upload
-    url(r'^progressbarupload/', include('progressbarupload.urls')),
-
-    # Dajax
-    url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
+  #admin
+  url(r'^admin/', include(admin.site.urls)),
 )
+
+#1. make users
+#2. make jobs
+#3. make transcription url work
+#4. make start url work
+#5. latest revision words
+#6.

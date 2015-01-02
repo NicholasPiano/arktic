@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load compress %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'transcription/css/typeahead.css' %}">
@@ -13,9 +14,9 @@
         <a id="job" job_id="{{job_id}}"></a>
         <ul class="list-group">
             {% for transcription in transcriptions %}
-            <li id="li-{{transcription.pk}}" index="{{forloop.counter}}" class="list-group-item audio">
+            <li id="li-{{transcription.id_token}}" index="{{forloop.counter}}" class="list-group-item audio">
                 <!-- -->
-                <audio id="{{transcription.pk}}">
+                <audio id="{{transcription.id_token}}">
                     <source src="{{ transcription.audio_file.url }}" type="audio/wav">
                 </audio>
                 <!-- -->
@@ -24,16 +25,16 @@
         </ul>
     </div>
 
-<!-- interface -->
+    <!-- interface -->
     <div id="interface" class="panel panel-default">
         <div id="indicators" class="panel">
             {% for transcription in transcriptions %}
                 {% if transcription.latest_revision_done_by_current_user %}
-                <div play="{{transcription.pk}}" id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-success indicator indicator-ok {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
+                <div play="{{transcription.id_token}}" id="indicator-ok-{{transcription.id_token}}" type="button" class="btn btn-success indicator indicator-ok {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
                 {% else %}
-                <div play="{{transcription.pk}}" id="indicator-ok-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-ok {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
+                <div play="{{transcription.id_token}}" id="indicator-ok-{{transcription.id_token}}" type="button" class="btn btn-default indicator indicator-ok {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
                 {% endif %}
-            <div id="indicator-loading-{{transcription.pk}}" type="button" class="btn btn-default indicator indicator-loading" style="background-image:url('{% static 'transcription/img/spinner.gif' %}')"></div>
+            <div id="indicator-loading-{{transcription.id_token}}" type="button" class="btn btn-default indicator indicator-loading" style="background-image:url('{% static 'transcription/img/spinner.gif' %}')"></div>
             {% endfor %}
         </div>
         <div class="btn-group">
@@ -43,13 +44,23 @@
             <button id="previous" type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-up"></span> Previous transcription</button>
             <button id="replay" type="button" class="btn btn-default"><span class="glyphicon glyphicon-step-backward"></span> Repeat</button>
             <button id="play-pause" type="button" class="btn btn-success"><span class="glyphicon glyphicon-play"></span><span class="glyphicon glyphicon-pause"></span></button>
-            <button id="waveform" type="button" class="btn btn-default">Waveform</button>
             <button id="next" type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-down"></span> Next transcription</button>
             <button id="counter" type="button" class="btn btn-default"><span>1</span> of {{transcriptions|length}}</button>
         </div>
         <!-- repeat -->
         {% for transcription in transcriptions %}
-        <div id="panel-{{transcription.pk}}" class="panel panel-default transcription transcription{{forloop.counter}}">
+        <div id="panel-{{transcription.id_token}}" class="panel panel-default transcription transcription{{forloop.counter}}">
+            <div class="panel waveform-panel">
+                <div class="btn-group">
+                    <button id="wave-{{transcription.id_token}}" type="button" class="btn btn-default waveform" length={{transcription.audio_time}}>
+                    {% for rms, top in transcription.unpack_rms %}
+                        <div class='bar' style='height:{{rms}}px; top:{{top}}px;'></div>
+                    {% endfor %}
+                        <div id="now-{{transcription.id_token}}" class="now"></div>
+                    </button>
+                    <button type="button" class="btn btn-default ninja">{{transcription.grammar.name}}</button>
+                </div>
+            </div>
             <div class="panel original-panel">
                 <div class="btn-group">
                     <button type="button" class="btn ninja">Original utterance</button>
@@ -68,17 +79,17 @@
                     <button type="button" class="btn ninja">Modified utterance</button>
                 </div>
                 <div class="btn-group modified">
-                    {% if transcription.words.all %}
-                        <button type="button" class="btn btn-default modified begin-modified">....</button>
-                        {% for word in transcription.words.all %}
-                            {% if forloop.last %}
-                                <button type="button" class="btn btn-default modified active">{{word}}</button>
-                            {% else %}
-                                <button type="button" class="btn btn-default modified">{{word}}</button>
-                            {% endif %}
-                        {% endfor %}
+                    {% if transcription.latest_revision_words %}
+                    <button type="button" class="btn btn-default modified begin-modified">...</button>
+                    {% for word in transcription.latest_revision_words %}
+                        {% if forloop.last %}
+                            <button type="button" class="btn btn-default modified active">{{word}}</button>
+                        {% else %}
+                            <button type="button" class="btn btn-default modified">{{word}}</button>
+                        {% endif %}
+                    {% endfor %}
                     {% else %}
-                        <button type="button" class="btn btn-default modified begin-modified active">...</button>
+                    <button type="button" class="btn btn-default modified begin-modified active">...</button>
                     {% endif %}
                     <button type="button" class="btn btn-default add-modified"><span class="glyphicon glyphicon-plus"></span></button>
                 </div>
@@ -96,6 +107,9 @@
             <span class="input-group-btn">
                 <button id="add-new-word" class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span> Add new word</button>
             </span>
+            <span class="input-group-btn">
+                <button id="common" type="button" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> I see this a lot</button>
+            </span>
         </div>
     </div>
 </div> <!-- !wrapper -->
@@ -103,91 +117,64 @@
 
 <!-- js -->
 {% block post_main_script %}
-<script src="{% static 'transcription/js/typeahead.js' %}"></script>
+{% compress js %}
+<script type="text/javascript">
+var words = {{words|safe}};
+</script>
 <script src="{% static 'transcription/js/transcription.js' %}"></script>
+<script src="{% static 'transcription/js/typeahead.js' %}"></script>
+<script type="text/javascript">
+var action_register = function (current_id, action_name, current_audio_time) {
+  $.post("/transcription/action/", {job_id:$('#job').attr('job_id'),transcription_id:current_id,audio_time:current_audio_time,action_name:action_name,csrfmiddlewaretoken:'{{ csrf_token }}'})
+  .done(function(revision_id) {
+    if (action_name=='tick') { //revision complete
+      var utterance = [];
+      $('#panel-'+current_id + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
+        utterance.push($(this).html());
+      });
+      if (utterance.length!=0) {
+        $.post("/transcription/revision/", {revision_id:revision_id,utterance:utterance.join(' '),audio_time:current_audio_time,csrfmiddlewaretoken:'{{ csrf_token }}'});
+      }
+    }
+  });
+}
+var add_word = function (current_id, word) {
+  $.post("/transcription/add/", {transcription_id:current_id,word:word,csrfmiddlewaretoken:'{{ csrf_token }}'});
+}
+</script>
 <script type="text/javascript">
 $(document).ready(function() {
-var substringMatcher = function(strs) {
-  return function findMatches(q, cb) {
-    var matches, substringRegex;
-
-    // an array that will be populated with substring matches
-    matches = [];
-
-    // regex used to determine if a string contains the substring `q`
-    substrRegex = new RegExp(q, 'i');
-
-    // iterate through the pool of strings and for any string that
-    // contains the substring `q`, add it to the `matches` array
-    $.each(strs, function(i, str) {
-      if (substrRegex.test(str)) {
-        // the typeahead jQuery plugin expects suggestions to a
-        // JavaScript object, refer to typeahead docs for more info
-        matches.push({ value: str });
-      }
+    var substringMatcher = function(strs) {
+      return function findMatches(q, cb) {
+        var matches, substringRegex;
+        // an array that will be populated with substring matches
+        matches = [];
+        // regex used to determine if a string contains the substring `q`
+        substrRegex = new RegExp(q, 'i');
+        // iterate through the pool of strings and for any string that
+        // contains the substring `q`, add it to the `matches` array
+        $.each(strs, function(i, str) {
+          if (substrRegex.test(str)) {
+            // the typeahead jQuery plugin expects suggestions to a
+            // JavaScript object, refer to typeahead docs for more info
+            matches.push({ value: str });
+          }
+        });
+        cb(matches);
+      };
+    };
+    // var states = ["[noise]","[breath noise]","[fragment]","[side speech]","[hesitation]","[unintelligible]","[spanish]","[prompt echo]","[bad audio]","{% for word in words %}{{word.content}}","{% endfor %}"];
+    $('#typeahead').typeahead({
+      hint: true,
+      highlight: true,
+      minLength: 1
+    },
+    {
+      name: 'states',
+      displayKey: 'value',
+      source: substringMatcher(words)
     });
-
-    cb(matches);
-  };
-};
-
-// var states = ["[noise]","[breath noise]","[fragment]","[side speech]","[hesitation]","[unintelligible]","[spanish]","[prompt echo]","[bad audio]","{% for word in words %}{{word.content}}","{% endfor %}"];
-var states = ["[noise]",
-              "[breath noise]",
-              "[fragment]",
-              "[side speech]",
-              "[hesitation]",
-              "[unintelligible]",
-              "[spanish]",
-              "[prompt echo]",
-              "[background noise]",
-              "[speech in noise]",
-              "[no speech]",
-              "[skipped]",
-              "[bad audio]",
-              "help me with something else",
-              "help with something else",
-              "I don't have one",
-              "I don't have it",
-              "don't have one",
-              "don't have it",
-              "representative",
-              "file a new claim",
-              "file a claim",
-              "payments and billing",
-              "make a payment",
-              "billing",
-              "pay my bill",
-              "[tones]",
-              "i don't know it",
-              "customer service",
-              "payment",
-              "customer service rep",
-              "agent",
-              "operator",
-              "claims",
-              "claim",
-              "accident",
-              "roadside assistance",
-              "[mispronounciation]",
-              "[pause]",
-              "[non-native]",
-              "proof of insurance",
-              "insurance",
-              "liability",
-              "get a quote",
-              "customer service please"];
-
-$('#typeahead').typeahead({
-  hint: true,
-  highlight: true,
-  minLength: 1
-},
-{
-  name: 'states',
-  displayKey: 'value',
-  source: substringMatcher(states)
-});
 });
 </script>
+{% endcompress %}
 {% endblock %}
