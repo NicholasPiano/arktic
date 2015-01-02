@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 #local
 from apps.transcription.models import WavFile
+from subprocess import call
 
 #util
 import json
