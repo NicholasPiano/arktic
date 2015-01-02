@@ -68,11 +68,16 @@ $(document).ready(function() {
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
     action_register(play, 'replay', player.currentTime);
+    $('#now-'+play).css('left','0px');
+    $('#now-'+play).stop();
     if (player.paused) {
       $('#play-pause').click();
     } else {
       player.currentTime=0;
+      var duration = parseFloat($('#wave-'+play).attr('length'))*1000;
+      $('#now-'+play).animate({left: "200px"}, duration-player.currentTime*1000, "linear", function() {$('#now-'+play).css('left','0px');});
     }
+
   });
 
   $('#play-pause').click(function(){

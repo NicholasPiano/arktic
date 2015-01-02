@@ -202,7 +202,7 @@ class Revision(models.Model):
 
   #methods
   def __str__(self):
-    return '%s:"%s" modified to "%s" > by %s'%(self.id_token, self.transcription.utterance, self.utterance, self.user)
+    return '%s: "%s" modified to "%s" > by %s'%(self.id_token, self.transcription.utterance, self.utterance, self.user)
 
   def action_sequence(self):
     pass

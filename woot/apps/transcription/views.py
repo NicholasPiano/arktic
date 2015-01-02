@@ -91,6 +91,9 @@ def action_register(request):
       revision.id_token = generate_id_token(Revision)
       revision.save()
 
+    #cull
+    transcription.revisions.filter(id_token=revision.id_token).exclude(pk=revision.pk).delete()
+
     #make action object
     revision.actions.create(client=client, job=job, user=user, transcription=transcription, id_token=generate_id_token(Action), char=action_name, audio_time=float(audio_time))
 
