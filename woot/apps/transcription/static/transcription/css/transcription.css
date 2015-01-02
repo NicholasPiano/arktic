@@ -78,6 +78,19 @@ html {
   left:-1px;
 }
 
+#slide-out-panel {
+  right:0px;
+  top:10%;
+  height:80%;
+  width:500px;
+  position:fixed;
+  border: 1px solid rgb(204, 204, 204);
+  border-radius: 3px;
+  -webkit-box-shadow: 0 0px 0px rgba(0,0,0,.05);
+  box-shadow: 0 0px 0px rgba(0,0,0,.05);
+  overflow:scroll;
+}
+
 button.waveform {
   height:34px;
   width:202px;

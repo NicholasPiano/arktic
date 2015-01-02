@@ -4,7 +4,7 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
 
 #local
@@ -60,3 +60,7 @@ class StartView(View):
                                                   'transcriptions_done_by_user':transcriptions_done_by_user,})
     else:
       return HttpResponseRedirect('/login/')
+
+def logout_view(request):
+  logout(request)
+  return HttpResponseRedirect('/login/')

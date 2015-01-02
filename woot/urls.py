@@ -6,7 +6,7 @@ from django.conf.urls import patterns, include, url
 from settings.common import MEDIA_ROOT
 
 #local
-from apps.pages.views import LoginView, StartView
+from apps.pages.views import LoginView, StartView, logout_view
 
 #third party
 
@@ -20,7 +20,7 @@ urlpatterns = patterns('',
 
   #pages
   url(r'^login/$', LoginView.as_view()),
-  url(r'^logout/$', 'django.contrib.auth.views.logout'),
+  url(r'^logout/$', logout_view),
   url(r'^$', StartView.as_view()),
   url(r'^start/$', StartView.as_view()),
 
