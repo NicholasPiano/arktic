@@ -1,7 +1,7 @@
 """Production settings and globals."""
 
 #local
-from common import *
+from woot.settings.common import *
 
 #util
 from os import environ

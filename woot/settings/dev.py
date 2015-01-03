@@ -9,7 +9,7 @@ from woot.settings.common import *
 
 ########## DEBUG CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = True
+DEBUG = False
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
 TEMPLATE_DEBUG = DEBUG
@@ -59,7 +59,7 @@ CACHES = {
 ########## TOOLBAR CONFIGURATION
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
 INSTALLED_APPS += (
-  'debug_toolbar',
+#   'debug_toolbar',
 )
 
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
