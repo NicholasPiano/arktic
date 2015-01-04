@@ -1,5 +1,6 @@
 #django
 from django.core.management.base import BaseCommand, CommandError
+from django.core.files import File
 
 #local
 from apps.transcription.models import Grammar, Transcription, Word
@@ -7,6 +8,7 @@ from apps.distribution.models import Project
 
 #util
 import json
+import os
 
 #command
 class Command(BaseCommand):
@@ -14,9 +16,24 @@ class Command(BaseCommand):
   help = ''
 
   def handle(self, *args, **options):
-#     self.stdout.write('processing transcriptions...')
-#     for i, t in enumerate(Transcription.objects.all()):
-#       print(['audio', i+1, Transcription.objects.count()])
-    t = Transcription.objects.get(pk=1000)
     path_server = '/home/arkaeologic/arktic/woot/data/'
-    path_down = '/Users/nicholaspiano/code/arktic/woot/data'
+    path_down = '/Users/nicholaspiano/code/arktic/woot/data/'
+
+    self.stdout.write('processing transcriptions...')
+    for i, t in enumerate(Transcription.objects.all()):
+      print(['audio', i+1, Transcription.objects.count()])
+
+      #1. replace path of transcription.wav_file with server path
+      t.wav_file.path = os.path.join(path_server, wav_file.path[len(path_down):])
+      t.wav_file.save()
+
+      #2. open new path and add file as transcription.audio_file
+      with open(t.wav_file.path, 'rb') as open_audio_file:
+        transcription.audio_file = File(open_audio_file)
+        transcription.save()
+
+    ### SCRIPT
+
+    #3. replace path of transcription.wav_file with server path
+    #4. open new path and add file as transcription.audio_file
+    #5. save transcription
