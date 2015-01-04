@@ -20,8 +20,9 @@ class Command(BaseCommand):
     path_down = '/Users/nicholaspiano/code/arktic/woot/data/'
 
 #     self.stdout.write('processing transcriptions...')
+    count = Transcription.objects.count()
     for i, t in enumerate(Transcription.objects.all()):
-#       print(['audio', i+1, Transcription.objects.count()])
+      print(['audio', i+1, count])
 
       #1. replace path of transcription.wav_file with server path
       if 'nicholaspiano' in t.wav_file.path:
@@ -29,9 +30,9 @@ class Command(BaseCommand):
         t.wav_file.save()
 
       #2. open new path and add file as transcription.audio_file
-      with open(t.wav_file.path, 'rb') as open_audio_file:
-        t.audio_file = File(open_audio_file)
-        t.save()
+        with open(t.wav_file.path, 'rb') as open_audio_file:
+          t.audio_file = File(open_audio_file)
+          t.save()
 
     ### SCRIPT
 
