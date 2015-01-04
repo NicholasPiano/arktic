@@ -22,7 +22,7 @@ class Command(BaseCommand):
 #     self.stdout.write('processing transcriptions...')
     count = Transcription.objects.count()
     for i, t in enumerate(Transcription.objects.all()):
-      print(['audio', i+1, count])
+      print(['audio', i+1, count, t.pk])
 
       #1. replace path of transcription.wav_file with server path
       if 'nicholaspiano' in t.wav_file.path:
