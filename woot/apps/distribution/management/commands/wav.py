@@ -24,7 +24,7 @@ class Command(BaseCommand):
       print(['audio', i+1, Transcription.objects.count()])
 
       #1. replace path of transcription.wav_file with server path
-      t.wav_file.path = os.path.join(path_server, wav_file.path[len(path_down):])
+      t.wav_file.path = os.path.join(path_server, t.wav_file.path[len(path_down):])
       t.wav_file.save()
 
       #2. open new path and add file as transcription.audio_file
