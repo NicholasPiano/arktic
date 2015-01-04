@@ -19,9 +19,9 @@ class Command(BaseCommand):
     path_server = '/home/arkaeologic/arktic/woot/data/'
     path_down = '/Users/nicholaspiano/code/arktic/woot/data/'
 
-    self.stdout.write('processing transcriptions...')
+#     self.stdout.write('processing transcriptions...')
     for i, t in enumerate(Transcription.objects.all()):
-      print(['audio', i+1, Transcription.objects.count()])
+#       print(['audio', i+1, Transcription.objects.count()])
 
       #1. replace path of transcription.wav_file with server path
       if 'nicholaspiano' in t.wav_file.path:
