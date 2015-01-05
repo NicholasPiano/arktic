@@ -51,17 +51,19 @@ def create_new_job(request):
   if request.method == 'GET':
     user = request.user
     if user.is_authenticated():
-      #get oldest active project
-      project = Project.objects.filter(is_active=True).order_by('date_created')[0]
-
       #get user object
       user = User.objects.get(email=user)
 
-      #create job
-      job = user.jobs.create(client=project.client, project=project, id_token=generate_id_token(Job), active_transcriptions=settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
-      job.get_transcription_set()
+      #if there are available jobs
+      if Job.objects.filter(is_available=True).count()>0:
+        job = Job.objects.filter(is_available=True)[0]
+        job.is_available = False
+        user.jobs.add(job)
+        job.save()
+        return HttpResponseRedirect('/transcription/' + str(job.id_token))
+      else:
+        return HttpResponseRedirect('/start/')
 
-      return HttpResponseRedirect('/transcription/' + str(job.id_token))
     else:
       return HttpResponseRedirect('/login/')
 

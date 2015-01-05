@@ -73,14 +73,21 @@ class Project(models.Model):
     ''' Export prepares all of the individual relfiles to be packaged and be available for download. '''
     pass
 
+  def create_jobs(self):
+    available_transcriptions = self.transcriptions.filter(is_available=True).count()
+    while available_transcriptions>0:
+      job = self.jobs.create(client=self.client, id_token=generate_id_token(Job))
+      job.get_transcription_set()
+
 class Job(models.Model):
   #connections
   client = models.ForeignKey(Client, related_name='jobs')
   project = models.ForeignKey(Project, related_name='jobs')
-  user = models.ForeignKey(User, related_name='jobs')
+  user = models.ForeignKey(User, related_name='jobs', null=True)
 
   #properties
   is_active = models.BooleanField(default=True)
+  is_available = models.BooleanField(default=True)
   id_token = models.CharField(max_length=8) #a random string of characters to identify the job
   active_transcriptions = models.IntegerField(editable=False)
   date_created = models.DateTimeField(auto_now_add=True)
