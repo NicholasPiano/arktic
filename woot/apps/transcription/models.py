@@ -102,7 +102,7 @@ class Transcription(models.Model):
   client = models.ForeignKey(Client, related_name='transcriptions')
   project = models.ForeignKey(Project, related_name='transcriptions')
   grammar = models.ForeignKey(Grammar, related_name='transcriptions')
-  job = models.ForeignKey(Job, null=True, related_name='transcriptions')
+  job = models.ForeignKey(Job, null=True, related_name='transcriptions', on_delete=models.SET_NULL)
 
   #properties
   id_token = models.CharField(max_length=8)
