@@ -8,4 +8,3 @@ from django.test import TestCase
 #vars
 
 #classes
-

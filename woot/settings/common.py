@@ -15,7 +15,6 @@ from djcelery import setup_loader
 #rabbitmq: https://www.rabbitmq.com/man/rabbitmqctl.1.man.html
 #celery: https://zapier.com/blog/async-celery-example-why-and-how/
 
-
 ########## JOBS
 NUMBER_OF_TRANSCRIPTIONS_PER_JOB = 20
 JOB_ID_CHARS = string.ascii_uppercase + string.digits
