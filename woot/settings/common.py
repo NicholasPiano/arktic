@@ -30,6 +30,10 @@ AUTH_USER_MODEL = 'users.User'
 ########## AUDIO
 NUMBER_OF_AUDIO_FILE_BINS = 100
 
+########## ALLOWED HOSTS
+ALLOWED_HOSTS = [
+  'arkaeologic.pythonanywhere.com',
+]
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the Django project directory:
