@@ -175,14 +175,18 @@ class Transcription(models.Model):
   def process_words(self):
     words = self.utterance.split()
     for word in words:
-      unique = False
-      tag = False
-      if self.client.words.filter(project=self.project, char=word).count()==0:
-        unique=True
-      if '[' in word or ']' in word and ' ' not in word:
-        tag = True
+      tag = (('[' in word or ']' in word) and ' ' not in word)
 
-      self.words.create(client=self.client, project=self.project, grammar=self.grammar, char=word, unique=unique, tag=tag)
+      #many to many relationship
+      w, created = self.project.words.get_or_create(char=word) #unique by char to project
+      if created:
+        w.client = self.client
+        w.grammar = self.grammar
+        w.id_token = generate_id_token(Word)
+        w.tag = tag
+        self.words.add(w)
+        w.save()
+
 
 class Revision(models.Model):
   #connections
@@ -208,16 +212,18 @@ class Revision(models.Model):
 
   def process_words(self):
     words = self.utterance.split()
-    self.words.all().delete()
     for word in words:
-      unique = False
-      tag = False
-      if self.transcription.client.words.filter(project=self.transcription.project, char=word).count()==0:
-        unique=True
-      if '[' in word or ']' in word and ' ' not in word:
-        tag = True
+      tag = (('[' in word or ']' in word) and ' ' not in word)
 
-      self.words.create(client=self.transcription.client, project=self.transcription.project, grammar=self.transcription.grammar, transcription=self.transcription, char=word, unique=unique, tag=tag)
+      #many to many relationship
+      w, created = self.project.words.get_or_create(char=word) #unique by char to project
+      if created:
+        w.client = self.client
+        w.grammar = self.grammar
+        w.id_token = generate_id_token(Word)
+        w.tag = tag
+        self.words.add(w)
+        w.save()
 
   #sorting
   class Meta:
@@ -228,36 +234,19 @@ class Word(models.Model):
   client = models.ForeignKey(Client, related_name='words')
   project = models.ForeignKey(Project, related_name='words')
   grammar = models.ForeignKey(Grammar, related_name='words')
+  transcription = models.ManyToManyField(Transcription, related_name='words')
+  revision = models.ManyToManyField(Revision, related_name='words')
 
   #properties
   id_token = models.CharField(max_length=8)
   char = models.CharField(max_length=255)
-  unique = models.BooleanField(default=False) #marked as unique upon first occurence in a client.
   tag = models.BooleanField(default=False)
 
   #methods
   def __str__(self):
     return self.char
 
-class TranscriptionWord(Word):
-  #connections
-  transcription = models.ForeignKey(Transcription, related_name='words')
-
-class RevisionWord(TranscriptionWord):
-  #connections
-  revision = models.ForeignKey(Revision, related_name='words')
-
 class Action(models.Model): #lawsuit
-  #types
-  action_type_choices = (
-    ('ea','ended audio'),
-    ('r','replay'),
-    ('pp','play pause'),
-    ('a','add new word'),
-    ('c','copy down'),
-    ('t','tick'),
-  )
-
   #connections
   client = models.ForeignKey(Client, related_name='actions')
   user = models.ForeignKey(User, related_name='actions')
@@ -268,7 +257,7 @@ class Action(models.Model): #lawsuit
   #properties
   id_token = models.CharField(max_length=8)
   date_created = models.DateTimeField(auto_now_add=True)
-  char = models.CharField(max_length=255, choices=action_type_choices, default='')
+  char = models.CharField(max_length=255, default='')
   audio_time = models.DecimalField(max_digits=8, decimal_places=6, null=True) #time at which the audio was skipped: next
 
   #methods
