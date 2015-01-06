@@ -55,7 +55,7 @@ class Grammar(models.Model):
     '''
     Open relfile and create transcription objects.
     '''
-    if self.transcription.count()==0:
+    if self.transcriptions.count()==0:
       with open(os.path.join(self.csv_file.path, self.csv_file.file_name)) as open_relfile:
         lines = open_relfile.readlines()
         for i, line in enumerate(lines):
@@ -234,9 +234,9 @@ class Revision(models.Model):
 
 class Word(models.Model):
   #connections
-  client = models.ForeignKey(Client, related_name='words')
+  client = models.ForeignKey(Client, related_name='words', null=True)
   project = models.ForeignKey(Project, related_name='words')
-  grammar = models.ForeignKey(Grammar, related_name='words')
+  grammar = models.ForeignKey(Grammar, related_name='words', null=True)
   transcription = models.ManyToManyField(Transcription, related_name='words')
   revision = models.ManyToManyField(Revision, related_name='words')
 

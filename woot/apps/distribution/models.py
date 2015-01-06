@@ -124,10 +124,10 @@ class Job(models.Model):
   is_active = models.BooleanField(default=True)
   is_available = models.BooleanField(default=True)
   id_token = models.CharField(max_length=8) #a random string of characters to identify the job
-  active_transcriptions = models.IntegerField(editable=False)
+  active_transcriptions = models.IntegerField(editable=False, default=settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB)
   date_created = models.DateTimeField(auto_now_add=True)
   date_completed = models.DateTimeField(auto_now_add=False, null=True)
-  total_transcription_time = models.DecimalField(max_digits=8, decimal_places=6, null=True)
+  total_transcription_time = models.DecimalField(max_digits=8, decimal_places=5, null=True)
   time_taken = models.DecimalField(max_digits=8, decimal_places=6, null=True)
 
   #methods
@@ -137,6 +137,7 @@ class Job(models.Model):
   def get_transcription_set(self):
     project_transcriptions = self.project.transcriptions.filter(is_active=True, is_available=True).order_by('utterance')
     transcription_set = project_transcriptions[:settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB] if len(project_transcriptions)>settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else project_transcriptions
+    self.active_transcriptions = len(transcription_set)
 
     ''' total_transcription_time variable '''
 
@@ -147,7 +148,7 @@ class Job(models.Model):
       self.transcriptions.add(transcription)
 
     #set total_transcription_time
-    self.total_transcription_time = sum([t.audio_time for t in self.transcriptions.all()])
+    self.total_transcription_time = float(sum([float(t.audio_time) for t in self.transcriptions.all()]))
 
   def update(self): #not used for export. Just for recording values.
     ''' active_transcriptions, time_taken '''

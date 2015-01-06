@@ -31,6 +31,7 @@ NUMBER_OF_AUDIO_FILE_BINS = 100
 
 ########## ALLOWED HOSTS
 ALLOWED_HOSTS = [
+  'localhost',
   'arkaeologic.pythonanywhere.com',
 ]
 

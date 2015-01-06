@@ -130,7 +130,7 @@ def add_word(request):
     transcription = Transcription.objects.get(id_token=transcription_id)
     client = transcription.client
     if client.words.filter(project=transcription.project, char=word).count()==0:
-      client.words.create(project=transcription.project, grammar=transcription.grammar, char=word, unique=True, tag=False)
+      client.words.create(project=transcription.project, grammar=transcription.grammar, char=word, tag=(('[' in word or ']' in word) and ' ' not in word))
 
     return HttpResponse('')
 
