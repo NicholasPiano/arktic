@@ -99,7 +99,7 @@ class Project(models.Model):
     '''
     print('processing words...')
     count = self.transcriptions.count()
-    for transcription in self.transcriptions.all():
+    for i, transcription in enumerate(self.transcriptions.all()):
       print('transcription %d/%d'%(i+1, count))
       transcription.process_words()
 
