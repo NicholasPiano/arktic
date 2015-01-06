@@ -34,6 +34,7 @@ def scan_data():
     if created: #scan directory for grammars
       client.client_path = os.path.join(data_dir, name)
       client.save()
+      print('created client: ' + str(client))
 
     for project_name in [dir_i for dir_i in os.listdir(client.client_path) if os.path.isdir(os.path.join(client.client_path, dir_i))]:
       project, created = client.projects.get_or_create(name=project_name)
@@ -42,6 +43,7 @@ def scan_data():
         project.id_token = generate_id_token(Project)
         project.project_path = os.path.join(client.client_path, project_name)
         project.save()
+        print('created project: ' + str(project))
 
       #generate list of .csv files and list of .wav files
       csv_file_list = []
@@ -61,6 +63,7 @@ def scan_data():
         if created:
           grammar.csv_file = csv_file
           grammar.id_token = generate_id_token(Grammar)
+          print('created grammar ' + str(grammar))
 
           with open(os.path.join(csv_file.path, csv_file.file_name)) as open_rel_file:
             lines = open_rel_file.readlines()
@@ -68,7 +71,7 @@ def scan_data():
               tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
               transcription_audio_file_name = os.path.basename(tokens[0])
               grammar.wav_files.get_or_create(client=client, project=project, path=wav_file_dictionary[transcription_audio_file_name], file_name=transcription_audio_file_name)
-              print(['(%d/%d)'%(1,1),'(%d/%d)'%(1,1),'(%d/%d)'%(i+1, project.csv_files.count()),'(%d/%d)'%(j+1, len(lines))])
+              print('client %d/%d, project %d/%d, grammar %d/%d, wav %d/%d'%(1,1,1,1,i+1,project.csv_files.count(),j,len(lines)))
 
           grammar.save()
           csv_file.save()
