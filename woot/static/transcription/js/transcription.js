@@ -67,7 +67,7 @@ $(document).ready(function() {
   $('#replay').click(function(){
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
-//     action_register(play, 'replay', player.currentTime);
+    action_register(play, 'replay', player.currentTime);
     $('#now-'+play).css('left','0px');
     $('#now-'+play).stop();
     if (player.paused) {
@@ -87,7 +87,7 @@ $(document).ready(function() {
     //play audio player
     var play = $(this).attr('play');
     var player = document.getElementById(play);
-    action_register(play, 'play', player.currentTime);
+//     action_register(play, 'play', player.currentTime);
 
     if (player.paused) {
       player.play();
