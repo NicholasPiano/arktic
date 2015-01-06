@@ -105,7 +105,7 @@ class Transcription(models.Model):
   client = models.ForeignKey(Client, related_name='transcriptions')
   project = models.ForeignKey(Project, related_name='transcriptions')
   grammar = models.ForeignKey(Grammar, related_name='transcriptions')
-  job = models.ForeignKey(Job, null=True, related_name='transcriptions', on_delete=models.SET_NULL)
+  job = models.ManyToManyField(Job, related_name='transcriptions', null=True)
 
   #properties
   id_token = models.CharField(max_length=8)
@@ -216,17 +216,21 @@ class Revision(models.Model):
   def process_words(self):
     words = self.utterance.split()
     for word in words:
-      tag = (('[' in word or ']' in word) and ' ' not in word)
-
       #many to many relationship
-      w, created = self.project.words.get_or_create(char=word) #unique by char to project
+      w, created = self.job.project.words.get_or_create(char=word) #unique by char to project
       if created:
         w.client = self.client
         w.grammar = self.grammar
         w.id_token = generate_id_token(Word)
-        w.tag = tag
-        self.words.add(w)
-        w.save()
+        w.tag = (('[' in word or ']' in word) and ' ' not in word)
+
+      self.words.add(w)
+      w.save()
+
+  def process_actions(self):
+    for action in self.job.actions.filter(transcription=self.transcription):
+      self.actions.add(action)
+      action.save()
 
   #sorting
   class Meta:
@@ -255,7 +259,7 @@ class Action(models.Model): #lawsuit
   user = models.ForeignKey(User, related_name='actions')
   job = models.ForeignKey(Job, related_name='actions')
   transcription = models.ForeignKey(Transcription, related_name='actions')
-  revision = models.ForeignKey(Revision, related_name='actions')
+  revision = models.ForeignKey(Revision, related_name='actions', null=True)
 
   #properties
   id_token = models.CharField(max_length=8)

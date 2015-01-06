@@ -15,7 +15,7 @@ $(document).ready(function() {
   //bind audio player end
   $('audio').on('ended', function(){
     var play = $(this).attr('id');
-    action_register(play, 'ended audio', 0);
+//     action_register(play, 'ended audio', 0);
     //toggle the play-pause button glyphicons if the play variable is the same
     if ($('#play-pause').attr('play') == $(this).attr('id')) {
       $('#play-pause').children('span.glyphicon').toggle();
@@ -67,7 +67,7 @@ $(document).ready(function() {
   $('#replay').click(function(){
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
-    action_register(play, 'replay', player.currentTime);
+//     action_register(play, 'replay', player.currentTime);
     $('#now-'+play).css('left','0px');
     $('#now-'+play).stop();
     if (player.paused) {
@@ -141,7 +141,7 @@ $(document).ready(function() {
     //make a new button and add it to the current modified list with copied text from input
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
-    action_register(play, 'add new word', player.currentTime);
+//     action_register(play, 'add new word', player.currentTime);
     if (play!=='') {
       var text = $('#typeahead').val();
       if (text!='undefined' && text!=='') {
@@ -176,7 +176,7 @@ $(document).ready(function() {
   $('button.copy-down').click(function(){
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
-    action_register(play, 'copy down', player.currentTime);
+//     action_register(play, 'copy down', player.currentTime);
     if ($('#panel-'+play+' div.modified-panel div.modified').children().size() == 2) { //only ... should be there
       var utterance = $('#panel-'+play+' div.original-panel div.original button.original-utterance').html();
       if (typeof utterance === "undefined") {

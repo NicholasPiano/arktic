@@ -144,8 +144,8 @@ class Job(models.Model):
     for transcription in transcription_set:
       transcription.date_last_requested = timezone.now()
       transcription.is_available = False
-      transcription.save()
       self.transcriptions.add(transcription)
+      transcription.save()
 
     #set total_transcription_time
     self.total_transcription_time = float(sum([float(t.audio_time) for t in self.transcriptions.all()]))
