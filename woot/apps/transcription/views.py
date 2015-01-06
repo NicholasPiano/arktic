@@ -32,14 +32,7 @@ class TranscriptionView(View):
         transcription.update()
 
       #words
-      words = []
-      if user.autocomplete_setting!='off':
-        project = job.project
-        if user.autocomplete_setting=='full':
-          words = sorted(project.words.filter(unique=True), key=lambda word: len(word.char), reverse=False)
-        else: #tags
-          words = project.words.filter(unique=True, tag=True)
-      words = json.dumps([word.char for word in words])
+      words = json.dumps([word.char for word in job.project.words.all()])
 
       #render
       return render(request, 'transcription/transcription.html', {'transcriptions':transcriptions,'words':words,'job_id':job.id_token,})
@@ -72,51 +65,37 @@ def start_redirect(request):
 
 def action_register(request):
   if request.user.is_authenticated:
-    #get POST vars
-    job_id = request.POST['job_id']
-    transcription_id = request.POST['transcription_id']
-    action_name = request.POST['action_name']
-    audio_time = request.POST['audio_time']
-
     #get user object
     user = User.objects.get(email=request.user)
-
-    #get transcription, client, job
-    job = Job.objects.get(id_token=job_id)
-    transcription = Transcription.objects.get(id_token=transcription_id)
-    client = transcription.client
-
-    #get or create revision (unique to job and user)
-    revision, created = transcription.revisions.get_or_create(user=user, job=job)
-
-    if created:
-      revision.id_token = generate_id_token(Revision)
-      revision.save()
-
-    #cull
-    transcription.revisions.filter(id_token=revision.id_token).exclude(pk=revision.pk).delete()
+    transcription = Transcription.objects.get(id_token=request.POST['transcription_id'])
 
     #make action object
-    revision.actions.create(client=client, job=job, user=user, transcription=transcription, id_token=generate_id_token(Action), char=action_name, audio_time=float(audio_time))
+    transcription.actions.create(client=transcription.client,
+                                 job=Job.objects.get(id_token=request.POST['job_id']),
+                                 user=user,
+                                 id_token=generate_id_token(Action),
+                                 char=request.POST['action_name'],
+                                 audio_time=float(request.POST['audio_time']))
 
-    return HttpResponse(revision.id_token)
+    return HttpResponse('')
 
 def update_revision(request):
   if request.user.is_authenticated:
-    #get POST vars
-    revision_id = request.POST['revision_id']
-    utterance = request.POST['utterance']
-    audio_time = request.POST['audio_time']
-
     #get user and update revision utterance
-    revision = Revision.objects.get(id_token=revision_id)
+    transcription = Transcription.objects.get(id_token=request.POST['transcription_id'])
+    revision, created = transcription.revisions.get_or_create(user=User.objects.get(email=request.user),
+                                                              job=Job.objects.get(id_token=request.POST['job_id']))
+
+    if created:
+      revision.id_token = generate_id_token(Revision)
 
     #split utterance
-    revision.utterance = utterance
-    revision.audio_time = float(audio_time)
-    revision.save()
+    revision.utterance = request.POST['utterance']
+    revision.audio_time = float(request.POST['audio_time'])
     revision.process_words()
+    revision.process_actions()
     revision.transcription.project.update()
+    revision.save()
 
     return HttpResponse('')
 
@@ -130,7 +109,7 @@ def add_word(request):
     transcription = Transcription.objects.get(id_token=transcription_id)
     client = transcription.client
     if client.words.filter(project=transcription.project, char=word).count()==0:
-      client.words.create(project=transcription.project, grammar=transcription.grammar, char=word, unique=True, tag=False)
+      client.words.create(project=transcription.project, grammar=transcription.grammar, char=word, tag=(('[' in word or ']' in word) and ' ' not in word))
 
     return HttpResponse('')
 

@@ -55,54 +55,57 @@ class Grammar(models.Model):
     '''
     Open relfile and create transcription objects.
     '''
-    with open(os.path.join(self.csv_file.path, self.csv_file.file_name)) as open_relfile:
-      lines = open_relfile.readlines()
-      for i, line in enumerate(lines):
-        print([self.name, 'line %d'%(i+1)])
-        tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
-        transcription_audio_file_name = os.path.basename(tokens[0])
-        confidence = tokens[2]
-        utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
-        value = tokens[4]
-        confidence_value = tokens[5].rstrip() #chomp newline
-        if confidence_value is not '':
-          confidence_value = float(float(confidence_value)/1000.0) #show as decimal
-        else:
-          confidence_value = 0.0
-
-        if self.wav_files.filter(file_name=transcription_audio_file_name).count()>0:
-          #if .filter returns multiple files, take the first and delete the rest
-          if self.wav_files.filter(file_name=transcription_audio_file_name).count()>1:
-            for wav_file_i in self.wav_files.filter(file_name=transcription_audio_file_name):
-              print(wav_file_i)
-            wav_file = self.wav_files.filter(file_name=transcription_audio_file_name)[0]
-            self.wav_files.filter(file_name=transcription_audio_file_name)[1:].delete()
+    if self.transcriptions.count()==0:
+      with open(os.path.join(self.csv_file.path, self.csv_file.file_name)) as open_relfile:
+        lines = open_relfile.readlines()
+        for i, line in enumerate(lines):
+          print([self.name, 'line %d'%(i+1)])
+          tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
+          transcription_audio_file_name = os.path.basename(tokens[0])
+          confidence = tokens[2]
+          utterance = tokens[3].strip() if ''.join(tokens[3].split()) != '' else ''
+          value = tokens[4]
+          confidence_value = tokens[5].rstrip() #chomp newline
+          if confidence_value is not '':
+            confidence_value = float(float(confidence_value)/1000.0) #show as decimal
           else:
-            wav_file = self.wav_files.get(file_name=transcription_audio_file_name)
+            confidence_value = 0.0
 
-          transcription, created = self.transcriptions.get_or_create(client=self.client, project=self.project, wav_file__file_name=wav_file.file_name)
+          if self.wav_files.filter(file_name=transcription_audio_file_name).count()>0:
+            #if .filter returns multiple files, take the first and delete the rest
+            if self.wav_files.filter(file_name=transcription_audio_file_name).count()>1:
+              for wav_file_i in self.wav_files.filter(file_name=transcription_audio_file_name):
+                print(wav_file_i)
+              wav_file = self.wav_files.filter(file_name=transcription_audio_file_name)[0]
+              self.wav_files.filter(file_name=transcription_audio_file_name)[1:].delete()
+            else:
+              wav_file = self.wav_files.get(file_name=transcription_audio_file_name)
 
-          transcription.wav_file = wav_file
-          transcription.save()
-          wav_file.save()
+            transcription, created = self.transcriptions.get_or_create(client=self.client, project=self.project, wav_file__file_name=wav_file.file_name)
 
-          if created:
-            transcription.id_token = generate_id_token(Transcription)
-            transcription.confidence = confidence
-            transcription.utterance = utterance
-            transcription.value = value
-            transcription.confidence_value = confidence_value
+            transcription.wav_file = wav_file
             transcription.save()
+            wav_file.save()
 
-    self.is_active = True
-    self.save()
+            if created:
+              transcription.id_token = generate_id_token(Transcription)
+              transcription.confidence = confidence
+              transcription.utterance = utterance
+              transcription.value = value
+              transcription.confidence_value = confidence_value
+              transcription.save()
+
+      self.is_active = True
+      self.save()
+    else:
+      print('done.')
 
 class Transcription(models.Model):
   #connections
   client = models.ForeignKey(Client, related_name='transcriptions')
   project = models.ForeignKey(Project, related_name='transcriptions')
   grammar = models.ForeignKey(Grammar, related_name='transcriptions')
-  job = models.ForeignKey(Job, null=True, related_name='transcriptions', on_delete=models.SET_NULL)
+  job = models.ManyToManyField(Job, related_name='transcriptions', null=True)
 
   #properties
   id_token = models.CharField(max_length=8)
@@ -151,19 +154,19 @@ class Transcription(models.Model):
 
   def process(self):
     #1. process audio file -> IRREVERSIBLE
-    (seconds, rms_values) = process_audio(self.wav_file.path)
+    if len(self.audio_rms)<10:
+      (seconds, rms_values) = process_audio(self.wav_file.path)
+      self.audio_time = seconds
 
-    self.audio_time = seconds
+      max_rms = max(rms_values)
+      rms_values = [float(value)/float(max_rms) for value in rms_values]
 
-    max_rms = max(rms_values)
-    rms_values = [float(value)/float(max_rms) for value in rms_values]
+      self.audio_rms = json.dumps(rms_values)
 
-    self.audio_rms = json.dumps(rms_values)
-
-    #2. add open audio file to transcription
-    with open(self.wav_file.path, 'rb') as open_audio_file:
-      self.audio_file = File(open_audio_file)
-      self.save()
+      #2. add open audio file to transcription
+      with open(self.wav_file.path, 'rb') as open_audio_file:
+        self.audio_file = File(open_audio_file)
+        self.save()
 
     self.is_active = True
     self.is_available = True
@@ -173,20 +176,20 @@ class Transcription(models.Model):
     return [(int(rms*31+1), 32-int(rms*31+1)) for rms in json.loads(self.audio_rms)]
 
   def process_words(self):
-    words = self.utterance.split()
-    for word in words:
-      tag = (('[' in word or ']' in word) and ' ' not in word)
+    if self.words.count()==0:
+      words = self.utterance.split()
+      for word in words:
+        tag = (('[' in word or ']' in word) and ' ' not in word)
 
-      #many to many relationship
-      w, created = self.project.words.get_or_create(char=word) #unique by char to project
-      if created:
-        w.client = self.client
-        w.grammar = self.grammar
-        w.id_token = generate_id_token(Word)
-        w.tag = tag
-        self.words.add(w)
-        w.save()
-
+        #many to many relationship
+        w, created = self.project.words.get_or_create(char=word) #unique by char to project
+        if created:
+          w.client = self.client
+          w.grammar = self.grammar
+          w.id_token = generate_id_token(Word)
+          w.tag = tag
+          self.words.add(w)
+          w.save()
 
 class Revision(models.Model):
   #connections
@@ -213,17 +216,21 @@ class Revision(models.Model):
   def process_words(self):
     words = self.utterance.split()
     for word in words:
-      tag = (('[' in word or ']' in word) and ' ' not in word)
-
       #many to many relationship
-      w, created = self.project.words.get_or_create(char=word) #unique by char to project
+      w, created = self.job.project.words.get_or_create(char=word) #unique by char to project
       if created:
         w.client = self.client
         w.grammar = self.grammar
         w.id_token = generate_id_token(Word)
-        w.tag = tag
-        self.words.add(w)
-        w.save()
+        w.tag = (('[' in word or ']' in word) and ' ' not in word)
+
+      self.words.add(w)
+      w.save()
+
+  def process_actions(self):
+    for action in self.job.actions.filter(transcription=self.transcription):
+      self.actions.add(action)
+      action.save()
 
   #sorting
   class Meta:
@@ -231,9 +238,9 @@ class Revision(models.Model):
 
 class Word(models.Model):
   #connections
-  client = models.ForeignKey(Client, related_name='words')
+  client = models.ForeignKey(Client, related_name='words', null=True)
   project = models.ForeignKey(Project, related_name='words')
-  grammar = models.ForeignKey(Grammar, related_name='words')
+  grammar = models.ForeignKey(Grammar, related_name='words', null=True)
   transcription = models.ManyToManyField(Transcription, related_name='words')
   revision = models.ManyToManyField(Revision, related_name='words')
 
@@ -252,7 +259,7 @@ class Action(models.Model): #lawsuit
   user = models.ForeignKey(User, related_name='actions')
   job = models.ForeignKey(Job, related_name='actions')
   transcription = models.ForeignKey(Transcription, related_name='actions')
-  revision = models.ForeignKey(Revision, related_name='actions')
+  revision = models.ForeignKey(Revision, related_name='actions', null=True)
 
   #properties
   id_token = models.CharField(max_length=8)
