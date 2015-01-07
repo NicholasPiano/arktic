@@ -219,8 +219,8 @@ class Revision(models.Model):
       #many to many relationship
       w, created = self.job.project.words.get_or_create(char=word) #unique by char to project
       if created:
-        w.client = self.client
-        w.grammar = self.grammar
+        w.client = self.transcription.client
+        w.grammar = self.transcription.grammar
         w.id_token = generate_id_token(Word)
         w.tag = (('[' in word or ']' in word) and ' ' not in word)
 
