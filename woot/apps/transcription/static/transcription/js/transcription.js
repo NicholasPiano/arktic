@@ -1,5 +1,7 @@
 $(document).ready(function() {
 
+  var numchars = ["zero","one","two","three","four","five","six","seven","eight","nine"];
+
   //--SETUP AND BINDINGS
   //set up play variable for play-pause button
   var play = $('li.audio:first audio').attr('id');
@@ -146,7 +148,15 @@ $(document).ready(function() {
       var text = $('#typeahead').val();
       if (text!='undefined' && text!=='') {
         var active = $('#panel-'+play+' div.modified-panel div.btn-group.modified button.active');
-        active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
+        if (isNaN(text)) {
+          active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
+        } else {
+          var nums = text.split("");
+          for (i=0;i<nums.length;i++) {
+            var newtext = numchars[parseInt(nums[i])];
+            active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
+          }
+        }
         active.removeClass('active');
         $('#typeahead').blur();
         $('#typeahead').focus();
