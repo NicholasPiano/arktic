@@ -154,7 +154,7 @@ $(document).ready(function() {
           var nums = text.split("");
           for (i=0;i<nums.length;i++) {
             var newtext = numchars[parseInt(nums[i])];
-            active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
+            active.after('<button type="button" class="btn btn-default modified active">' + newtext + '</button>');
           }
         }
         active.removeClass('active');
