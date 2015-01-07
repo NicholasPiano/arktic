@@ -23,7 +23,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 ########## DATABASE CONFIGURATION
-# DATABASE_USER = os.getenv('DB_USER')
+DATABASE_USER = os.getenv('DB_USER')
 DATABASE_PWD = os.getenv('DB_PWD')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
@@ -49,7 +49,7 @@ DATABASES = {
     'PASSWORD': DATABASE_PWD,
     'HOST': 'mysql.server',
     'PORT': '',
-  }
+  },
   'slave': {
     'ENGINE': 'django.db.backends.mysql',
     'NAME': 'arktic_db',
