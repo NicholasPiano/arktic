@@ -45,8 +45,6 @@ class StartView(View):
 
       #list of jobs
       active_jobs = user.jobs.filter(is_active=True)
-      for job in active_jobs:
-        job.update()
       inactive_jobs = user.jobs.filter(is_active=False)
 
       #total remaining transcriptions
