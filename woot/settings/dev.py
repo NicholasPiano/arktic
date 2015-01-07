@@ -38,18 +38,6 @@ DATABASE_PWD = os.getenv('DB_PWD')
 # }
 
 DATABASES = {
-#   'slave': {
-#     'ENGINE': 'django.db.backends.sqlite3',
-#     'NAME': os.path.join(DJANGO_ROOT, 'db', 'db.sqlite3'),
-#   },
-#   'slave-server': {
-#     'ENGINE': 'django.db.backends.mysql',
-#     'NAME': 'arkaeologic$arktic',
-#     'USER': 'arkaeologic',
-#     'PASSWORD': DATABASE_PWD,
-#     'HOST': 'mysql.server',
-#     'PORT': '',
-#   },
   'default': {
     'ENGINE': 'django.db.backends.mysql',
     'NAME': 'arktic_db',
@@ -58,6 +46,13 @@ DATABASES = {
     'HOST': 'localhost',
   }
 }
+
+#1. install mysql python package
+#2. set up environment variables
+#3. create database
+#4. syncdb
+#5. run
+
 ########## END DATABASE CONFIGURATION
 
 
