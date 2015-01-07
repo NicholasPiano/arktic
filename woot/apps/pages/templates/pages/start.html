@@ -6,10 +6,10 @@
 
 {% block content %}
 <div id="wrapper" class="container">
-    <h1>Details</h1>
+    <h3>Details</h3>
     <p>User: {{ user.email }}</p>
     <p>Remaining transcriptions: {{ remaining_transcriptions }}</p>
-    <h1>Active jobs</h1>
+    <h3>Active jobs</h3>
     <div id="job-list-active" class="list-group">
         {% for job in active_jobs %}
         <a href="/transcription/{{job.id_token}}" class="list-group-item">#{{forloop.counter}}<span class="right-label">{{job.active_transcriptions}} of {{job.transcriptions.all|length}}</span></a>
@@ -17,7 +17,7 @@
         <a href="#" class="list-group-item">No active jobs<span class="right-label"></span></a>
         {% endfor %}
     </div>
-    <h1>Completed jobs</h1>
+    <h3>Completed jobs</h3>
     <div id="job-list-inactive" class="list-group">
         {% for job in inactive_jobs %}
         <a href="/transcription/{{job.id_token}}" class="list-group-item">#{{forloop.counter}}<span class="right-label"></span></a>
