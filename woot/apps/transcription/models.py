@@ -147,7 +147,7 @@ class Transcription(models.Model):
   def set_latest_revision_done_by_current_user(self, user):
     try:
       latest_revision = self.revisions.latest()
-      self.latest_revision_done_by_current_user = (latest_revision.user.email==user.email and len(latest_revision.words.all())!=0)
+      self.latest_revision_done_by_current_user = (latest_revision.user.email==user.email and latest_revision.utterance!='')
       self.save()
     except ObjectDoesNotExist:
       pass
