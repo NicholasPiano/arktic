@@ -91,10 +91,12 @@ def update_revision(request):
 
     #split utterance
     revision.utterance = request.POST['utterance']
+    revision.save()
+
+    #processing
     revision.process_words()
     revision.process_actions()
     revision.transcription.project.update()
-    revision.save()
 
     return HttpResponse('')
 
