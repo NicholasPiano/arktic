@@ -112,7 +112,7 @@ class Transcription(models.Model):
   audio_file_data_path = models.CharField(max_length=255) #temporary
   audio_file = models.FileField(upload_to='audio')
   audio_time = models.DecimalField(max_digits=8, decimal_places=6, null=True)
-  audio_rms = models.CharField(max_length=255)
+  audio_rms = models.TextField()
   confidence = models.CharField(max_length=255)
   utterance = models.CharField(max_length=255)
   value = models.CharField(max_length=255)
@@ -280,8 +280,8 @@ class CSVFile(models.Model):
 
   #properties
   name = models.CharField(max_length=255)
-  path = models.CharField(max_length=255)
-  file_name = models.CharField(max_length=255)
+  path = models.TextField(max_length=255)
+  file_name = models.TextField(max_length=255)
 
   #methods
   def __str__(self):
@@ -295,8 +295,8 @@ class WavFile(models.Model):
   transcription = models.OneToOneField(Transcription, related_name='wav_file', null=True)
 
   #properties
-  path = models.CharField(max_length=255)
-  file_name = models.CharField(max_length=255)
+  path = models.TextField(max_length=255)
+  file_name = models.TextField(max_length=255)
 
   #methods
   def __str__(self):

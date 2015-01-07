@@ -23,8 +23,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 ########## DATABASE CONFIGURATION
-# DATABASE_USER = os.getenv('DB_USER')
-# DATABASE_PWD = os.getenv('DB_PWD')
+DATABASE_USER = os.getenv('DB_USER')
+DATABASE_PWD = os.getenv('DB_PWD')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 # DATABASES = {
@@ -39,18 +39,20 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DATABASES = {
   'default': {
-    'ENGINE': 'django.db.backends.sqlite3',
-    'NAME': os.path.join(DJANGO_ROOT, 'db', 'db.sqlite3'),
-  },
-  'slave': {
     'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'arkaeologic$arktic',
-    'USER': 'arkaeologic',
+    'NAME': 'arktic_db',
+    'USER': DATABASE_USER,
     'PASSWORD': DATABASE_PWD,
-    'HOST': 'mysql.server',
-    'PORT': '',
+    'HOST': 'localhost',
   }
 }
+
+#1. install mysql python package
+#2. set up environment variables
+#3. create database
+#4. syncdb
+#5. run
+
 ########## END DATABASE CONFIGURATION
 
 

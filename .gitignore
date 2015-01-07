@@ -6,3 +6,4 @@ data/
 *.sqlite3
 audio/
 CACHE/
+manage.py
