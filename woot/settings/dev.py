@@ -24,7 +24,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ########## DATABASE CONFIGURATION
 # DATABASE_USER = os.getenv('DB_USER')
-# DATABASE_PWD = os.getenv('DB_PWD')
+DATABASE_PWD = os.getenv('DB_PWD')
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 # DATABASES = {
@@ -42,13 +42,20 @@ DATABASES = {
     'ENGINE': 'django.db.backends.sqlite3',
     'NAME': os.path.join(DJANGO_ROOT, 'db', 'db.sqlite3'),
   },
-  'slave': {
+  'slave-server': {
     'ENGINE': 'django.db.backends.mysql',
     'NAME': 'arkaeologic$arktic',
     'USER': 'arkaeologic',
     'PASSWORD': DATABASE_PWD,
     'HOST': 'mysql.server',
     'PORT': '',
+  }
+  'slave': {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'arktic_db',
+    'USER': DATABASE_USER,
+    'PASSWORD': DATABASE_PWD,
+    'HOST': 'localhost',
   }
 }
 ########## END DATABASE CONFIGURATION
