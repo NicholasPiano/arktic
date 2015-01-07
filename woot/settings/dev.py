@@ -41,6 +41,14 @@ DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.sqlite3',
     'NAME': os.path.join(DJANGO_ROOT, 'db', 'db.sqlite3'),
+  },
+  'slave': {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'arkaeologic$arktic',
+    'USER': 'arkaeologic',
+    'PASSWORD': DATABASE_PWD,
+    'HOST': 'mysql.server',
+    'PORT': '',
   }
 }
 ########## END DATABASE CONFIGURATION
