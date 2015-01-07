@@ -1,0 +1,15 @@
+ground:
+
+1. create database on ground: 'arktic_db' or whatever
+2. run populate
+3. dump: ~$ mysqldump --quick -u .. -p arktic_db | gzip > arktic_db.gz
+4. upload arktic_db.gz
+
+server:
+
+5. create db
+6. syncdb
+7. extract: ~$ gunzip < arktic_db.gz | mysql -u arkaeologic -p -h mysql.server 'arkaeologic$arktic'
+  a. quotes around db name
+
+done.
