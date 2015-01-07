@@ -150,14 +150,16 @@ $(document).ready(function() {
         var active = $('#panel-'+play+' div.modified-panel div.btn-group.modified button.active');
         if (isNaN(text)) {
           active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
+          active.removeClass('active');
         } else {
           var nums = text.split("");
           for (i=0;i<nums.length;i++) {
             var newtext = numchars[parseInt(nums[i])];
             active.after('<button type="button" class="btn btn-default modified active">' + newtext + '</button>');
+            active.removeClass('active');
+            active = $('#panel-'+play+' div.modified-panel div.btn-group.modified button.active');
           }
         }
-        active.removeClass('active');
         $('#typeahead').blur();
         $('#typeahead').focus();
         $('#typeahead').typeahead('val', '');
