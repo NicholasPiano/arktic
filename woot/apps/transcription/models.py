@@ -148,9 +148,9 @@ class Transcription(models.Model):
     try:
       latest_revision = self.revisions.latest()
       self.latest_revision_done_by_current_user = (latest_revision.user.email==user.email and latest_revision.utterance!='')
-      self.save()
     except ObjectDoesNotExist:
-      pass
+      self.latest_revision_done_by_current_user = False
+    self.save()
 
   def process(self):
     #1. process audio file -> IRREVERSIBLE
