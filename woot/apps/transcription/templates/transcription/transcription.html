@@ -183,8 +183,8 @@ var words = {{words|safe}};
 <script src="{% static 'transcription/js/typeahead.js' %}"></script>
 <script type="text/javascript">
 var action_register = function (current_id, action_name, current_audio_time) {
-  $.post("/transcription/action/", {job_id:$('#job').attr('job_id'),transcription_id:current_id,audio_time:current_audio_time,action_name:action_name,csrfmiddlewaretoken:'{{ csrf_token }}'});
-  if (action_name=='tick') { //revision complete
+//   $.post("/transcription/action/", {job_id:$('#job').attr('job_id'),transcription_id:current_id,audio_time:current_audio_time,action_name:action_name,csrfmiddlewaretoken:'{{ csrf_token }}'});
+  if (action_name==='tick') { //revision complete
     var utterance = [];
     $('#panel-'+current_id + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
       utterance.push($(this).html());
