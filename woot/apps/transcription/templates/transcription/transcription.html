@@ -184,15 +184,12 @@ var words = {{words|safe}};
 <script type="text/javascript">
 var action_register = function (current_id, action_name, current_audio_time) {
   $.post("/transcription/action/", {job_id:$('#job').attr('job_id'),transcription_id:current_id,audio_time:current_audio_time,action_name:action_name,csrfmiddlewaretoken:'{{ csrf_token }}'});
-  alert(action_name);
-  alert(action_name=='tick');
   if (action_name=='tick') { //revision complete
     var utterance = [];
     $('#panel-'+current_id + ' div.modified-panel div.btn-group.modified button.modified').not('button.add-modified').not('button.begin-modified').each(function(){
       utterance.push($(this).html());
     });
     if (utterance.length!=0) {
-      alert(utterance.join(' '));
       $.post("/transcription/revision/", {job_id:$('#job').attr('job_id'),transcription_id:current_id,utterance:utterance.join(' '),audio_time:current_audio_time,csrfmiddlewaretoken:'{{ csrf_token }}'});
     }
   }
