@@ -190,7 +190,7 @@ var action_register = function (current_id, action_name, current_audio_time) {
       utterance.push($(this).html());
     });
     if (utterance.length!=0) {
-      $.post("/transcription/revision/", {job_id:$('#job').attr('job_id'),transcription_id:current_id,utterance:utterance.join(' '),audio_time:current_audio_time,csrfmiddlewaretoken:'{{ csrf_token }}'});
+      $.post("/transcription/revision/", {job_id:$('#job').attr('job_id'),transcription_id:current_id,utterance:utterance.join(' '),csrfmiddlewaretoken:'{{ csrf_token }}'});
     }
   }
 }

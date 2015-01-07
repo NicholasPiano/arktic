@@ -91,7 +91,6 @@ def update_revision(request):
 
     #split utterance
     revision.utterance = request.POST['utterance']
-    revision.audio_time = float(request.POST['audio_time'])
     revision.process_words()
     revision.process_actions()
     revision.transcription.project.update()

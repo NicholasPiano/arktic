@@ -126,7 +126,7 @@ class Transcription(models.Model):
 
   #methods
   def __str__(self):
-    return '%s > %s > %d:%s > %s'%(self.client.name, self.project.name, self.pk, self.id_token, self.utterance)
+    return '%s > %s > %d:%s > "%s"'%(self.client.name, self.project.name, self.pk, self.id_token, self.utterance)
 
   def latest_revision_words(self):
     try:
@@ -142,13 +142,13 @@ class Transcription(models.Model):
 
   def deactivation_condition(self):
     ''' Has at least one revision with an utterance'''
-    return (len(self.revisions.exclude(utterance=''))>0)
+    return (self.revisions.exclude(utterance='').count()>0)
 
   def set_latest_revision_done_by_current_user(self, user):
-    try:
+    if self.revisions.count()>0:
       latest_revision = self.revisions.latest()
       self.latest_revision_done_by_current_user = (latest_revision.user.email==user.email and latest_revision.utterance!='')
-    except ObjectDoesNotExist:
+    else:
       self.latest_revision_done_by_current_user = False
     self.save()
 
