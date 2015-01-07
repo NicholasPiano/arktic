@@ -96,7 +96,7 @@ def update_revision(request):
     #processing
     revision.process_words()
     revision.process_actions()
-    revision.transcription.project.update()
+    revision.job.update()
 
     return HttpResponse('')
 
