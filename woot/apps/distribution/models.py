@@ -117,6 +117,7 @@ class Project(models.Model):
       job_set = filter_set[lower_bound:counter]
       job.get_transcription_set(job_set)
       job.save()
+      counter = lower_bound
 
 class Job(models.Model):
   #connections
