@@ -13,3 +13,5 @@ server:
   a. quotes around db name
 
 done.
+
+PROBLEM with database was that the db_pwd was not set in the pythonanywhere wsgi file. Holy balls.
