@@ -188,7 +188,7 @@ MIDDLEWARE_CLASSES = (
 
   # Default Django middleware.
   'django.middleware.common.CommonMiddleware',
-#   'django.contrib.sessions.middleware.SessionMiddleware',
+  'django.contrib.sessions.middleware.SessionMiddleware',
   'django.middleware.csrf.CsrfViewMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
   'django.contrib.messages.middleware.MessageMiddleware',
@@ -207,7 +207,7 @@ DJANGO_APPS = (
   # Default Django apps:
   'django.contrib.auth',
   'django.contrib.contenttypes',
-#   'django.contrib.sessions',
+  'django.contrib.sessions',
   'django.contrib.sites',
   'django.contrib.messages',
   'django.contrib.staticfiles',
