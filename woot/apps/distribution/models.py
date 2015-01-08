@@ -108,10 +108,14 @@ class Project(models.Model):
     Create all possible jobs from the set of transcriptions.
     '''
     print('creating jobs...')
-    while self.transcriptions.filter(is_available=True).count()>0:
-      print('available: %d'%(self.transcriptions.filter(is_available=True).count()))
+    filter_set = self.transcriptions.filter(is_available=True).order_by('utterance')
+    counter = filter_set.count() - 1
+    while counter:
+      print('available: %d'%(counter))
       job = self.jobs.create(client=self.client, id_token=generate_id_token(Job))
-      job.get_transcription_set()
+      lower_bound = counter-settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB if counter>=settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else 0
+      job_set = filter_set[lower_bound:counter]
+      job.get_transcription_set(job_set)
       job.save()
 
 class Job(models.Model):
@@ -134,14 +138,12 @@ class Job(models.Model):
   def __str__(self):
     return str(self.project) + ' > ' + str(self.user) + ', job ' + str(self.pk) + ':' + str(self.id_token)
 
-  def get_transcription_set(self):
-    project_transcriptions = self.project.transcriptions.filter(is_active=True, is_available=True).order_by('utterance')
-    transcription_set = project_transcriptions[:settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB] if len(project_transcriptions)>settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else project_transcriptions
-    self.active_transcriptions = len(transcription_set)
+  def get_transcription_set(self, job_set):
+    self.active_transcriptions = len(job_set)
 
     ''' total_transcription_time variable '''
 
-    for transcription in transcription_set:
+    for transcription in job_set:
       transcription.date_last_requested = timezone.now()
       transcription.is_available = False
       self.transcriptions.add(transcription)
