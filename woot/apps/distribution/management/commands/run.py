@@ -21,9 +21,9 @@ class Command(BaseCommand):
     #projects
     for project in Project.objects.all():
       print(project)
-      project.process_grammars()
-      project.process_transcriptions()
-      project.process_words()
+#       project.process_grammars()
+#       project.process_transcriptions()
+#       project.process_words()
       project.create_jobs()
       project.is_active = True
       project.save()
