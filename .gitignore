@@ -8,3 +8,4 @@ audio/
 CACHE/
 manage.py
 manage.py
+*.gz
