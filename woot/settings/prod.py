@@ -50,7 +50,7 @@ DATABASES = {
     'USER': 'arkaeologic',
     'PASSWORD': DATABASE_PWD,
     'HOST': 'mysql.server',
-    'PORT': '3306',
+    'PORT': '',
   }
 }
 ########## END DATABASE CONFIGURATION

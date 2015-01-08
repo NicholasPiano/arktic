@@ -20,5 +20,8 @@ if path not in sys.path:
 os.environ['DJANGO_SETTINGS_MODULE'] = 'woot.settings.prod'
 os.environ['DB_PWD'] = 'uqnhs77f'
 
+import django
+django.setup()
+
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
