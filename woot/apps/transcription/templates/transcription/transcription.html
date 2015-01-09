@@ -123,7 +123,7 @@
                     <th>Description</th>
                 </thead>
                 <tbody>
-                    <tr><td>~</td><td>A word is cut off at the start.</td></tr>
+                    <tr><td>~</td><td>A word is cut off at the start or end.</td></tr>
                     <tr><td>(( ))</td><td>enclosing best guess.</td></tr>
                     <tr><td>[breath noise]</td><td>noticeable sound of inhaling or exhaling.</td></tr>
                     <tr><td>[dtmf]</td><td>the sound(s) of telephone touch tones being keyed in.</td></tr>
@@ -160,12 +160,13 @@
                     <th>Description</th>
                 </thead>
                 <tbody>
-                    <tr><td></td><td>noticeable background noise during most or all of the audio item.</td></tr>
-                    <tr><td></td><td>bad audio quality during most or all of the audio item.</td></tr>
-                    <tr><td></td><td>caller response in English (to a Spanish system).</td></tr>
-                    <tr><td></td><td>the audio item does not contain anything recognisable as speech.</td></tr>
-                    <tr><td></td><td>caller has a strong non-native speech dialect or accent.</td></tr>
-                    <tr><td></td><td>caller response in Spanish (to an English system).</td></tr>
+                    <tr><td>Enter</td><td>Copies the current utterance down if it exists. If pressed again, continues to next transcription.</td></tr>
+                    <tr><td>ctrl+Enter</td><td>Copies word or phrase into the autocomplete dictionary. Immediately available.</td></tr>
+                    <tr><td>Up/Down</td><td>Move between transcriptions.</td></tr>
+                    <tr><td>Left/Right</td><td>Move between word tokens in the modified utterance (or move cursor inside autocomplete box if not empty).</td></tr>
+                    <tr><td>Tab</td><td>Replays the current transcription and focuses the autocomplete box.</td></tr>
+                    <tr><td>Numbers</td><td>When a number is entered as a word token, it is translated into words: '123' becomes 'one two three'.</td></tr>
+                    <tr><td>Backspace</td><td>Normal backspace inside autocomplete box or delete active word token in modified utterance.</td></tr>
                 </tbody>
             </table>
         </div>
