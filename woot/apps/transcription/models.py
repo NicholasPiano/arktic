@@ -131,7 +131,7 @@ class Transcription(models.Model):
   def latest_revision_words(self):
     try:
       latest_revision = self.revisions.latest()
-      return latest_revision.words.all()
+      return latest_revision.split_utterance()
     except ObjectDoesNotExist:
       return []
 
@@ -209,6 +209,9 @@ class Revision(models.Model):
   #methods
   def __str__(self):
     return '%s: "%s" modified to "%s" > by %s'%(self.id_token, self.transcription.utterance, self.utterance, self.user)
+
+  def split_utterance(self):
+    return self.utterance.split(' ')
 
   def action_sequence(self):
     pass
