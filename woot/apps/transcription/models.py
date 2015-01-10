@@ -128,6 +128,9 @@ class Transcription(models.Model):
   def __str__(self):
     return '%s > %s > %d:%s > "%s"'%(self.client.name, self.project.name, self.pk, self.id_token, self.utterance)
 
+  def grammar_name(self):
+    return self.grammar.name if len(self.grammar.name)<50 else self.grammar.name[:46] + '...'
+
   def latest_revision_words(self):
     try:
       latest_revision = self.revisions.latest()
