@@ -24,7 +24,7 @@ html {
   margin-top:-150px;
   margin-left:-550px;
   height:300px;
-  width:1000px;
+  width:1200px;
   border:none;
   -webkit-box-shadow:none;
   box-shadow:none;
@@ -80,7 +80,7 @@ html {
 }
 
 #slide-out-panel {
-  right:0px;
+  right:-385px;
   top:10%;
   height:80%;
   width:400px;

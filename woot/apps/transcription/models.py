@@ -182,7 +182,7 @@ class Transcription(models.Model):
     if self.words.count()==0:
       words = self.utterance.split()
       for word in words:
-        tag = (('[' in word or ']' in word) and ' ' not in word)
+        tag = ('[' in word or ']' in word)
 
         #many to many relationship
         w, created = self.project.words.get_or_create(char=word) #unique by char to project
@@ -223,15 +223,16 @@ class Revision(models.Model):
     words = self.utterance.split()
     for word in words:
       #many to many relationship
-      w, created = self.job.project.words.get_or_create(char=word) #unique by char to project
-      if created:
-        w.client = self.transcription.client
-        w.grammar = self.transcription.grammar
-        w.id_token = generate_id_token(Word)
-        w.tag = (('[' in word or ']' in word) and ' ' not in word)
+      if not (('[' in word and ']' not in word) or (']' in word and '[' not in word)): #reject with only one bracket
+        w, created = self.job.project.words.get_or_create(char=word) #unique by char to project
+        if created:
+          w.client = self.transcription.client
+          w.grammar = self.transcription.grammar
+          w.id_token = generate_id_token(Word)
+          w.tag = ('[' in word and ']' in word)
 
-      self.words.add(w)
-      w.save()
+        self.words.add(w)
+        w.save()
 
   def process_actions(self):
     for action in self.job.actions.filter(transcription=self.transcription):

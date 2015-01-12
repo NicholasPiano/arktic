@@ -184,6 +184,17 @@ $(document).ready(function() {
     }
   });
 
+  $('#slide-out-panel').toggle(
+    function () {
+      $(this).animate({
+        right: '0px',
+      }, 1000);
+    }, function () {
+      $(this).animate({
+        right: '-385px',
+      }, 1000);
+  });
+
   //-class buttons (general for each transcription object)
   $('button.copy-down').click(function(){
     var play = $('#play-pause').attr('play');
@@ -284,6 +295,9 @@ $(document).ready(function() {
     if (e.ctrlKey && e.keyCode===74) { //ctrl + j
         //previous transcription
         $('#previous').click();
+        $('#typeahead').focus();
+        $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
+        $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
     } else if (e.ctrlKey && e.keyCode===75) { //ctrl + k
         //copy down, tick, next
         var utterance = '';
@@ -319,6 +333,8 @@ $(document).ready(function() {
               $('#next').click();
           }
        }
+    } else if (e.ctrlKey && e.keyCode === 32) { //space
+      $('#slide-out-panel').click();
     } else if (e.keyCode === 40) { //down arrow
       if ($('#typeahead').val()=='') {
         $('#next').click();
