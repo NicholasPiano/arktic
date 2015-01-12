@@ -183,6 +183,7 @@
 {% compress js %}
 <script type="text/javascript">
 var words = {{words|safe}};
+var number_of_transcriptions = {{transcriptions|length}};
 </script>
 <script src="{% static 'transcription/js/transcription.js' %}"></script>
 <script src="{% static 'transcription/js/typeahead.js' %}"></script>

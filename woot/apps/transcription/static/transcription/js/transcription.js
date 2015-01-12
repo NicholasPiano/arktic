@@ -351,11 +351,11 @@ $(document).ready(function() {
             $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
           } else {
             $('#panel-'+play+' div.modified-panel button.tick').click();
-//             if () {
-
-//             } else {
-            $('#next').click();
-//             }
+            if ($('#indicators .button-success').length === number_of_transcriptions) { //all transcriptions are ticked
+              window.location('/new/');
+            } else {
+              $('#next').click();
+            }
           }
        }
     } else if (e.ctrlKey && e.keyCode === 32) { //space
