@@ -184,15 +184,16 @@ $(document).ready(function() {
     }
   });
 
-  $('#slide-out-panel').toggle(
-    function () {
+  $('#slide-out-panel').click(function(){
+    if ($(this).css('right')==='-385px') {
       $(this).animate({
         right: '0px',
       }, 1000);
-    }, function () {
+    } else {
       $(this).animate({
         right: '-385px',
       }, 1000);
+    }
   });
 
   //-class buttons (general for each transcription object)
