@@ -14,7 +14,7 @@
         {% for job in active_jobs %}
         <a href="/transcription/{{job.id_token}}" class="list-group-item">#{{forloop.counter}}<span class="right-label">{{job.active_transcriptions}} of {{job.transcriptions.all|length}}</span></a>
         {% empty %}
-        <a href="#" class="list-group-item">No active jobs<span class="right-label"></span></a>
+        <a href="/new/" class="list-group-item">Start a new job<span class="right-label"></span></a>
         {% endfor %}
     </div>
     <h3>Completed jobs</h3>
