@@ -188,11 +188,11 @@ $(document).ready(function() {
     if ($(this).css('right')==='-385px') {
       $(this).animate({
         right: '0px',
-      }, 1000);
+      }, 200);
     } else {
       $(this).animate({
         right: '-385px',
-      }, 1000);
+      }, 200);
     }
   });
 
