@@ -36,6 +36,7 @@
                 {% endif %}
             <div id="indicator-loading-{{transcription.id_token}}" type="button" class="btn btn-default indicator indicator-loading" style="background-image:url('{% static 'transcription/img/spinner.gif' %}')"></div>
             {% endfor %}
+            <div id="new-job-button" type="button" class="btn btn-default indicator indicator-ok"><span class="glyphicon glyphicon-plus"></span> Start new job?</div>
         </div>
         <div class="btn-group">
             <button id="audio-control-label" type="button" class="btn ninja">Controls</button>

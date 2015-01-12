@@ -90,8 +90,8 @@ $(document).ready(function() {
     if (player.paused) {
       $('#play-pause').click();
     } else {
-      if (player.currentTime >= 3) {
-        player.currentTime=player.currentTime-3;
+      if (player.currentTime >= 2) {
+        player.currentTime=player.currentTime-2;
       } else {
         player.currentTime=0;
       }

@@ -350,8 +350,12 @@ $(document).ready(function() {
           if (utterance=='') {
             $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
           } else {
-              $('#panel-'+play+' div.modified-panel button.tick').click();
-              $('#next').click();
+            $('#panel-'+play+' div.modified-panel button.tick').click();
+//             if () {
+
+//             } else {
+            $('#next').click();
+//             }
           }
        }
     } else if (e.ctrlKey && e.keyCode === 32) { //space
