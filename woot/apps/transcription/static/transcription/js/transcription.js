@@ -365,7 +365,7 @@ $(document).ready(function() {
         $('#next').click();
       }
     } else if (e.keyCode === 16) { //shift (both)
-      $('#back').click();
+//       $('#back').click();
     } else if (e.keyCode === 38) { //up arrow
       if ($('#typeahead').val()=='') {
         $('#previous').click();
@@ -382,7 +382,7 @@ $(document).ready(function() {
     } else if (e.keyCode === 9) { //tab
         e.preventDefault()
         $('#typeahead').focus();
-        $('#replay').click();
+        $('#back').click();
         $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
         $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
     } else if (e.keyCode === 39) { //right arrow
