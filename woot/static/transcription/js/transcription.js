@@ -350,8 +350,13 @@ $(document).ready(function() {
           if (utterance=='') {
             $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
           } else {
-              $('#panel-'+play+' div.modified-panel button.tick').click();
+            $('#panel-'+play+' div.modified-panel button.tick').click();
+            if ($('#indicators .button-success').length === number_of_transcriptions) { //all transcriptions are ticked
+//               window.location('/new/');
+              console.log('yes');
+            } else {
               $('#next').click();
+            }
           }
        }
     } else if (e.ctrlKey && e.keyCode === 32) { //space
@@ -361,7 +366,7 @@ $(document).ready(function() {
         $('#next').click();
       }
     } else if (e.keyCode === 16) { //shift (both)
-      $('#back').click();
+//       $('#back').click();
     } else if (e.keyCode === 38) { //up arrow
       if ($('#typeahead').val()=='') {
         $('#previous').click();
@@ -378,7 +383,7 @@ $(document).ready(function() {
     } else if (e.keyCode === 9) { //tab
         e.preventDefault()
         $('#typeahead').focus();
-        $('#replay').click();
+        $('#back').click();
         $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
         $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
     } else if (e.keyCode === 39) { //right arrow
