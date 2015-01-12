@@ -1,5 +1,7 @@
 $(document).ready(function() {
 
+  var numchars = ["zero","one","two","three","four","five","six","seven","eight","nine"];
+
   //--SETUP AND BINDINGS
   //set up play variable for play-pause button
   var play = $('li.audio:first audio').attr('id');
@@ -75,9 +77,29 @@ $(document).ready(function() {
     } else {
       player.currentTime=0;
       var duration = parseFloat($('#wave-'+play).attr('length'))*1000;
-      $('#now-'+play).animate({left: "200px"}, duration-player.currentTime*1000, "linear", function() {$('#now-'+play).css('left','0px');});
+      $('#now-'+play).animate({left: "200px"}, duration, "linear", function() {$('#now-'+play).css('left','0px');});
     }
 
+  });
+
+  $('#back').click(function(){
+    var play = $('#play-pause').attr('play');
+    var player = document.getElementById(play);
+    action_register(play, 'replay', player.currentTime);
+    $('#now-'+play).stop();
+    if (player.paused) {
+      $('#play-pause').click();
+    } else {
+      if (player.currentTime >= 3) {
+        player.currentTime=player.currentTime-3;
+      } else {
+        player.currentTime=0;
+      }
+      var duration = parseFloat($('#wave-'+play).attr('length'))*1000;
+      var position = (player.currentTime*200000/duration) + "px";
+      $('#now-'+play).css('left',position);
+      $('#now-'+play).animate({left: "200px"}, duration-player.currentTime*1000, "linear", function() {$('#now-'+play).css('left','0px');});
+    }
   });
 
   $('#play-pause').click(function(){
@@ -146,8 +168,18 @@ $(document).ready(function() {
       var text = $('#typeahead').val();
       if (text!='undefined' && text!=='') {
         var active = $('#panel-'+play+' div.modified-panel div.btn-group.modified button.active');
-        active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
-        active.removeClass('active');
+        if (isNaN(text)) {
+          active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
+          active.removeClass('active');
+        } else {
+          var nums = text.split("");
+          for (i=0;i<nums.length;i++) {
+            var newtext = numchars[parseInt(nums[i])];
+            active.after('<button type="button" class="btn btn-default modified active">' + newtext + '</button>');
+            active.removeClass('active');
+            active = $('#panel-'+play+' div.modified-panel div.btn-group.modified button.active');
+          }
+        }
         $('#typeahead').blur();
         $('#typeahead').focus();
         $('#typeahead').typeahead('val', '');
@@ -169,6 +201,18 @@ $(document).ready(function() {
         add_word(play, text);
         words.push(text);
       }
+    }
+  });
+
+  $('#slide-out-panel').click(function(){
+    if ($(this).css('right')==='-385px') {
+      $(this).animate({
+        right: '0px',
+      }, 200);
+    } else {
+      $(this).animate({
+        right: '-385px',
+      }, 200);
     }
   });
 
@@ -272,6 +316,9 @@ $(document).ready(function() {
     if (e.ctrlKey && e.keyCode===74) { //ctrl + j
         //previous transcription
         $('#previous').click();
+        $('#typeahead').focus();
+        $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
+        $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
     } else if (e.ctrlKey && e.keyCode===75) { //ctrl + k
         //copy down, tick, next
         var utterance = '';
@@ -307,12 +354,14 @@ $(document).ready(function() {
               $('#next').click();
           }
        }
+    } else if (e.ctrlKey && e.keyCode === 32) { //space
+      $('#slide-out-panel').click();
     } else if (e.keyCode === 40) { //down arrow
       if ($('#typeahead').val()=='') {
         $('#next').click();
       }
     } else if (e.keyCode === 16) { //shift (both)
-    //   $('#replay').click();
+      $('#back').click();
     } else if (e.keyCode === 38) { //up arrow
       if ($('#typeahead').val()=='') {
         $('#previous').click();
