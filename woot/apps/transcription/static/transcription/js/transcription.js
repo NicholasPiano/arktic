@@ -77,7 +77,7 @@ $(document).ready(function() {
     } else {
       player.currentTime=0;
       var duration = parseFloat($('#wave-'+play).attr('length'))*1000;
-      $('#now-'+play).animate({left: "200px"}, duration-player.currentTime*1000, "linear", function() {$('#now-'+play).css('left','0px');});
+      $('#now-'+play).animate({left: "200px"}, duration, "linear", function() {$('#now-'+play).css('left','0px');});
     }
 
   });
@@ -86,7 +86,6 @@ $(document).ready(function() {
     var play = $('#play-pause').attr('play');
     var player = document.getElementById(play);
     action_register(play, 'replay', player.currentTime);
-    $('#now-'+play).css('left','0px');
     $('#now-'+play).stop();
     if (player.paused) {
       $('#play-pause').click();
@@ -97,6 +96,8 @@ $(document).ready(function() {
         player.currentTime=0;
       }
       var duration = parseFloat($('#wave-'+play).attr('length'))*1000;
+      var position = (player.currentTime*200/duration) + "px";
+      $('#now-'+play).css('left',position);
       $('#now-'+play).animate({left: "200px"}, duration-player.currentTime*1000, "linear", function() {$('#now-'+play).css('left','0px');});
     }
   });
