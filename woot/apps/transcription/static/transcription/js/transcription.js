@@ -352,7 +352,7 @@ $(document).ready(function() {
           } else {
             $('#panel-'+play+' div.modified-panel button.tick').click();
             if ($('#indicators div.btn-success.indicator-ok').length === number_of_transcriptions) { //all transcriptions are ticked
-              window.location('/new/');
+              window.location = '/new/';
             } else {
               $('#next').click();
             }
