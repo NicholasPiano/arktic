@@ -351,7 +351,7 @@ $(document).ready(function() {
             $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
           } else {
             $('#panel-'+play+' div.modified-panel button.tick').click();
-            if ($('#indicators div.button-success.indicator-ok').length === number_of_transcriptions) { //all transcriptions are ticked
+            if ($('#indicators div.btn-success.indicator-ok').length === number_of_transcriptions) { //all transcriptions are ticked
               window.location('/new/');
             } else {
               $('#next').click();
