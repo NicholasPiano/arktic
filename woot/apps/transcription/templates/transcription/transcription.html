@@ -30,13 +30,13 @@
         <div id="indicators" class="panel">
             {% for transcription in transcriptions %}
                 {% if transcription.latest_revision_done_by_current_user %}
-                <div play="{{transcription.id_token}}" id="indicator-ok-{{transcription.id_token}}" type="button" class="btn btn-success indicator indicator-ok {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
+                <div play="{{transcription.id_token}}" id="indicator-ok-{{transcription.id_token}}" type="button" class="btn btn-success indicator indicator-ok ninja {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
                 {% else %}
-                <div play="{{transcription.id_token}}" id="indicator-ok-{{transcription.id_token}}" type="button" class="btn btn-default indicator indicator-ok {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
+                <div play="{{transcription.id_token}}" id="indicator-ok-{{transcription.id_token}}" type="button" class="btn btn-default indicator indicator-ok ninja {% if forloop.first %}active-indicator{% endif %}"><span class="glyphicon glyphicon-ok"></span></div>
                 {% endif %}
             <div id="indicator-loading-{{transcription.id_token}}" type="button" class="btn btn-default indicator indicator-loading" style="background-image:url('{% static 'transcription/img/spinner.gif' %}')"></div>
             {% endfor %}
-            <div id="new-job-button" type="button" class="btn btn-default indicator indicator-ok"><span class="glyphicon glyphicon-plus"></span> Start new job?</div>
+            <div id="new-job-button" type="button" class="btn btn-info indicator indicator-ok ninja"><span class="glyphicon glyphicon-plus"></span> Start new job?</div>
         </div>
         <div class="btn-group">
             <button id="audio-control-label" type="button" class="btn ninja">Controls</button>

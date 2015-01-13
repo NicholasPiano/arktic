@@ -10,7 +10,7 @@ $(document).ready(function() {
   //bind audio player load
   $('audio').on('canplay canplaythrough', function(){
     var play = $(this).attr('id');
-    $('#indicator-ok-'+play).css('display','inline-block');
+    $('#indicator-ok-'+play).removeClass('ninja');
     $('#indicator-loading-'+play).hide();
   });
 
@@ -187,6 +187,9 @@ $(document).ready(function() {
       //make tick button not green
       $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
       $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
+
+      //hide new job button
+      $('#new-job-button').addClass('ninja');
     }
   });
 
@@ -215,6 +218,8 @@ $(document).ready(function() {
       }, 200);
     }
   });
+
+  $('#new-job-button').click(function(){window.location='/new/'});
 
   //-class buttons (general for each transcription object)
   $('button.copy-down').click(function(){
@@ -267,7 +272,7 @@ $(document).ready(function() {
     }
   });
 
-  $('div.indicator-ok').click(function(){
+  $('div.indicator-ok').not('#new-job-button').click(function(){
     //get current play
     var currentPlay = $('#play-pause').attr('play');
     $('#panel-'+currentPlay+' div.modified-panel div.tick button.tick').click();
@@ -353,7 +358,11 @@ $(document).ready(function() {
             $('#panel-'+play+' div.modified-panel button.tick').click();
             if ($('#indicators div.btn-success.indicator-ok').length === number_of_transcriptions) { //all transcriptions are ticked
               //make "next job button" visible
-              $('#new-job-button').toggle(function(){$(this).css('display','inline-block')}, function(){$(this).css('display','none')});
+              if ($('#new-job-button').hasClass('ninja')) {
+                $('#new-job-button').removeClass('ninja');
+              } else {
+                $('#new-job-button').click();
+              }
             } else {
               $('#next').click();
             }
@@ -386,6 +395,9 @@ $(document).ready(function() {
         $('#back').click();
         $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
         $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
+
+        //hide new job button
+        $('#new-job-button').addClass('ninja');
     } else if (e.keyCode === 39) { //right arrow
       if ($('#typeahead').val()==='') {
         //get active button in group
