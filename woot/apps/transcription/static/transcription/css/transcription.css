@@ -92,6 +92,11 @@ html {
   overflow:scroll;
 }
 
+#new-job-button {
+  width:140px;
+  margin-right:5px;
+}
+
 button.waveform {
   height:34px;
   width:202px;

@@ -352,7 +352,8 @@ $(document).ready(function() {
           } else {
             $('#panel-'+play+' div.modified-panel button.tick').click();
             if ($('#indicators div.btn-success.indicator-ok').length === number_of_transcriptions) { //all transcriptions are ticked
-              window.location = '/new/';
+              //make "next job button" visible
+              $('#new-job-button').toggle(function(){$(this).css('display','inline-block')}, function(){$(this).css('display','none')});
             } else {
               $('#next').click();
             }
