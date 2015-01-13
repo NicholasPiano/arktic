@@ -5,6 +5,7 @@ from django.views.generic import View
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, HttpResponseRedirect
+from django.db.models import Q
 
 #local
 from apps.users.models import User
@@ -32,7 +33,7 @@ class TranscriptionView(View):
         transcription.update()
 
       #words
-      words = json.dumps([word.char for word in job.project.words.all()])
+      words = json.dumps([word.char for word in job.project.words.filter(Q(char__contains=' ') | Q(tag=True))])
 
       #render
       return render(request, 'transcription/transcription.html', {'transcriptions':transcriptions,'words':words,'job_id':job.id_token,})
