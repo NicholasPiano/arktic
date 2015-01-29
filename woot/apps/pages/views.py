@@ -48,7 +48,7 @@ class StartView(View):
         job.update()
 
       active_jobs = user.jobs.filter(is_active=True)
-      inactive_jobs = user.jobs.filter(is_active=False)
+      inactive_jobs = user.jobs.filter(is_active=False).order_by('-date_created')[:5]
 
       #total remaining transcriptions
       remaining_transcriptions = Transcription.objects.filter(is_active=True).count()
