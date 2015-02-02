@@ -400,46 +400,50 @@ $(document).ready(function() {
       }
     } else if (e.shiftKey) { //shift (both)
       //All letter combinations
-      $('#typeahead').blur();
+      var text = '';
       if (e.keyCode === 72) { // H
-        $('#typeahead').val('[hesitation]');
+        text = '[hesitation]';
       } else if (e.keyCode === 66) { //B
-        $('#typeahead').val('[breath noise]');
+        text = '[breath noise]';
       } else if (e.keyCode === 68) {
-        $('#typeahead').val('[dtmf]');
+        text = '[dtmf]';
       } else if (e.keyCode === 70) {
-        $('#typeahead').val('[fragment]');
+        text = '[fragment]';
       } else if (e.keyCode === 65) {
-        $('#typeahead').val('[hangup]');
+        text = '[hangup]';
       } else if (e.keyCode === 77) {
-        $('#typeahead').val('[mispronunciation]');
+        text = '[mispronunciation]';
       } else if (e.keyCode === 78) {
-        $('#typeahead').val('[noise]');
+        text = '[noise]';
       } else if (e.keyCode === 80) {
-        $('#typeahead').val('[pause]');
+        text = '[pause]';
       } else if (e.keyCode === 83) {
-        $('#typeahead').val('[side speech]');
+        text = '[side speech]';
       } else if (e.keyCode === 85) {
-        $('#typeahead').val('[unintelligible]');
+        text = '[unintelligible]';
       } else if (e.keyCode === 90) {
-        $('#typeahead').val('[background noise]');
+        text = '[background noise]';
       } else if (e.keyCode === 67) {
-        $('#typeahead').val('[bad audio]');
+        text = '[bad audio]';
       } else if (e.keyCode === 69) {
-        $('#typeahead').val('[english]');
+        text = '[english]';
       } else if (e.keyCode === 79) {
-        $('#typeahead').val('[no speech]');
+        text = '[no speech]';
       } else if (e.keyCode === 86) {
-        $('#typeahead').val('[non native]');
+        text = '[non native]';
       } else if (e.keyCode === 82) {
-        $('#typeahead').val('[spanish]');
+        text = '[spanish]';
       } else {
         //make shortcut panel slide out
         $('#shortcuts-panel').click();
       }
 
-      $('#add-new-word').click();
-      $('#typeahead').blur();
+      var play = $('#play-pause').attr('play');
+      if (play!=='' && text!=='undefined' && text!=='') {
+          var active = $('#panel-'+play+' div.modified-panel div.btn-group.modified button.active');
+          active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
+          active.removeClass('active');
+      }
 
     } else if (e.keyCode === 38) { //up arrow
       if ($('#typeahead').val()=='') {
