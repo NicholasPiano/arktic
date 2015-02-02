@@ -330,7 +330,7 @@ $(document).ready(function() {
 
   $(document).keyup(function(e) {
     if (e.keyCode===16) { //shift (both)
-      $('#shortcuts-panel').click();
+      // $('#shortcuts-panel').click();
     }
   });
 
@@ -435,7 +435,7 @@ $(document).ready(function() {
         text = '[spanish]';
       } else {
         //make shortcut panel slide out
-        $('#shortcuts-panel').click();
+        // $('#shortcuts-panel').click();
       }
 
       var play = $('#play-pause').attr('play');
