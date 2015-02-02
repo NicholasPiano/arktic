@@ -328,11 +328,11 @@ $(document).ready(function() {
     }
   }, false);
 
-  // $(document).keyup(function(e) {
-  //   if (e.keyCode===16) { //shift (both)
-  //     $('#shortcuts-panel').click();
-  //   }
-  // });
+  $(document).keyup(function(e) {
+    if (e.keyCode===16) { //shift (both)
+      $('#shortcuts-panel').click();
+    }
+  });
 
   $(document).keydown(function(e) {
     var play = $('#play-pause').attr('play');
@@ -399,9 +399,6 @@ $(document).ready(function() {
         $('#next').click();
       }
     } else if (e.shiftKey) { //shift (both)
-      //make shortcut panel slide out
-      $('#shortcuts-panel').click();
-
       //All letter combinations
       $('#typeahead').blur();
       if (e.keyCode === 72) { // H
@@ -436,6 +433,9 @@ $(document).ready(function() {
         $('#typeahead').val('[non native]');
       } else if (e.keyCode === 82) {
         $('#typeahead').val('[spanish]');
+      } else {
+        //make shortcut panel slide out
+        $('#shortcuts-panel').click();
       }
 
       $('#add-new-word').click();
