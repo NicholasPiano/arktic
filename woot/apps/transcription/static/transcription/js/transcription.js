@@ -219,6 +219,18 @@ $(document).ready(function() {
     }
   });
 
+  $('#shortcuts-panel').click(function(){
+    if ($(this).css('right')==='-385px') {
+      $(this).animate({
+        right: '0px',
+      }, 200);
+    } else {
+      $(this).animate({
+        right: '-385px',
+      }, 200);
+    }
+  });
+
   $('#new-job-button').click(function(){window.location='/new/'});
 
   //-class buttons (general for each transcription object)
@@ -316,6 +328,12 @@ $(document).ready(function() {
     }
   }, false);
 
+  // $(document).keyup(function(e) {
+  //   if (e.keyCode===16) { //shift (both)
+  //     $('#shortcuts-panel').click();
+  //   }
+  // });
+
   $(document).keydown(function(e) {
     var play = $('#play-pause').attr('play');
     if (e.ctrlKey && e.keyCode===74) { //ctrl + j
@@ -332,10 +350,16 @@ $(document).ready(function() {
         });
         if (utterance=='') {
           $('#panel-'+play+' div.original-panel div.original button.copy-down').click();
-          $('#panel-'+play+' div.modified-panel button.tick').click();
-          $('#next').click();
+        }
+        $('#panel-'+play+' div.modified-panel button.tick').click();
+        if ($('#indicators div.btn-success.indicator-ok').length === number_of_transcriptions) { //all transcriptions are ticked
+          //make "next job button" visible
+          if ($('#new-job-button').hasClass('ninja')) {
+            $('#new-job-button').removeClass('ninja');
+          } else {
+            $('#new-job-button').click();
+          }
         } else {
-          $('#panel-'+play+' div.modified-panel button.tick').click();
           $('#next').click();
         }
     } else if (e.ctrlKey && e.keyCode===13) { //ctrl + enter
@@ -368,14 +392,55 @@ $(document).ready(function() {
             }
           }
        }
-    } else if (e.ctrlKey && e.keyCode === 32) { //space
+    } else if (e.ctrlKey && e.keyCode === 32) { //ctrl + space
       $('#slide-out-panel').click();
     } else if (e.keyCode === 40) { //down arrow
       if ($('#typeahead').val()=='') {
         $('#next').click();
       }
-    } else if (e.keyCode === 16) { //shift (both)
-//       $('#back').click();
+    } else if (e.shiftKey) { //shift (both)
+      //make shortcut panel slide out
+      $('#shortcuts-panel').click();
+
+      //All letter combinations
+      $('#typeahead').blur();
+      if (e.keyCode === 72) { // H
+        $('#typeahead').val('[hesitation]');
+      } else if (e.keyCode === 66) { //B
+        $('#typeahead').val('[breath noise]');
+      } else if (e.keyCode === 68) {
+        $('#typeahead').val('[dtmf]');
+      } else if (e.keyCode === 70) {
+        $('#typeahead').val('[fragment]');
+      } else if (e.keyCode === 65) {
+        $('#typeahead').val('[hangup]');
+      } else if (e.keyCode === 77) {
+        $('#typeahead').val('[mispronunciation]');
+      } else if (e.keyCode === 78) {
+        $('#typeahead').val('[noise]');
+      } else if (e.keyCode === 80) {
+        $('#typeahead').val('[pause]');
+      } else if (e.keyCode === 83) {
+        $('#typeahead').val('[side speech]');
+      } else if (e.keyCode === 85) {
+        $('#typeahead').val('[unintelligible]');
+      } else if (e.keyCode === 90) {
+        $('#typeahead').val('[background noise]');
+      } else if (e.keyCode === 67) {
+        $('#typeahead').val('[bad audio]');
+      } else if (e.keyCode === 69) {
+        $('#typeahead').val('[english]');
+      } else if (e.keyCode === 79) {
+        $('#typeahead').val('[no speech]');
+      } else if (e.keyCode === 86) {
+        $('#typeahead').val('[non native]');
+      } else if (e.keyCode === 82) {
+        $('#typeahead').val('[spanish]');
+      }
+
+      $('#add-new-word').click();
+      $('#typeahead').blur();
+
     } else if (e.keyCode === 38) { //up arrow
       if ($('#typeahead').val()=='') {
         $('#previous').click();
