@@ -399,6 +399,8 @@ $(document).ready(function() {
         $('#next').click();
       }
     } else if (e.shiftKey) { //shift (both)
+      $('#typeahead').blur();
+
       //All letter combinations
       var text = '';
       if (e.keyCode === 72) { // H
