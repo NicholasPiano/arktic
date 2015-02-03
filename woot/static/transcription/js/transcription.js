@@ -330,7 +330,7 @@ $(document).ready(function() {
 
   $(document).keyup(function(e) {
     if (e.keyCode===16) { //shift (both)
-      $('#shortcuts-panel').click();
+      // $('#shortcuts-panel').click();
     }
   });
 
@@ -399,43 +399,61 @@ $(document).ready(function() {
         $('#next').click();
       }
     } else if (e.shiftKey) { //shift (both)
+      // $('#typeahead').blur();
+
       //All letter combinations
       var text = '';
       if (e.keyCode === 72) { // H
+        e.preventDefault()
         text = '[hesitation]';
       } else if (e.keyCode === 66) { //B
+        e.preventDefault()
         text = '[breath noise]';
       } else if (e.keyCode === 68) {
+        e.preventDefault()
         text = '[dtmf]';
       } else if (e.keyCode === 70) {
+        e.preventDefault()
         text = '[fragment]';
       } else if (e.keyCode === 65) {
+        e.preventDefault()
         text = '[hangup]';
       } else if (e.keyCode === 77) {
+        e.preventDefault()
         text = '[mispronunciation]';
       } else if (e.keyCode === 78) {
+        e.preventDefault()
         text = '[noise]';
       } else if (e.keyCode === 80) {
+        e.preventDefault()
         text = '[pause]';
       } else if (e.keyCode === 83) {
+        e.preventDefault()
         text = '[side speech]';
       } else if (e.keyCode === 85) {
+        e.preventDefault()
         text = '[unintelligible]';
       } else if (e.keyCode === 90) {
+        e.preventDefault()
         text = '[background noise]';
       } else if (e.keyCode === 67) {
+        e.preventDefault()
         text = '[bad audio]';
       } else if (e.keyCode === 69) {
+        e.preventDefault()
         text = '[english]';
       } else if (e.keyCode === 79) {
+        e.preventDefault()
         text = '[no speech]';
       } else if (e.keyCode === 86) {
+        e.preventDefault()
         text = '[non native]';
       } else if (e.keyCode === 82) {
+        e.preventDefault()
         text = '[spanish]';
       } else {
         //make shortcut panel slide out
-        $('#shortcuts-panel').click();
+        // $('#shortcuts-panel').click();
       }
 
       var play = $('#play-pause').attr('play');
