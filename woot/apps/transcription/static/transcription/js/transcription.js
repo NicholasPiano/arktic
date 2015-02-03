@@ -461,6 +461,10 @@ $(document).ready(function() {
           var active = $('#panel-'+play+' div.modified-panel div.btn-group.modified button.active');
           active.after('<button type="button" class="btn btn-default modified active">' + text + '</button>');
           active.removeClass('active');
+
+          //make tick button not green
+          $('#panel-'+play+' div.modified-panel button.tick').addClass('btn-default').removeClass('btn-success');
+          $('#indicator-ok-'+play).addClass('btn-default').removeClass('btn-success');
       }
 
     } else if (e.keyCode === 38) { //up arrow
