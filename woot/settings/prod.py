@@ -45,7 +45,7 @@ DATABASE_PWD = environ.get('DB_PWD')
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
   'default': {
-    'ENGINE': 'django.db.backends.mysql',
+    'ENGINE': 'mysql.connector.django',
     'NAME': 'arkaeologic$arktic',
     'USER': 'arkaeologic',
     'PASSWORD': DATABASE_PWD,
