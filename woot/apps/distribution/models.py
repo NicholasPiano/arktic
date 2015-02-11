@@ -109,7 +109,7 @@ class Project(models.Model):
     '''
     print('creating jobs...')
     filter_set = self.transcriptions.filter(is_available=True).order_by('utterance')
-    counter = filter_set.count() - 1
+    counter = filter_set.count() - 1 if filter_set.count() else 0
     while counter:
       print('available: %d'%(counter))
       job = self.jobs.create(client=self.client, id_token=generate_id_token(Job))
