@@ -48,7 +48,7 @@ class Grammar(models.Model):
     for transcription in self.transcriptions.all():
       transcription.update()
 
-    self.is_active = self.transcriptions.filter(is_active=True).count()!=0
+    self.is_active = self.transcriptions.filter(is_active=True).count()>0
     self.save()
 
   def process(self):
@@ -59,7 +59,7 @@ class Grammar(models.Model):
       with open(os.path.join(self.csv_file.path, self.csv_file.file_name)) as open_relfile:
         lines = open_relfile.readlines()
         for i, line in enumerate(lines):
-          print([self.name, 'line %d'%(i+1)])
+          print('%s: line %d/%d' % (self.name, i+1, len(lines)), end='\r' if i<len(lines)-1 else '\n')
           tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
           transcription_audio_file_name = os.path.basename(tokens[0])
           confidence = tokens[2]
@@ -185,14 +185,15 @@ class Transcription(models.Model):
         tag = ('[' in word or ']' in word)
 
         #many to many relationship
-        w, created = self.project.words.get_or_create(char=word) #unique by char to project
-        if created:
-          w.client = self.client
-          w.grammar = self.grammar
-          w.id_token = generate_id_token(Word)
-          w.tag = tag
-          self.words.add(w)
-          w.save()
+        if tag and not (('[' in word and ']' not in word) or (']' in word and '[' not in word)):
+          w, created = self.project.words.get_or_create(char=word) #unique by char to project
+          if created:
+            w.client = self.client
+            w.grammar = self.grammar
+            w.id_token = generate_id_token(Word)
+            w.tag = True
+            self.words.add(w)
+            w.save()
 
 class Revision(models.Model):
   #connections

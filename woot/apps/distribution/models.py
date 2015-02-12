@@ -90,34 +90,36 @@ class Project(models.Model):
     print('processing transcriptions...')
     count = self.transcriptions.count()
     for i, transcription in enumerate(self.transcriptions.all()):
-      print('transcription %d/%d'%(i+1, count))
+      print('transcription %d/%d'%(i+1, count), end='\r' if i<count-1 else '\n')
       transcription.process()
 
   def process_words(self):
     '''
-    Wrapper for transcription word processing
+    Wrapper for transcription word processing.
     '''
     print('processing words...')
     count = self.transcriptions.count()
     for i, transcription in enumerate(self.transcriptions.all()):
-      print('words %d/%d'%(i+1, count))
+      print('words %d/%d'%(i+1, count), end='\r' if i<count-1 else '\n')
       transcription.process_words()
 
   def create_jobs(self):
     '''
     Create all possible jobs from the set of transcriptions.
     '''
-    print('creating jobs...')
-    filter_set = self.transcriptions.filter(is_available=True).order_by('utterance')
-    counter = filter_set.count() - 1 if filter_set.count() else 0
-    while counter:
-      print('available: %d'%(counter))
-      job = self.jobs.create(client=self.client, id_token=generate_id_token(Job))
-      lower_bound = counter-settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB if counter>=settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else 0
-      job_set = filter_set[lower_bound:counter]
-      job.get_transcription_set(job_set)
-      job.save()
-      counter = lower_bound
+    if self.jobs.count()==0:
+      print('creating jobs...')
+      filter_set = self.transcriptions.filter(is_available=True).order_by('grammar')
+      counter = filter_set.count() - 1 if filter_set.count() else 0
+      while counter:
+        print('available: %d'%(counter), end='\r')
+        job = self.jobs.create(client=self.client, id_token=generate_id_token(Job))
+        lower_bound = counter-settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB if counter>=settings.NUMBER_OF_TRANSCRIPTIONS_PER_JOB else 0
+        job_set = filter_set[lower_bound:counter]
+        job.get_transcription_set(job_set)
+        job.save()
+        counter = lower_bound
+      print('available: 0')
 
 class Job(models.Model):
   #connections
