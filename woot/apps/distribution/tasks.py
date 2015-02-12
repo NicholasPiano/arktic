@@ -50,7 +50,7 @@ def scan_data():
       wav_file_dictionary = {}
       for sup, subs, file_list in os.walk(project.project_path):
         for file_name in file_list:
-          if '.csv' in file_name and 'Unsorted' not in sup:
+          if '.csv' in file_name and 'Unsorted' not in sup and 'save' not in sup:
             csv_file_list.append(file_name)
             root, ext = os.path.splitext(file_name)
             project.csv_files.get_or_create(client=client, name=root, file_name=file_name, path=sup)
