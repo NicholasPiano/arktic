@@ -50,7 +50,7 @@ def scan_data():
       wav_file_dictionary = {}
       for sup, subs, file_list in os.walk(project.project_path):
         for file_name in file_list:
-          if '.csv' in file_name:
+          if '.csv' in file_name and 'Unsorted' not in sup:
             csv_file_list.append(file_name)
             root, ext = os.path.splitext(file_name)
             project.csv_files.get_or_create(client=client, name=root, file_name=file_name, path=sup)
@@ -71,7 +71,7 @@ def scan_data():
               tokens = line.split('|') #this can be part of a relfile parser object with delimeter '|'
               transcription_audio_file_name = os.path.basename(tokens[0])
               grammar.wav_files.get_or_create(client=client, project=project, path=wav_file_dictionary[transcription_audio_file_name], file_name=transcription_audio_file_name)
-              print('grammar %d/%d, wav %d/%d'%(i+1,project.csv_files.count(),j,len(lines)), end='\r' if j<len(lines)-1 else '\n')
+              print('grammar %d/%d, wav %d/%d'%(i+1,project.csv_files.count(),j+1,len(lines)), end='\r' if j<len(lines)-1 else '\n')
 
           grammar.save()
           csv_file.save()
