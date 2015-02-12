@@ -80,7 +80,7 @@ class Project(models.Model):
     print('processing grammars...')
     count = self.grammars.count()
     for i, grammar in enumerate(self.grammars.all()):
-      print('grammar %d/%d'%(i+1, count))
+      print('grammar %d/%d'%(i+1, count), end='\r' if i<count-1 else '\n')
       grammar.process()
 
   def process_transcriptions(self):

@@ -88,7 +88,7 @@ class Grammar(models.Model):
             wav_file.save()
 
             if created:
-              transcription.id_token = generate_id_token(Transcription)
+              # transcription.id_token = generate_id_token(Transcription)
               transcription.confidence = confidence
               transcription.utterance = utterance
               transcription.value = value
@@ -97,8 +97,6 @@ class Grammar(models.Model):
 
       self.is_active = True
       self.save()
-    else:
-      print('done.')
 
 class Transcription(models.Model):
   #connections
