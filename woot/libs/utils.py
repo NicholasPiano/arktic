@@ -71,6 +71,7 @@ def process_audio(input_path):
 
 def getWAVFileProperties(filePath):
 
+  print(filePath)
   a = wave.open(filePath, 'r')
   nFrames = a.getnframes()
   framerate = a.getframerate()
