@@ -26,4 +26,4 @@ class Command(BaseCommand):
     count = p.transcriptions.count()
     for i,t in enumerate(p.transcriptions.all()):
       print([i, count, t.audio_file.url])
-      sh.copy2(os.path.join(root, t.audio_fie.url), path)
+      sh.copy2(os.path.join(root, t.audio_file.url), path)
