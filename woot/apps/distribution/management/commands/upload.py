@@ -19,6 +19,7 @@ class Command(BaseCommand):
 
   def handle(self, *args, **options):
     root = os.path.dirname(settings.MEDIA_ROOT)
+    print(root)
     path = os.path.join(settings.MEDIA_ROOT, 'upload')
 
     p = Project.objects.get(client__name='allstate')
