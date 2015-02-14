@@ -10,6 +10,7 @@ from apps.distribution.tasks import scan_data
 #util
 import json
 import shutil as sh
+import os
 
 #command
 class Command(BaseCommand):
