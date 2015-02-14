@@ -109,7 +109,7 @@ class Project(models.Model):
     '''
     if self.jobs.count()==0:
       print('creating jobs...')
-      filter_set = self.transcriptions.filter(is_available=True).order_by('grammar')
+      filter_set = self.transcriptions.filter(is_available=True).order_by('grammar__name')
       counter = filter_set.count() - 1 if filter_set.count() else 0
       while counter:
         print('available: %d'%(counter), end='\r')
