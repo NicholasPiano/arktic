@@ -19,14 +19,11 @@ class Command(BaseCommand):
 
   def handle(self, *args, **options):
     root_path = os.path.dirname(settings.MEDIA_ROOT)
-    print(root_path)
     path = os.path.join(settings.MEDIA_ROOT, 'upload')
 
     p = Project.objects.get(client__name='allstate')
 
     count = p.transcriptions.count()
     for i,t in enumerate(p.transcriptions.all()):
-      print(root_path)
       print([i, count, t.audio_file.url])
-      print(os.path.join(root_path, t.audio_file.url))
-      sh.copy2(os.path.join(root_path, t.audio_file.url), path)
+      sh.copy2(os.path.join(root_path, str(t.audio_file.url).strip('/')), path)
