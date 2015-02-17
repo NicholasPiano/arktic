@@ -48,7 +48,6 @@ class StartView(View):
         job.update()
 
       active_jobs = user.jobs.filter(is_active=True)
-      inactive_jobs = user.jobs.filter(is_active=False).order_by('-date_created')[:5]
 
       #total remaining transcriptions
       remaining_transcriptions = Transcription.objects.filter(is_active=True).count()
@@ -56,7 +55,6 @@ class StartView(View):
 
       return render(request, 'pages/start.html', {'user':user,
                                                   'active_jobs':active_jobs,
-                                                  'inactive_jobs':inactive_jobs,
                                                   'remaining_transcriptions':remaining_transcriptions,
                                                   'transcriptions_done_by_user':transcriptions_done_by_user,})
     else:

@@ -18,14 +18,6 @@
         <a href="/new/" class="list-group-item">Start a new job<span class="right-label"></span></a>
         {% endfor %}
     </div>
-    <h3>Completed jobs</h3>
-    <div id="job-list-inactive" class="list-group">
-        {% for job in inactive_jobs %}
-        <a href="/transcription/{{job.id_token}}" class="list-group-item">#{{forloop.counter}}<span class="right-label">completed on {{job.date_completed|date:"M d, Y"}}</span></a>
-        {% empty %}
-        <a href="#" class="list-group-item">No completed jobs<span class="right-label"></span></a>
-        {% endfor %}
-    </div>
 </div>
 {% endblock %}
 
