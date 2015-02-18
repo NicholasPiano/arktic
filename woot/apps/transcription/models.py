@@ -105,7 +105,7 @@ class Grammar(models.Model):
     Sample line in relfile that needs to be reproduced:
     ./2014/10October/01/bshoscar22PCI/311-150-10012014-133918231-20141001134132.wav|c:\\Program Files\\Nortel\\PERIsw30r\\grammars\\927-London.grxml|ok|neasden station|{borough:BRENT borough_code:B0004 code:S0304 location:NEASDEN nhs_code:5K5}|762
     1. ./2014/10October/01/bshoscar22PCI/311-150-10012014-133918231-20141001134132.wav | (audio file path)
-    2. c:\Program Files\Nortel\PERIsw30r\grammars\927-London.grxml | (grammar name)
+    2. c:\\Program Files\\Nortel\\PERIsw30r\\grammars\\927-London.grxml | (grammar name)
     3. ok | (confidence)
     4. neasden station | (utterance)
     5. {borough:BRENT borough_code:B0004 code:S0304 location:NEASDEN nhs_code:5K5} | (value?)
