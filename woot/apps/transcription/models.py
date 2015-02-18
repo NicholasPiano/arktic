@@ -5,6 +5,7 @@ from django.db import models
 from django.core.files import File
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 #local
 from apps.distribution.models import Client, Project, Job
@@ -98,6 +99,40 @@ class Grammar(models.Model):
       self.is_active = True
       self.save()
 
+  def export(self):
+    '''
+
+    Sample line in relfile that needs to be reproduced:
+    ./2014/10October/01/bshoscar22PCI/311-150-10012014-133918231-20141001134132.wav|c:\Program Files\Nortel\PERIsw30r\grammars\927-London.grxml|ok|neasden station|{borough:BRENT borough_code:B0004 code:S0304 location:NEASDEN nhs_code:5K5}|762
+    1. ./2014/10October/01/bshoscar22PCI/311-150-10012014-133918231-20141001134132.wav | (audio file path)
+    2. c:\Program Files\Nortel\PERIsw30r\grammars\927-London.grxml | (grammar name)
+    3. ok | (confidence)
+    4. neasden station | (utterance)
+    5. {borough:BRENT borough_code:B0004 code:S0304 location:NEASDEN nhs_code:5K5} | (value?)
+    6. 762 (confidence value)
+
+    How to obtain details from database:
+    1. transcription.wav_file.path:
+
+    path = transcription.wav_file.path
+    path = './' + path[path.index('2014')]
+
+    2. transcription.grammar.name
+    3. transcription.confidence
+    4. transcription.revisions.latest().utterance
+    5. transcription.value
+    6. float(transcription.confidence_value)
+
+    '''
+    completed_dir = os.path.join(settings.MEDIA_ROOT, 'completed', self.client.name)
+
+    if not os.path.exists(completed_dir):
+      os.mkdir(completed_dir)
+
+    with open(os.path.join(completed_dir, '%s.csv'%self.name)) as csv_file:
+      for t in self.transcriptions.all():
+        csv_file.write(t.line())
+
 class Transcription(models.Model):
   #connections
   client = models.ForeignKey(Client, related_name='transcriptions')
@@ -125,6 +160,11 @@ class Transcription(models.Model):
   #methods
   def __str__(self):
     return '%s > %s > %d:%s > "%s"'%(self.client.name, self.project.name, self.pk, self.id_token, self.utterance)
+
+  def line(self):
+    path = self.wav_file.path
+    path = './' + path[path.index('2014')]
+    return '%s|%s|%s|%s|%f\n' % (path, self.grammar.name, self.confidence, self.revisions.latest().utterance, self.value, int(1000*float(transcription.confidence_value)))
 
   def grammar_name(self):
     return self.grammar.name if len(self.grammar.name)<50 else self.grammar.name[:46] + '...'
