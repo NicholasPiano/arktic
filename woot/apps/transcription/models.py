@@ -129,7 +129,7 @@ class Grammar(models.Model):
     if not os.path.exists(completed_dir):
       os.mkdir(completed_dir)
 
-    with open(os.path.join(completed_dir, '%s.csv'%self.name)) as csv_file:
+    with open(os.path.join(completed_dir, '%s.csv'%self.name), 'w+') as csv_file:
       for t in self.transcriptions.all():
         csv_file.write(t.line())
 
