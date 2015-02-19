@@ -163,7 +163,7 @@ class Transcription(models.Model):
 
   def line(self):
     path = self.wav_file.path
-    path = './' + path[path.index('2014')]
+    path = './' + path[path.index('2014'):]
     return '%s|%s|%s|%s|%s|%d\n' % (path, self.grammar.name, self.confidence, self.revisions.latest().utterance, self.value, int(1000*float(self.confidence_value)) if self.confidence_value else 0)
 
   def grammar_name(self):
