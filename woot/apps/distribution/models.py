@@ -41,6 +41,12 @@ class Client(models.Model):
     for project in self.projects.filter(is_active=True, is_approved=True):
       project.update()
 
+  def export(self):
+    count = self.grammars.count()
+    for i,g in enumerate(self.grammars.all()):
+      print('%d/%d: %s' % (i+1, count, str(g)))
+      g.export()
+
 class Project(models.Model):
   #connections
   client = models.ForeignKey(Client, related_name='projects')
