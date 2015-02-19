@@ -164,7 +164,7 @@ class Transcription(models.Model):
   def line(self):
     path = self.wav_file.path
     path = './' + path[path.index('2014')]
-    return '%s|%s|%s|%s|%f\n' % (path, self.grammar.name, self.confidence, self.revisions.latest().utterance, self.value, int(1000*float(transcription.confidence_value)))
+    return '%s|%s|%s|%s|%f\n' % (path, self.grammar.name, self.confidence, self.revisions.latest().utterance, self.value, int(1000*float(self.confidence_value)))
 
   def grammar_name(self):
     return self.grammar.name if len(self.grammar.name)<50 else self.grammar.name[:46] + '...'
