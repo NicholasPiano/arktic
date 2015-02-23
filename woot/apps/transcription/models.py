@@ -1,4 +1,4 @@
-f#apps.transcription.models
+#apps.transcription.models
 
 #django
 from django.db import models
