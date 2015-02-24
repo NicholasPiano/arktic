@@ -61,8 +61,8 @@ sampleWidth = 2 # number of bytes in a frame.
 
 def process_audio(input_path):
   # convert a-law wav file to microsoft pcm wav file
-  # cmd = ['ffmpeg','-y','-i',input_path,'-f','wav',input_path]
-  # call(cmd)
+  cmd = ['ffmpeg','-y','-i',input_path,'-f','wav',input_path]
+  call(cmd)
 
   # get properties of the pcm wav file
   seconds, rmsValues = getWAVFileProperties(input_path)
