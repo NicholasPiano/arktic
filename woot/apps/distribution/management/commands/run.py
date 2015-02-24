@@ -19,7 +19,7 @@ class Command(BaseCommand):
     scan_data()
 
     #projects
-    for project in Project.objects.filter(client__name='allstate'):
+    for project in Project.objects.filter(client__name='sdg'):
       print(project)
       project.process_grammars()
       project.process_transcriptions()
